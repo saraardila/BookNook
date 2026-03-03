@@ -70,4 +70,15 @@
     <string name="common_unknown_author">Unknown author</string>
     <string name="common_pages">%1$d pages</string>
     <string name="common_published">Published %1$d</string>
+
+    <!-- Library -->
+    <string name="library_collection_count">%1$d books in your collection</string>
+
+    <!-- Library filters -->
+    <string name="filter_all">All</string>
+    <string name="filter_reading">Reading</string>
+    <string name="filter_finished">Finished</string>
+    <string name="filter_want_to_read">Want to Read</string>
+    <string name="filter_dnf">DNF</string>
+    <string name="filter_favourites">Favourites</string>
 </resources>
