@@ -1,3 +1,73 @@
 <resources>
     <string name="app_name">BookNook</string>
+
+    <!-- Greetings -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="greeting_night">Good night</string>
+
+    <!-- Home -->
+    <string name="home_title">BookNook</string>
+    <string name="home_currently_reading">Currently Reading</string>
+    <string name="home_recently_finished">Recently Finished</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_no_book_title">No book in progress</string>
+    <string name="home_no_book_subtitle">Tap to search and start reading</string>
+    <string name="home_page_progress">Page %1$d of %2$d</string>
+
+    <!-- Stats -->
+    <string name="stat_total">Total</string>
+    <string name="stat_reading">Reading</string>
+    <string name="stat_finished">Finished</string>
+
+    <!-- Search -->
+    <string name="search_title">Discover Books</string>
+    <string name="search_subtitle">Find your next great read</string>
+    <string name="search_placeholder">Search by title, author…</string>
+    <string name="search_empty_title">Search for books</string>
+    <string name="search_empty_subtitle">Type at least 2 characters to start searching</string>
+    <string name="search_no_results_title">No results</string>
+    <string name="search_no_results_subtitle">Try a different search term</string>
+    <string name="search_error_title">Oops!</string>
+    <string name="search_error_subtitle">Couldn\'t connect. Check your internet.</string>
+    <string name="search_add">Add</string>
+    <string name="search_added">Added!</string>
+    <string name="search_clear">Clear</string>
+
+    <!-- Library -->
+    <string name="library_title">My Library</string>
+    <string name="library_all">All</string>
+    <string name="library_reading">Reading</string>
+    <string name="library_finished">Finished</string>
+    <string name="library_want_to_read">Want to Read</string>
+    <string name="library_dnf">DNF</string>
+    <string name="library_empty_title">No books here yet</string>
+    <string name="library_empty_subtitle">Search and add books to your library</string>
+
+    <!-- Book Detail -->
+    <string name="detail_my_review">My Review</string>
+    <string name="detail_write_review">Write your thoughts about this book…</string>
+    <string name="detail_update_progress">Update progress</string>
+    <string name="detail_current_page">Current page</string>
+    <string name="detail_notes">Notes</string>
+    <string name="detail_add_note">Add a note…</string>
+    <string name="detail_chapter">Chapter (optional)</string>
+    <string name="detail_save">Save</string>
+    <string name="detail_delete">Delete</string>
+    <string name="detail_mark_finished">Mark as Finished</string>
+    <string name="detail_mark_reading">Mark as Reading</string>
+    <string name="detail_share">Share progress</string>
+
+    <!-- Journal -->
+    <string name="journal_title">My Journal</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Reading Calendar</string>
+
+    <!-- Common -->
+    <string name="common_book_cover">Book cover</string>
+    <string name="common_unknown_author">Unknown author</string>
+    <string name="common_pages">%1$d pages</string>
+    <string name="common_published">Published %1$d</string>
 </resources>

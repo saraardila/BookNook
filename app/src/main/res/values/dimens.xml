@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_lg">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">32dp</dimen>
+
+    <!-- Corner radius -->
+    <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_md">12dp</dimen>
+    <dimen name="radius_lg">16dp</dimen>
+    <dimen name="radius_xl">20dp</dimen>
+
+    <!-- Book cover sizes -->
+    <dimen name="cover_small_width">90dp</dimen>
+    <dimen name="cover_small_height">130dp</dimen>
+    <dimen name="cover_medium_width">100dp</dimen>
+    <dimen name="cover_medium_height">150dp</dimen>
+    <dimen name="cover_large_width">140dp</dimen>
+    <dimen name="cover_large_height">200dp</dimen>
+
+    <!-- Bottom nav -->
+    <dimen name="bottom_nav_height">64dp</dimen>
+
+    <!-- Progress bar -->
+    <dimen name="progress_bar_height">6dp</dimen>
+
+    <!-- Card elevation -->
+    <dimen name="elevation_sm">2dp</dimen>
+    <dimen name="elevation_md">4dp</dimen>
+    <dimen name="elevation_lg">8dp</dimen>
+</resources>

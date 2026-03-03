@@ -12,6 +12,7 @@ import com.nawin.booknook.presentation.ui.library.LibraryScreen
 import com.nawin.booknook.presentation.ui.search.SearchScreen
 import com.nawin.booknook.presentation.ui.calendar.CalendarScreen
 import com.nawin.booknook.presentation.ui.journal.JournalScreen
+import com.nawin.booknook.presentation.ui.settings.SettingsScreen
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -41,6 +42,10 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId") ?: ""
             // BookDetailScreen(bookId = bookId, navController = navController)
+        }
+
+        composable(Screen.Settings.route) {
+            SettingsScreen(navController = navController)
         }
     }
 }

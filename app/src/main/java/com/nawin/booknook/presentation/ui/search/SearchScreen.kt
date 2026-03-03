@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 
 @Composable
@@ -39,34 +41,42 @@ fun SearchScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Discover Books",
+            text = stringResource(R.string.search_title),
             style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "Find your next great read",
+            text = stringResource(R.string.search_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Search Bar
         OutlinedTextField(
             value = query,
             onValueChange = viewModel::onQueryChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
-                Text("Search by title, author...", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = stringResource(R.string.search_placeholder),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             },
             leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             },
             trailingIcon = {
                 AnimatedVisibility(visible = query.isNotEmpty()) {
                     IconButton(onClick = { viewModel.onQueryChange("") }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear")
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.search_clear)
+                        )
                     }
                 }
             },
@@ -82,7 +92,6 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Content
         Box(modifier = Modifier.fillMaxSize()) {
             when {
                 uiState.isLoading -> {
@@ -94,24 +103,24 @@ fun SearchScreen(
                 uiState.error != null -> {
                     EmptyState(
                         icon = "😕",
-                        title = "Oops!",
-                        subtitle = "Couldn't connect. Check your internet.",
+                        title = stringResource(R.string.search_error_title),
+                        subtitle = stringResource(R.string.search_error_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 uiState.books.isEmpty() && query.isBlank() -> {
                     EmptyState(
                         icon = "🔍",
-                        title = "Search for books",
-                        subtitle = "Type at least 2 characters to start searching",
+                        title = stringResource(R.string.search_empty_title),
+                        subtitle = stringResource(R.string.search_empty_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 uiState.books.isEmpty() && query.isNotBlank() -> {
                     EmptyState(
                         icon = "📭",
-                        title = "No results",
-                        subtitle = "Try a different search term",
+                        title = stringResource(R.string.search_no_results_title),
+                        subtitle = stringResource(R.string.search_no_results_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -152,7 +161,6 @@ fun BookSearchCard(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Cover
             Box(
                 modifier = Modifier
                     .width(70.dp)
@@ -163,7 +171,7 @@ fun BookSearchCard(
                 if (book.coverUrl != null) {
                     AsyncImage(
                         model = book.coverUrl,
-                        contentDescription = book.title,
+                        contentDescription = stringResource(R.string.common_book_cover),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -177,7 +185,6 @@ fun BookSearchCard(
                 }
             }
 
-            // Info
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -196,14 +203,14 @@ fun BookSearchCard(
                 )
                 if (book.publishYear != null) {
                     Text(
-                        text = "${book.publishYear}",
+                        text = stringResource(R.string.common_published, book.publishYear),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Add button
                 AnimatedContent(targetState = isAdded, label = "add_button") { added ->
                     if (added) {
                         Row(
@@ -217,7 +224,7 @@ fun BookSearchCard(
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "Added!",
+                                text = stringResource(R.string.search_added),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.secondary
                             )
@@ -234,7 +241,10 @@ fun BookSearchCard(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add", style = MaterialTheme.typography.labelLarge)
+                            Text(
+                                text = stringResource(R.string.search_add),
+                                style = MaterialTheme.typography.labelLarge
+                            )
                         }
                     }
                 }

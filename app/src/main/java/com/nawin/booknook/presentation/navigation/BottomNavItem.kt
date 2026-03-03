@@ -14,4 +14,6 @@ sealed class BottomNavItem(
     object Library : BottomNavItem(Screen.Library,  Icons.Default.Book,        "Library")
     object Calendar: BottomNavItem(Screen.Calendar, Icons.Default.CalendarMonth,"Calendar")
     object Journal : BottomNavItem(Screen.Journal,  Icons.Default.EditNote,    "Journal")
+
+    object Settings : BottomNavItem(Screen.Settings, Icons.Default.Palette, "Themes")
 }
