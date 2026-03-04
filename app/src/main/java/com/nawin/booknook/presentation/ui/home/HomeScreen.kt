@@ -34,6 +34,11 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.unit.dp
 import com.nawin.booknook.presentation.components.CozyButton
 import com.nawin.booknook.presentation.components.CozyCard
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 
 // ─── Elementos flotantes ────────────────────────────────
 data class FloatingElement(
@@ -251,60 +256,101 @@ fun GreetingHeader() {
 }
 @Composable
 fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
     ) {
-        StatCard(
-            modifier = Modifier.weight(1f),
+        // Card 1 — Total — ligeramente rotada izquierda
+        ScrapbookStatCard(
+            modifier = Modifier
+                .width(110.dp)
+                .align(Alignment.CenterStart)
+                .rotate(-4f)
+                .offset(x = 8.dp, y = 8.dp),
             value = "$totalBooks",
-            label = stringResource(R.string.stat_total),
-            icon = "📚",
+            label = "books",
+            emoji = "📚",
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
-        StatCard(
-            modifier = Modifier.weight(1f),
+
+        // Card 2 — Reading — centrada, encima de las otras
+        ScrapbookStatCard(
+            modifier = Modifier
+                .width(110.dp)
+                .align(Alignment.Center)
+                .rotate(2f)
+                .zIndex(1f),
             value = "$reading",
-            label = stringResource(R.string.stat_reading),
-            icon = "📖",
+            label = "reading",
+            emoji = "📖",
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
-        StatCard(
-            modifier = Modifier.weight(1f),
+
+        // Card 3 — Finished — ligeramente rotada derecha
+        ScrapbookStatCard(
+            modifier = Modifier
+                .width(110.dp)
+                .align(Alignment.CenterEnd)
+                .rotate(5f)
+                .offset(x = (-8).dp, y = 4.dp),
             value = "$finished",
-            label = stringResource(R.string.stat_finished),
-            icon = "✅",
+            label = "finished",
+            emoji = "✅",
             containerColor = MaterialTheme.colorScheme.tertiaryContainer
         )
     }
 }
 
 @Composable
-fun StatCard(
+fun ScrapbookStatCard(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
-    icon: String,
+    emoji: String,
     containerColor: androidx.compose.ui.graphics.Color
 ) {
-    CozyCard(
-        modifier = modifier,
-        containerColor = containerColor,
-        useGradient = true,
-        contentPadding = PaddingValues(14.dp)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = icon, fontSize = 26.sp)
-            Spacer(modifier = Modifier.height(4.dp))
+    Box(modifier = modifier) {
+        // Sombra — papelito detrás ligeramente desplazado
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(x = 3.dp, y = 3.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0x22000000))
+        )
+
+        // Card principal
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(containerColor)
+                .padding(12.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold
             )
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            // Detalle decorativo — línea tipo subrayado
+            Box(
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(2.dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .background(
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                    )
             )
         }
     }

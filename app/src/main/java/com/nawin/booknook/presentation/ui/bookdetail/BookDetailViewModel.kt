@@ -102,6 +102,19 @@ class BookDetailViewModel @Inject constructor(
     fun showNoteDialog(show: Boolean) {
         _uiState.update { it.copy(showNoteDialog = show) }
     }
+    fun updateStartDate(date: Long) {
+        val book = _uiState.value.book ?: return
+        viewModelScope.launch {
+            updateBookUseCase(book.copy(startDate = date))
+        }
+    }
+
+    fun updateFinishDate(date: Long) {
+        val book = _uiState.value.book ?: return
+        viewModelScope.launch {
+            updateBookUseCase(book.copy(finishDate = date))
+        }
+    }
 }
 
 data class BookDetailUiState(

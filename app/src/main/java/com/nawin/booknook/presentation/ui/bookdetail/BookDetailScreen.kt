@@ -19,9 +19,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.nawin.booknook.R
-import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.presentation.components.CozyCard
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,6 +34,7 @@ fun BookDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val book = uiState.book
+    var showShareDialog by remember { mutableStateOf(false) }
 
     if (book == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -43,6 +44,13 @@ fun BookDetailScreen(
     }
 
     // Dialogs
+    if (showShareDialog) {
+        ShareCardDialog(
+            book = book,
+            onDismiss = { showShareDialog = false }
+        )
+    }
+
     if (uiState.showProgressDialog) {
         ProgressUpdateDialog(
             currentPage = book.currentPage,
@@ -86,13 +94,22 @@ fun BookDetailScreen(
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-            IconButton(onClick = { viewModel.toggleFavorite() }) {
-                Icon(
-                    if (book.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = stringResource(R.string.detail_favourite),
-                    tint = if (book.isFavorite) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Row {
+                IconButton(onClick = { showShareDialog = true }) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = stringResource(R.string.detail_share),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                IconButton(onClick = { viewModel.toggleFavorite() }) {
+                    Icon(
+                        if (book.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(R.string.detail_favourite),
+                        tint = if (book.isFavorite) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
 
@@ -101,7 +118,6 @@ fun BookDetailScreen(
             modifier = Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Cover
             Box(
                 modifier = Modifier
                     .width(120.dp)
@@ -128,7 +144,6 @@ fun BookDetailScreen(
                 }
             }
 
-            // Info
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
@@ -159,8 +174,6 @@ fun BookDetailScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-
-                // Status chip
                 StatusChip(
                     status = book.status,
                     onStatusChange = { viewModel.updateStatus(it) }
@@ -231,6 +244,16 @@ fun BookDetailScreen(
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
+
+        // Fechas
+        DateSection(
+            startDate = book.startDate,
+            finishDate = book.finishDate,
+            onStartDateChange = { viewModel.updateStartDate(it) },
+            onFinishDateChange = { viewModel.updateFinishDate(it) }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Review
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -326,7 +349,127 @@ fun BookDetailScreen(
     }
 }
 
-// ─── Star Rating ────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateSection(
+    startDate: Long?,
+    finishDate: Long?,
+    onStartDateChange: (Long) -> Unit,
+    onFinishDateChange: (Long) -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
+    var showStartPicker by remember { mutableStateOf(false) }
+    var showFinishPicker by remember { mutableStateOf(false) }
+
+    if (showStartPicker) {
+        val state = rememberDatePickerState(
+            initialSelectedDateMillis = startDate ?: System.currentTimeMillis()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showStartPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    state.selectedDateMillis?.let { onStartDateChange(it) }
+                    showStartPicker = false
+                }) { Text(stringResource(R.string.detail_save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartPicker = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        ) { DatePicker(state = state) }
+    }
+
+    if (showFinishPicker) {
+        val state = rememberDatePickerState(
+            initialSelectedDateMillis = finishDate ?: System.currentTimeMillis()
+        )
+        DatePickerDialog(
+            onDismissRequest = { showFinishPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    state.selectedDateMillis?.let { onFinishDateChange(it) }
+                    showFinishPicker = false
+                }) { Text(stringResource(R.string.detail_save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFinishPicker = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        ) { DatePicker(state = state) }
+    }
+
+    Column(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.detail_dates),
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            DateChip(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.detail_start_date),
+                date = startDate?.let { dateFormat.format(Date(it)) },
+                emoji = "📖",
+                onClick = { showStartPicker = true }
+            )
+            DateChip(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.detail_finish_date),
+                date = finishDate?.let { dateFormat.format(Date(it)) },
+                emoji = "✅",
+                onClick = { showFinishPicker = true }
+            )
+        }
+    }
+}
+
+@Composable
+fun DateChip(
+    modifier: Modifier = Modifier,
+    label: String,
+    date: String?,
+    emoji: String,
+    onClick: () -> Unit
+) {
+    CozyCard(
+        modifier = modifier,
+        onClick = onClick,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        contentPadding = PaddingValues(12.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = emoji, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Text(
+                text = date ?: stringResource(R.string.detail_date_not_set),
+                style = MaterialTheme.typography.labelLarge,
+                color = if (date != null)
+                    MaterialTheme.colorScheme.onSurface
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
+        }
+    }
+}
+
 @Composable
 fun StarRating(
     rating: Float,
@@ -351,14 +494,12 @@ fun StarRating(
     }
 }
 
-// ─── Status Chip ────────────────────────────────────────
 @Composable
 fun StatusChip(
     status: ReadingStatus,
     onStatusChange: (ReadingStatus) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     Box {
         AssistChip(
             onClick = { expanded = true },
@@ -368,9 +509,7 @@ fun StatusChip(
                     style = MaterialTheme.typography.labelLarge
                 )
             },
-            leadingIcon = {
-                Text(text = statusEmoji(status))
-            },
+            leadingIcon = { Text(text = statusEmoji(status)) },
             shape = RoundedCornerShape(20.dp)
         )
         DropdownMenu(
@@ -410,11 +549,9 @@ private fun statusEmoji(status: ReadingStatus) = when (status) {
     ReadingStatus.DNF          -> "🚫"
 }
 
-// ─── Note Card ──────────────────────────────────────────
 @Composable
 fun NoteCard(note: BookNote) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -447,7 +584,6 @@ fun NoteCard(note: BookNote) {
     }
 }
 
-// ─── Progress Dialog ────────────────────────────────────
 @Composable
 fun ProgressUpdateDialog(
     currentPage: Int,
@@ -456,7 +592,6 @@ fun ProgressUpdateDialog(
     onDismiss: () -> Unit
 ) {
     var pageInput by remember { mutableStateOf(currentPage.toString()) }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -493,9 +628,7 @@ fun ProgressUpdateDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                onConfirm(pageInput.toIntOrNull() ?: currentPage)
-            }) {
+            TextButton(onClick = { onConfirm(pageInput.toIntOrNull() ?: currentPage) }) {
                 Text(
                     text = stringResource(R.string.detail_save),
                     style = MaterialTheme.typography.labelLarge
@@ -514,7 +647,6 @@ fun ProgressUpdateDialog(
     )
 }
 
-// ─── Add Note Dialog ────────────────────────────────────
 @Composable
 fun AddNoteDialog(
     onConfirm: (content: String, chapter: String?) -> Unit,
@@ -522,7 +654,6 @@ fun AddNoteDialog(
 ) {
     var content by remember { mutableStateOf("") }
     var chapter by remember { mutableStateOf("") }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

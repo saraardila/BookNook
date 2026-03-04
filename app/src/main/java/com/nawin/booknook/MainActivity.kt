@@ -70,23 +70,14 @@ class MainActivity : ComponentActivity() {
                             bottomNavItems.forEach { item ->
                                 NavigationBarItem(
                                     icon = {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                                        ) {
-                                            Icon(
-                                                item.icon,
-                                                contentDescription = item.label,
-                                                modifier = Modifier.size(22.dp)
-                                            )
-                                        }
-                                    },
-                                    label = {
-                                        Text(
-                                            item.label,
-                                            style = MaterialTheme.typography.labelSmall
+                                        Icon(
+                                            item.icon,
+                                            contentDescription = item.label,
+                                            modifier = Modifier.size(24.dp)
                                         )
                                     },
+                                    label = null,        // 👈 sin texto
+                                    alwaysShowLabel = false, // 👈 nunca lo muestra
                                     selected = currentRoute == item.screen.route,
                                     onClick = {
                                         navController.navigate(item.screen.route) {
@@ -99,10 +90,8 @@ class MainActivity : ComponentActivity() {
                                     },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = MaterialTheme.colorScheme.primary,
-                                        selectedTextColor = MaterialTheme.colorScheme.primary,
                                         indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 )
                             }
