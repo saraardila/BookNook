@@ -3,32 +3,42 @@ package com.nawin.booknook.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 // ─── BOTANICAL 🌿 ───────────────────────────────
+// ─── COZY READER (tema principal, renombrado de Botanical) ───
 object BotanicalColors {
-    val background      = Color(0xFFF5F0E8)
-    val surface         = Color(0xFFEDE8DC)
-    val surfaceVariant  = Color(0xFFE0D9C8)
-    val primary         = Color(0xFF4A7C59)
-    val onPrimary       = Color(0xFFFFFFFF)
-    val primaryContainer    = Color(0xFFBDD8C4)
-    val onPrimaryContainer  = Color(0xFF1A3D28)
-    val secondary           = Color(0xFF7A9E7E)
-    val onSecondary         = Color(0xFFFFFFFF)
-    val secondaryContainer  = Color(0xFFD4E8D4)
-    val onSecondaryContainer = Color(0xFF2D4A3E)
-    val tertiary            = Color(0xFF8B7355)
-    val onTertiary          = Color(0xFFFFFFFF)
-    val tertiaryContainer   = Color(0xFFE8DCC8)
-    val onTertiaryContainer = Color(0xFF3D2E1A)
-    val onBackground        = Color(0xFF1C1B18)
-    val onSurface           = Color(0xFF1C1B18)
-    val onSurfaceVariant    = Color(0xFF4A4639)
-    val outline             = Color(0xFF9E9482)
-    // Journal
-    val inkDark     = Color(0xFF2C2416)
-    val inkSage     = Color(0xFF3D5E44)
-    val paperLines  = Color(0xFFCFC8B4)
-}
+    // Fondos — con diferencia visible entre capas
+    val background      = Color(0xFFFBF7EE)  // crema cálido
+    val surface         = Color(0xFFFFFFFF)  // blanco puro — contrasta con fondo
+    val surfaceVariant  = Color(0xFFF5EDE3)  // melocotón muy suave
 
+    // Primary — rosa terracota con más vida
+    val primary         = Color(0xFFD4826A)
+    val onPrimary       = Color(0xFFFFFFFF)
+    val primaryContainer    = Color(0xFFFFDDD4)
+    val onPrimaryContainer  = Color(0xFF3D1208)
+
+    // Secondary — verde sage más rico
+    val secondary           = Color(0xFF6B9E7A)
+    val onSecondary         = Color(0xFFFFFFFF)
+    val secondaryContainer  = Color(0xFFCCE8D4)
+    val onSecondaryContainer = Color(0xFF0A2E18)
+
+    // Tertiary — lavanda suave
+    val tertiary            = Color(0xFF9B8AB8)
+    val onTertiary          = Color(0xFFFFFFFF)
+    val tertiaryContainer   = Color(0xFFE8DEF8)
+    val onTertiaryContainer = Color(0xFF1E0A3D)
+
+    // Texto — más contraste
+    val onBackground        = Color(0xFF1E1208)
+    val onSurface           = Color(0xFF1E1208)
+    val onSurfaceVariant    = Color(0xFF6B4E3D)
+    val outline             = Color(0xFFD4B8A8)
+
+    // Journal
+    val inkDark     = Color(0xFF2E1F14)
+    val inkSage     = Color(0xFF2D5E3A)
+    val paperLines  = Color(0xFFEADDD0)
+}
 // ─── SUMMER ☀️ ───────────────────────────────────
 object SummerColors {
     val background      = Color(0xFFFFFBF0)

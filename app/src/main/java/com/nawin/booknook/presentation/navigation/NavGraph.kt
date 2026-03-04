@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nawin.booknook.presentation.ui.bookdetail.BookDetailScreen
 import com.nawin.booknook.presentation.ui.home.HomeScreen
 import com.nawin.booknook.presentation.ui.library.LibraryScreen
 import com.nawin.booknook.presentation.ui.search.SearchScreen
@@ -41,7 +42,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             arguments = listOf(navArgument("bookId") { type = NavType.StringType })
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId") ?: ""
-            // BookDetailScreen(bookId = bookId, navController = navController)
+             BookDetailScreen(bookId = bookId, navController = navController)
         }
 
         composable(Screen.Settings.route) {

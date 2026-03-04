@@ -81,4 +81,23 @@
     <string name="filter_want_to_read">Want to Read</string>
     <string name="filter_dnf">DNF</string>
     <string name="filter_favourites">Favourites</string>
+
+    <!-- Book Detail -->
+    <string name="detail_rating">My Rating</string>
+    <string name="detail_progress">Reading Progress</string>
+    <string name="detail_notes_empty">No notes yet. Add your first one!</string>
+    <string name="detail_add_note_btn">Add Note</string>
+    <string name="detail_favourite">Favourite</string>
+
+    <!-- Status -->
+    <string name="status_reading">Reading</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_want_to_read">Want to Read</string>
+    <string name="status_dnf">Did Not Finish</string>
+
+    <!-- Common -->
+    <string name="common_back">Back</string>
+    <string name="common_cancel">Cancel</string>
+
+    <string name="home_tagline">your reading companion 🌿</string>
 </resources>
