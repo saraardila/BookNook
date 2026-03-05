@@ -7,24 +7,20 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.presentation.components.BookCover
 import com.nawin.booknook.presentation.navigation.Screen
 import com.nawin.booknook.presentation.ui.search.EmptyState
 
@@ -41,7 +37,6 @@ fun LibraryScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.height(24.dp))
             Text(
@@ -57,12 +52,10 @@ fun LibraryScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Filter chips
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // En LibraryScreen, dentro del LazyRow:
             items(LibraryFilter.entries) { filter ->
                 val label = when (filter) {
                     LibraryFilter.ALL          -> stringResource(R.string.filter_all)
@@ -92,7 +85,6 @@ fun LibraryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Content
         AnimatedContent(
             targetState = uiState.isEmpty,
             label = "library_content"
@@ -144,30 +136,19 @@ fun LibraryBookItem(
         modifier = Modifier.clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        // ─── Portada con badges encima ───────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(0.65f)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            if (book.coverUrl != null) {
-                AsyncImage(
-                    model = book.coverUrl,
-                    contentDescription = book.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Icon(
-                    Icons.Default.Book,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.Center),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            BookCover(
+                title = book.title,
+                author = book.author,
+                coverUrl = book.coverUrl,
+                modifier = Modifier.fillMaxSize(),
+                cornerRadius = 10.dp
+            )
 
             // Status badge
             Surface(
@@ -195,7 +176,7 @@ fun LibraryBookItem(
                 )
             }
 
-            // Progress bar for reading books
+            // Progress bar
             if (book.status == ReadingStatus.READING && book.pageCount != null && book.pageCount > 0) {
                 val progress = (book.currentPage.toFloat() / book.pageCount).coerceIn(0f, 1f)
                 LinearProgressIndicator(

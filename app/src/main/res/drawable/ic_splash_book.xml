@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Fondo círculo suave -->
+    <path
+        android:fillColor="#FFDDD4"
+        android:pathData="M54,54m-46,0a46,46 0,1 1,92 0a46,46 0,1 1,-92 0" />
+
+    <!-- Libro -->
+    <path
+        android:fillColor="#D4826A"
+        android:pathData="M35,28 L35,80 L73,80 L73,28 Z" />
+    <path
+        android:fillColor="#C4725A"
+        android:pathData="M35,28 L35,80 L42,80 L42,28 Z" />
+    <path
+        android:fillColor="#FBF7EE"
+        android:pathData="M46,38 L69,38 L69,41 L46,41 Z" />
+    <path
+        android:fillColor="#FBF7EE"
+        android:pathData="M46,45 L69,45 L69,48 L46,48 Z" />
+    <path
+        android:fillColor="#FBF7EE"
+        android:pathData="M46,52 L60,52 L60,55 L46,55 Z" />
+</vector>

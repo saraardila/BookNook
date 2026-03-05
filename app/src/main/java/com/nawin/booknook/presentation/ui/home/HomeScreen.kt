@@ -6,46 +6,36 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
-import com.nawin.booknook.presentation.navigation.Screen
-import java.util.Calendar
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.ui.unit.dp
+import com.nawin.booknook.presentation.components.BookCover
 import com.nawin.booknook.presentation.components.CozyButton
 import com.nawin.booknook.presentation.components.CozyCard
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
+import com.nawin.booknook.presentation.navigation.Screen
+import java.util.Calendar
 
-// ─── Elementos flotantes ────────────────────────────────
 data class FloatingElement(
     val emoji: String,
-    val x: Float,       // 0f..1f — posición relativa horizontal
-    val y: Float,       // 0f..1f — posición relativa vertical
-    val size: Float,    // tamaño en sp
+    val x: Float,
+    val y: Float,
+    val size: Float,
     val rotationOffset: Float,
     val animDelay: Int
 )
@@ -113,12 +103,12 @@ fun FloatingBackground(modifier: Modifier = Modifier) {
                         y = screenHeight * element.y + offsetY.dp
                     )
                     .rotate(rotation)
-                    .
-                    alpha(0.30f)
+                    .alpha(0.30f)
             )
         }
     }
 }
+
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -127,13 +117,8 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(modifier = Modifier.fillMaxSize()) {
+        FloatingBackground(modifier = Modifier.fillMaxSize())
 
-        // Fondo flotante — detrás de todo
-        FloatingBackground(
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Contenido encima
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -141,26 +126,20 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(24.dp))
-
             GreetingHeader()
-
             Spacer(modifier = Modifier.height(24.dp))
-
             StatsRow(
                 totalBooks = uiState.totalBooks,
                 finished = uiState.booksFinished,
                 reading = uiState.booksReading
             )
-
             Spacer(modifier = Modifier.height(24.dp))
-
             Text(
                 text = stringResource(R.string.home_currently_reading),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
-
             if (uiState.currentlyReading != null) {
                 CurrentlyReadingCard(
                     book = uiState.currentlyReading!!,
@@ -175,9 +154,7 @@ fun HomeScreen(
                     onClick = { navController.navigate(Screen.Search.route) }
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
-
             if (uiState.recentlyFinished.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -232,10 +209,7 @@ fun GreetingHeader() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text(
-                text = emoji,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Text(text = emoji, style = MaterialTheme.typography.bodyLarge)
             Text(
                 text = greeting,
                 style = MaterialTheme.typography.bodyLarge,
@@ -254,6 +228,7 @@ fun GreetingHeader() {
         )
     }
 }
+
 @Composable
 fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
     Box(
@@ -261,7 +236,6 @@ fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
             .fillMaxWidth()
             .height(140.dp)
     ) {
-        // Card 1 — Total — ligeramente rotada izquierda
         ScrapbookStatCard(
             modifier = Modifier
                 .width(110.dp)
@@ -270,11 +244,8 @@ fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
                 .offset(x = 8.dp, y = 8.dp),
             value = "$totalBooks",
             label = "books",
-            emoji = "📚",
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
-
-        // Card 2 — Reading — centrada, encima de las otras
         ScrapbookStatCard(
             modifier = Modifier
                 .width(110.dp)
@@ -283,11 +254,8 @@ fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
                 .zIndex(1f),
             value = "$reading",
             label = "reading",
-            emoji = "📖",
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
-
-        // Card 3 — Finished — ligeramente rotada derecha
         ScrapbookStatCard(
             modifier = Modifier
                 .width(110.dp)
@@ -296,7 +264,6 @@ fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
                 .offset(x = (-8).dp, y = 4.dp),
             value = "$finished",
             label = "finished",
-            emoji = "✅",
             containerColor = MaterialTheme.colorScheme.tertiaryContainer
         )
     }
@@ -307,11 +274,9 @@ fun ScrapbookStatCard(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
-    emoji: String,
-    containerColor: androidx.compose.ui.graphics.Color
+    containerColor: Color
 ) {
     Box(modifier = modifier) {
-        // Sombra — papelito detrás ligeramente desplazado
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -319,8 +284,6 @@ fun ScrapbookStatCard(
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color(0x22000000))
         )
-
-        // Card principal
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
@@ -341,20 +304,17 @@ fun ScrapbookStatCard(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-
-            // Detalle decorativo — línea tipo subrayado
             Box(
                 modifier = Modifier
                     .width(30.dp)
                     .height(2.dp)
                     .clip(RoundedCornerShape(1.dp))
-                    .background(
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                    )
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
             )
         }
     }
 }
+
 @Composable
 fun CurrentlyReadingCard(book: Book, onClick: () -> Unit) {
     CozyCard(
@@ -364,28 +324,16 @@ fun CurrentlyReadingCard(book: Book, onClick: () -> Unit) {
         contentPadding = PaddingValues(16.dp)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Box(
+            // ─── BookCover ───────────────────────────────
+            BookCover(
+                title = book.title,
+                author = book.author,
+                coverUrl = book.coverUrl,
                 modifier = Modifier
                     .width(90.dp)
-                    .height(130.dp)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                if (book.coverUrl != null) {
-                    AsyncImage(
-                        model = book.coverUrl,
-                        contentDescription = stringResource(R.string.common_book_cover),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Book, null,
-                        modifier = Modifier.size(40.dp).align(Alignment.Center),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+                    .height(130.dp),
+                cornerRadius = 18.dp
+            )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -410,7 +358,11 @@ fun CurrentlyReadingCard(book: Book, onClick: () -> Unit) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = stringResource(R.string.home_page_progress, book.currentPage, book.pageCount),
+                                text = stringResource(
+                                    R.string.home_page_progress,
+                                    book.currentPage,
+                                    book.pageCount
+                                ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -435,6 +387,7 @@ fun CurrentlyReadingCard(book: Book, onClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun EmptyReadingCard(onClick: () -> Unit) {
     CozyCard(
@@ -461,13 +414,14 @@ fun EmptyReadingCard(onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             CozyButton(
-                text = "Search a book",
+                text = stringResource(R.string.home_search_book),
                 onClick = onClick,
                 containerColor = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
+
 @Composable
 fun SmallBookCard(book: Book, onClick: () -> Unit) {
     Column(
@@ -476,30 +430,19 @@ fun SmallBookCard(book: Book, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        // ─── BookCover ───────────────────────────────────
         Box(
             modifier = Modifier
                 .width(90.dp)
                 .height(130.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            if (book.coverUrl != null) {
-                AsyncImage(
-                    model = book.coverUrl,
-                    contentDescription = stringResource(R.string.common_book_cover),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Icon(
-                    Icons.Default.Book,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.Center),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            BookCover(
+                title = book.title,
+                author = book.author,
+                coverUrl = book.coverUrl,
+                modifier = Modifier.fillMaxSize(),
+                cornerRadius = 12.dp
+            )
             if (book.rating > 0f) {
                 Surface(
                     modifier = Modifier

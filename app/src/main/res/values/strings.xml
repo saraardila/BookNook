@@ -120,4 +120,12 @@
     <string name="calendar_prev_month">Previous month</string>
     <string name="calendar_next_month">Next month</string>
     <string name="calendar_journey">your reading journey 📅</string>
+
+    <string name="home_search_book">Search a book</string>
+
+    <!-- Journal -->
+    <string name="journal_subtitle">%d books finished ✨</string>
+    <string name="journal_empty_title">no books yet</string>
+    <string name="journal_empty_subtitle">finish a book to see it here 🌿</string>
+    <string name="journal_no_review">no review yet... tap to add one</string>
 </resources>

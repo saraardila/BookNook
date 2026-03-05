@@ -12,17 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
+import com.nawin.booknook.presentation.components.BookCover
 
 @Composable
 fun SearchScreen(
@@ -39,7 +37,6 @@ fun SearchScreen(
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-
         Text(
             text = stringResource(R.string.search_title),
             style = MaterialTheme.typography.displayMedium,
@@ -50,7 +47,6 @@ fun SearchScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -80,10 +76,10 @@ fun SearchScreen(
                     }
                 }
             },
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(28.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
             ),
@@ -151,39 +147,30 @@ fun BookSearchCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        )
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Box(
+            // ─── BookCover ───────────────────────────────
+            BookCover(
+                title = book.title,
+                author = book.author,
+                coverUrl = book.coverUrl,
                 modifier = Modifier
                     .width(70.dp)
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                if (book.coverUrl != null) {
-                    AsyncImage(
-                        model = book.coverUrl,
-                        contentDescription = stringResource(R.string.common_book_cover),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.Book,
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.Center),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+                    .height(100.dp),
+                cornerRadius = 10.dp
+            )
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -232,7 +219,7 @@ fun BookSearchCard(
                     } else {
                         FilledTonalButton(
                             onClick = onAddClick,
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(20.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Icon(
