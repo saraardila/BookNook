@@ -2,7 +2,6 @@
 
 A cozy Android app to track your reading journey — log books, write reviews, track progress and visualize your reading history.
 <br>
-
 ## Tech Stack
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
@@ -12,7 +11,6 @@ A cozy Android app to track your reading journey — log books, write reviews, t
 ![Hilt](https://img.shields.io/badge/Hilt-E65100?style=for-the-badge&logo=google&logoColor=white)
 ![Room](https://img.shields.io/badge/Room-4CAF50?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Retrofit](https://img.shields.io/badge/Retrofit-48B983?style=for-the-badge&logo=square&logoColor=white)
-
 <br>
 
 ##  Features
