@@ -1,7 +1,6 @@
 #  BookNook
 
 A cozy Android app to track your reading journey — log books, write reviews, track progress and visualize your reading history.
-
 <br>
 
 ## Tech Stack
