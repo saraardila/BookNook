@@ -35,6 +35,31 @@ A cozy Android app to track your reading journey — log books, write reviews, t
 
 <br>
 
+##  Screenshots
+
+<table>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/a6e96e27-980b-42fa-8e47-81179ac3f0c1" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/a049235d-93a6-45e4-8ea7-e366e6ab5e60" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/37aa5314-aeea-4b0a-81c9-096185c7887e" width="300"/></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/9119fc29-0d03-4511-9f1a-5c3f7680f505" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/5763c174-dbfc-4f9f-8828-d293bcff0e11" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/ebba3577-a02e-4da1-8054-8f5debd0a6a5" width="300"/></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/c85e62c9-a2a0-49e8-9446-3ba4379c2fab" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/e966a5fe-baba-41cd-b683-1375ac23a238" width="300"/></td>
+    <td><img src="https://github.com/user-attachments/assets/47d3bdf8-51b2-4092-9b6c-afd990e67c8b" width="300"/></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/0602d070-d861-4e8e-9fe0-5bdad716c2db" width="300"/></td>
+  </tr>
+</table>
+
+<br>
+
 ##  Architecture
 
 BookNook follows **Clean Architecture** with **MVVM** pattern, organized in 3 layers:
@@ -68,13 +93,6 @@ app/
 - **Hilt** for dependency injection across all layers
 - **Repository pattern** abstracting data sources
 - **Use Cases** encapsulating business logic
-
-<br>
-
-## 📸 Screenshots
-
-> *Coming soon — app in active development*
-
 
 <br>
 
