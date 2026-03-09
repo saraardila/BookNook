@@ -10,12 +10,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import com.nawin.booknook.presentation.navigation.BottomNavItem
 import com.nawin.booknook.presentation.navigation.NavGraph
 import com.nawin.booknook.presentation.theme.BookNookTheme
-import com.nawin.booknook.presentation.theme.UserPreferences
 import com.nawin.booknook.presentation.ui.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
@@ -70,7 +68,8 @@ class MainActivity : ComponentActivity() {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 32.dp, vertical = 16.dp),
+                                .navigationBarsPadding()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Row(
@@ -82,7 +81,7 @@ class MainActivity : ComponentActivity() {
                                         MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
                                         RoundedCornerShape(32.dp)
                                     )
-                                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                                    .padding(horizontal = 4.dp, vertical = 8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -104,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                                     restoreState = true
                                                 }
                                             }
-                                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                                            .padding(horizontal = 12.dp, vertical = 10.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
@@ -118,7 +117,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    }                ) { paddingValues ->
+                    }
+                ) { paddingValues ->
                     NavGraph(
                         navController = navController,
                         modifier = Modifier.padding(paddingValues)
