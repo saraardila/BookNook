@@ -1,4 +1,4 @@
-# 📚 BookNook
+#  BookNook
 
 > *your reading companion 🌿*
 
@@ -6,7 +6,7 @@ A cozy Android app to track your reading journey — log books, write reviews, t
 
 <br>
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
@@ -18,7 +18,7 @@ A cozy Android app to track your reading journey — log books, write reviews, t
 
 <br>
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---|---|
@@ -35,7 +35,7 @@ A cozy Android app to track your reading journey — log books, write reviews, t
 
 <br>
 
-## 🏗 Architecture
+##  Architecture
 
 BookNook follows **Clean Architecture** with **MVVM** pattern, organized in 3 layers:
 
@@ -75,13 +75,10 @@ app/
 
 > *Coming soon — app in active development*
 
-| Home | Library | Calendar | Journal |
-|------|---------|----------|---------|
-| 🏠 | 📚 | 📅 | 📓 |
 
 <br>
 
-## 🚀 Setup
+##  Setup
 
 ### Requirements
 - Android Studio Hedgehog or newer
