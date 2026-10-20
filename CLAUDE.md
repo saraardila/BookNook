@@ -1,0 +1,74 @@
+# BookNook
+
+App Android para seguir tus lecturas: búsqueda de libros en **Open Library**, biblioteca por estados (Reading, Finished, Want to Read, DNF, favoritos), progreso por páginas, valoraciones y reseñas, fechas de inicio/fin, calendario mensual, diario tipo scrapbook, notas por libro, compartir progreso y 4 temas (Botanical, Summer, Midnight, Blossom).
+
+Autora: Sara (Android, Kotlin + Jetpack Compose). Está aprendiendo Kotlin Multiplatform con esta migración: explica el porqué de cada cambio, no solo el qué.
+
+## Arquitectura actual
+
+Un solo módulo `:app`, paquete `com.nawin.booknook`. Clean Architecture + MVVM:
+
+- `domain/` — Kotlin puro (salvo `javax.inject.Inject`).
+  - `model/`: `Book`, `BookNote`, `ReadingStatus`.
+  - `repository/BookRepository`: interfaz (remoto: búsqueda; local: biblioteca y notas con `Flow`).
+  - `usecase/`: un caso de uso por acción con `operator fun invoke` (`SearchBooks`, `AddBookToLibrary`, `GetMyLibrary`, `GetBookById`, `UpdateBook`, `AddNote`, `GetNotes`).
+- `data/`
+  - `remote/`: Retrofit + Gson contra `https://openlibrary.org/search.json` (`OpenLibraryApi`, DTOs con `@SerializedName`).
+  - `local/`: Room (`AppDatabase` v1, `BookDao`, `BookNoteDao`, entidades) y `PreferencesDataStore` (tema, estilo y tinta del diario).
+  - `repository/BookRepositoryImpl`: mapea DTO/entidad ↔ dominio.
+- `di/`: módulos Hilt (`Database`, `Network`, `Preferences`, `Repository`), todos en `SingletonComponent`.
+- `presentation/`
+  - `ui/<pantalla>/`: `XScreen` + `XViewModel` (`@HiltViewModel`, `StateFlow<UiState>` con `stateIn(WhileSubscribed(5000))`). Pantallas: home, search, library, bookdetail (+ `ShareCard`), calendar, journal, settings, main.
+  - `navigation/`: Navigation Compose con rutas string (`Screen`, `NavGraph`, `BottomNavItem`).
+  - `components/`, `theme/` (temas dinámicos).
+
+Puntos a tener en cuenta (no son bugs, pero afectan a la migración):
+- `data/local/PreferencesDataStore` importa enums de `presentation.theme` (`BookTheme`, `JournalStyle`, `JournalInkColor`): `data` depende de `presentation`. Hay que moverlos antes o durante la Fase 3.
+- `MainViewModel` usa `PreferencesDataStore` directamente, sin pasar por `domain`.
+
+## Stack actual
+
+Kotlin 1.9.22 · AGP 8.5.0 · Gradle 8.7 · JDK toolchain 21 · Java/JVM target 1.8 · compileSdk/targetSdk 35 · minSdk 26 · Compose BOM 2024.02.01 (compilador Compose 1.5.8 vía `composeOptions`) · Hilt 2.52 (kapt) · Room 2.6.1 (kapt) · Retrofit 2.9 + Gson · OkHttp 4.12 · Coil 2.5 · DataStore 1.0 · Navigation 2.7.7 · Lottie 6.3 · Accompanist SystemUiController 0.32 (declarado pero sin uso en el código).
+
+Versiones en `gradle/libs.versions.toml`. Hay un `force("com.squareup:javapoet:1.13.0")` en `app/build.gradle.kts` (parche para Hilt/kapt; quitarlo al pasar a KSP/Koin si ya no hace falta).
+
+## Plan de migración a Kotlin Multiplatform + Compose Multiplatform
+
+Por fases. **Al terminar cada paso, la app compila y funciona.** Una rama por fase.
+
+1. **Modernizar** (sin cambiar funcionalidad): Gradle/AGP al día, Kotlin 2.x, plugin `org.jetbrains.kotlin.plugin.compose` (sustituye a `composeOptions`), kapt → KSP, Java target 17, dependencias al día, quitar Accompanist.
+2. **Librerías KMP dentro de `:app`**: Retrofit + Gson → Ktor + kotlinx.serialization; Hilt → Koin; Room → Room KMP; Coil 2 → Coil 3; DataStore y Navigation en su versión multiplataforma.
+3. **Módulo `shared`**: mover domain, data y UI a `commonMain`; `:app` queda como punto de entrada Android.
+4. **Target iOS** (cuando haya acceso a un Mac).
+
+### Arreglos pendientes (hacer en el momento adecuado)
+
+- El README (está en `master`, no en `dev`) dice Google Books, pero el código usa Open Library.
+- `HttpLoggingInterceptor` en nivel `BODY` también en release → solo en debug (con Ktor: plugin `Logging` solo en debug).
+- `isMinifyEnabled = false` en release → activar R8 y revisar reglas (kotlinx.serialization, Room, Koin).
+- No hay tests reales (solo los de ejemplo) → tests de los casos de uso.
+- Room: `exportSchema = false`, sin migraciones y con `fallbackToDestructiveMigration()` (borra los datos del usuario al subir la versión) → exportar esquema, migraciones y quitar el fallback antes de publicar.
+- `BookNoteEntity.bookId` es clave foránea sin índice (warning de Room) → añadir índice junto con la primera migración.
+- Antes de publicar en Google Play: comprobar el `targetSdk` mínimo vigente.
+
+## Reglas de trabajo
+
+- Hablar en español, tono directo.
+- Paso a paso: proponer **un** cambio, explicar qué es y por qué, esperar confirmación y entonces seguir.
+- Corrección técnica antes que dar la razón: si una propuesta es incorrecta, decirlo con el motivo.
+- Una rama por fase (`fase-1-modernizacion`, `fase-2-librerias-kmp`, …). Commits pequeños y descriptivos.
+- Tras cada cambio: `./gradlew assembleDebug` y tests unitarios en verde antes de commitear.
+- Nunca subir secretos: API keys, keystores (`*.jks`, `*.keystore`), `local.properties`, `google-services.json`, ficheros de firma.
+- No tocar Cozy Habits (`habit-tracker-compose`) desde aquí.
+
+## Comandos
+
+```bash
+./gradlew assembleDebug            # compilar APK debug
+./gradlew testDebugUnitTest        # tests unitarios (JVM)
+./gradlew connectedDebugAndroidTest # tests instrumentados (emulador/dispositivo)
+./gradlew lint                     # lint de Android
+./gradlew :app:dependencies --configuration debugRuntimeClasspath  # árbol de dependencias
+```
+
+En Windows/PowerShell: `.\gradlew.bat <tarea>`.
