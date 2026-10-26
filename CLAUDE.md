@@ -28,22 +28,27 @@ Puntos a tener en cuenta (no son bugs, pero afectan a la migración):
 
 ## Stack actual
 
-Kotlin 1.9.22 · AGP 8.5.0 · Gradle 8.7 · JDK toolchain 21 · Java/JVM target 1.8 · compileSdk/targetSdk 35 · minSdk 26 · Compose BOM 2024.02.01 (compilador Compose 1.5.8 vía `composeOptions`) · Hilt 2.52 (kapt) · Room 2.6.1 (kapt) · Retrofit 2.9 + Gson · OkHttp 4.12 · Coil 2.5 · DataStore 1.0 · Navigation 2.7.7 · Lottie 6.3 · Accompanist SystemUiController 0.32 (declarado pero sin uso en el código).
+Kotlin 2.3.21 (plugin `org.jetbrains.kotlin.plugin.compose`) · AGP 8.13.2 · Gradle 8.14.6 · KSP 2.3.12 · JDK toolchain 21 · Java/JVM target 1.8 · compileSdk/targetSdk 35 · minSdk 26 · Compose BOM 2024.02.01 · Hilt 2.58 (kapt) · Room 2.8.5 (KSP) · Retrofit 2.9 + Gson · OkHttp 4.12 · Coil 2.5 · DataStore 1.0 · Navigation 2.7.7 · Lottie 6.3 · Accompanist SystemUiController 0.32 (declarado pero sin uso en el código).
 
-Versiones en `gradle/libs.versions.toml`. Hay un `force("com.squareup:javapoet:1.13.0")` en `app/build.gradle.kts` (parche para Hilt/kapt; quitarlo al pasar a KSP/Koin si ya no hace falta).
+Versiones en `gradle/libs.versions.toml`. Hay un `force("com.squareup:javapoet:1.13.0")` en `app/build.gradle.kts` (parche para Hilt/kapt; quitarlo al pasar a Koin si ya no hace falta).
+
+Límites de versión mientras sigamos con Hilt y AGP 8:
+- Hilt 2.59+ exige AGP 9, así que Hilt se queda en 2.58.
+- Hilt 2.58 lee metadata de Kotlin hasta 2.3, así que Kotlin se queda en 2.3.x (Kotlin 2.4 llega con Koin en la Fase 2).
+- Hilt sigue en kapt: su soporte KSP solo es estable desde Dagger 2.60. kapt desaparece al cambiar Hilt por Koin.
 
 ## Plan de migración a Kotlin Multiplatform + Compose Multiplatform
 
 Por fases. **Al terminar cada paso, la app compila y funciona.** Una rama por fase.
 
-1. **Modernizar** (sin cambiar funcionalidad): Gradle/AGP al día, Kotlin 2.x, plugin `org.jetbrains.kotlin.plugin.compose` (sustituye a `composeOptions`), kapt → KSP, Java target 17, dependencias al día, quitar Accompanist.
+1. **Modernizar** (sin cambiar funcionalidad): ~~Gradle/AGP al día~~, ~~Kotlin 2.x + plugin de Compose~~, ~~Room a KSP~~, Java target 17, dependencias al día, quitar Accompanist.
 2. **Librerías KMP dentro de `:app`**: Retrofit + Gson → Ktor + kotlinx.serialization; Hilt → Koin; Room → Room KMP; Coil 2 → Coil 3; DataStore y Navigation en su versión multiplataforma.
 3. **Módulo `shared`**: mover domain, data y UI a `commonMain`; `:app` queda como punto de entrada Android.
 4. **Target iOS** (cuando haya acceso a un Mac).
 
 ### Arreglos pendientes (hacer en el momento adecuado)
 
-- El README (está en `master`, no en `dev`) dice Google Books, pero el código usa Open Library.
+- El README dice Google Books, pero el código usa Open Library.
 - `HttpLoggingInterceptor` en nivel `BODY` también en release → solo en debug (con Ktor: plugin `Logging` solo en debug).
 - `isMinifyEnabled = false` en release → activar R8 y revisar reglas (kotlinx.serialization, Room, Koin).
 - No hay tests reales (solo los de ejemplo) → tests de los casos de uso.
