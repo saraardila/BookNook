@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.nawin.booknook"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.nawin.booknook"
