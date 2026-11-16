@@ -10,9 +10,8 @@ import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class BookRepositoryImpl @Inject constructor(
+class BookRepositoryImpl(
     private val bookDao: BookDao,
     private val bookNoteDao: BookNoteDao,
     private val api: OpenLibraryApi

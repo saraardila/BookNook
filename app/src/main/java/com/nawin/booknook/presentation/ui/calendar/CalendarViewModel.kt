@@ -5,13 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import java.util.Calendar
-import javax.inject.Inject
 
-@HiltViewModel
-class CalendarViewModel @Inject constructor(
+class CalendarViewModel(
     private val getMyLibraryUseCase: GetMyLibraryUseCase
 ) : ViewModel() {
 

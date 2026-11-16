@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
@@ -29,7 +29,7 @@ import java.util.*
 fun BookDetailScreen(
     bookId: String,
     navController: NavController,
-    viewModel: BookDetailViewModel = hiltViewModel()
+    viewModel: BookDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val book = uiState.book

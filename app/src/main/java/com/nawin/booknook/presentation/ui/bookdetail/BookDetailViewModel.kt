@@ -7,13 +7,10 @@ import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.usecase.*
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class BookDetailViewModel @Inject constructor(
+class BookDetailViewModel(
     private val getBookByIdUseCase: GetBookByIdUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val getNotesUseCase: GetNotesUseCase,

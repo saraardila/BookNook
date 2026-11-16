@@ -5,18 +5,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.nawin.booknook.presentation.theme.*
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "booknook_prefs")
 
-@Singleton
-class PreferencesDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
+class PreferencesDataStore(
+    private val context: Context
 ) {
     private object Keys {
         val THEME         = stringPreferencesKey("theme")

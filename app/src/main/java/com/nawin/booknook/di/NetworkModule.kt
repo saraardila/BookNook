@@ -1,40 +1,26 @@
 package com.nawin.booknook.di
 
 import com.nawin.booknook.data.remote.api.OpenLibraryApi
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object NetworkModule {
-
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient =
+val networkModule = module {
+    single {
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
             .build()
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+    }
+    single {
         Retrofit.Builder()
             .baseUrl("https://openlibrary.org/")
-            .client(okHttpClient)
+            .client(get())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-    @Provides
-    @Singleton
-    fun provideOpenLibraryApi(retrofit: Retrofit): OpenLibraryApi =
-        retrofit.create(OpenLibraryApi::class.java)
+    }
+    single { get<Retrofit>().create(OpenLibraryApi::class.java) }
 }
