@@ -5,14 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.usecase.AddBookToLibraryUseCase
 import com.nawin.booknook.domain.usecase.SearchBooksUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchViewModel @Inject constructor(
+class SearchViewModel(
     private val searchBooksUseCase: SearchBooksUseCase,
     private val addBookToLibraryUseCase: AddBookToLibraryUseCase
 ) : ViewModel() {

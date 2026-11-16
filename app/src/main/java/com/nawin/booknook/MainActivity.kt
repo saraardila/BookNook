@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,14 +29,13 @@ import com.nawin.booknook.presentation.navigation.BottomNavItem
 import com.nawin.booknook.presentation.navigation.NavGraph
 import com.nawin.booknook.presentation.theme.BookNookTheme
 import com.nawin.booknook.presentation.ui.main.MainViewModel
-import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()

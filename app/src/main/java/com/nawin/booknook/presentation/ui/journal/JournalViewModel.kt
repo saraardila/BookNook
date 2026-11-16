@@ -5,12 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import javax.inject.Inject
 
-@HiltViewModel
-class JournalViewModel @Inject constructor(
+class JournalViewModel(
     private val getMyLibraryUseCase: GetMyLibraryUseCase
 ) : ViewModel() {
 
