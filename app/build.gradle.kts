@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.ksp)
-    kotlin("kapt")
-    alias(libs.plugins.hilt)
 }
 
 android {
@@ -46,12 +44,6 @@ kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("com.squareup:javapoet:1.13.0")
-    }
-}
-
 dependencies {
     // Core
     implementation(libs.androidx.core.ktx)
@@ -78,11 +70,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose)
 
     // Koin
     implementation(platform(libs.koin.bom))
