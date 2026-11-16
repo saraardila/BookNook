@@ -1,8 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.ksp)
 }
@@ -38,10 +35,6 @@ android {
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
-}
-
-kotlin {
-    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 }
 
 dependencies {
