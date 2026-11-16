@@ -16,7 +16,9 @@ interface BookDao {
     @Query("SELECT * FROM books WHERE id = :id")
     fun getBookById(id: String): Flow<BookEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // IGNORE, not REPLACE: REPLACE deletes the row (cascading to its notes) and
+    // re-adding a book from search must not overwrite the user's progress
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertBook(book: BookEntity)
 
     @Update
