@@ -2,6 +2,8 @@ package com.nawin.booknook.di
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngine
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -18,8 +20,14 @@ class KoinModulesTest {
     @Test
     fun `all Koin definitions can be resolved`() {
         module { includes(appModules) }.verify(
-            // Provided by the platform at runtime, not by our modules
-            extraTypes = listOf(Context::class, SavedStateHandle::class)
+            extraTypes = listOf(
+                // Provided by the platform at runtime, not by our modules
+                Context::class,
+                SavedStateHandle::class,
+                // HttpClient is built in a lambda; verify() still inspects its constructor
+                HttpClientEngine::class,
+                HttpClientConfig::class
+            )
         )
     }
 }

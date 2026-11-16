@@ -1,26 +1,43 @@
 package com.nawin.booknook.di
 
+import com.nawin.booknook.BuildConfig
 import com.nawin.booknook.data.remote.api.OpenLibraryApi
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+
+private const val OPEN_LIBRARY_URL = "https://openlibrary.org/"
+
+/** Shared client setup, so tests can apply it to a MockEngine. */
+fun HttpClientConfig<*>.openLibraryDefaults() {
+    expectSuccess = true
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true })
+    }
+    defaultRequest { url(OPEN_LIBRARY_URL) }
+}
 
 val networkModule = module {
     single {
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
+        HttpClient(OkHttp) {
+            openLibraryDefaults()
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger = Logger.ANDROID
+                    level = LogLevel.HEADERS
+                }
+            }
+        }
     }
-    single {
-        Retrofit.Builder()
-            .baseUrl("https://openlibrary.org/")
-            .client(get())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-    single { get<Retrofit>().create(OpenLibraryApi::class.java) }
+    singleOf(::OpenLibraryApi)
 }
