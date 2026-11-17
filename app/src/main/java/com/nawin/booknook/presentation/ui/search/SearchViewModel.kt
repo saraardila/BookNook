@@ -21,12 +21,15 @@ class SearchViewModel(
     val query: StateFlow<String> = _query.asStateFlow()
 
     init {
-        @OptIn(FlowPreview::class)
-        _query
-            .debounce(500)
-            .filter { it.length >= 2 }
-            .onEach { search(it) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            @OptIn(FlowPreview::class)
+            _query
+                .debounce(500)
+                .filter { it.length >= 2 }
+                // collectLatest, so a slower earlier search is cancelled instead of
+                // landing on top of the results the user is actually waiting for
+                .collectLatest { search(it) }
+        }
     }
 
     fun onQueryChange(newQuery: String) {
@@ -36,17 +39,15 @@ class SearchViewModel(
         }
     }
 
-    private fun search(query: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            searchBooksUseCase(query)
-                .onSuccess { books ->
-                    _uiState.update { it.copy(isLoading = false, books = books) }
-                }
-                .onFailure { error ->
-                    _uiState.update { it.copy(isLoading = false, error = error.message) }
-                }
-        }
+    private suspend fun search(query: String) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        searchBooksUseCase(query)
+            .onSuccess { books ->
+                _uiState.update { it.copy(isLoading = false, books = books, error = null) }
+            }
+            .onFailure { error ->
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
+            }
     }
 
     fun addToLibrary(book: Book) {
