@@ -9,6 +9,7 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /** viewModelScope runs on Dispatchers.Main, which has no implementation in unit tests. */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class MainDispatcherRule(
     val dispatcher: TestDispatcher = StandardTestDispatcher()
 ) : TestWatcher() {
