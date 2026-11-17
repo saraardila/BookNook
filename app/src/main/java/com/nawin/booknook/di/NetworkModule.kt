@@ -1,40 +1,43 @@
 package com.nawin.booknook.di
 
+import com.nawin.booknook.BuildConfig
 import com.nawin.booknook.data.remote.api.OpenLibraryApi
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-object NetworkModule {
+private const val OPEN_LIBRARY_URL = "https://openlibrary.org/"
 
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
+/** Shared client setup, so tests can apply it to a MockEngine. */
+fun HttpClientConfig<*>.openLibraryDefaults() {
+    expectSuccess = true
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true })
+    }
+    defaultRequest { url(OPEN_LIBRARY_URL) }
+}
 
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://openlibrary.org/")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideOpenLibraryApi(retrofit: Retrofit): OpenLibraryApi =
-        retrofit.create(OpenLibraryApi::class.java)
+val networkModule = module {
+    single {
+        HttpClient(OkHttp) {
+            openLibraryDefaults()
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger = Logger.ANDROID
+                    level = LogLevel.HEADERS
+                }
+            }
+        }
+    }
+    singleOf(::OpenLibraryApi)
 }

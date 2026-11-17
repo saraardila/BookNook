@@ -1,22 +1,21 @@
 package com.nawin.booknook.data.local
 
-import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.nawin.booknook.presentation.theme.*
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "booknook_prefs")
-
-@Singleton
-class PreferencesDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
+/**
+ * Takes a ready-made DataStore instead of a Context: creating it is the only
+ * platform-specific part, and it lives in the Koin module.
+ */
+class PreferencesDataStore(
+    private val dataStore: DataStore<Preferences>
 ) {
     private object Keys {
         val THEME         = stringPreferencesKey("theme")
@@ -24,7 +23,7 @@ class PreferencesDataStore @Inject constructor(
         val INK_COLOR     = stringPreferencesKey("ink_color")
     }
 
-    val userPreferences: Flow<UserPreferences> = context.dataStore.data
+    val userPreferences: Flow<UserPreferences> = dataStore.data
         .catch { emit(emptyPreferences()) }
         .map { prefs ->
             UserPreferences(
@@ -41,14 +40,14 @@ class PreferencesDataStore @Inject constructor(
         }
 
     suspend fun saveTheme(theme: BookTheme) {
-        context.dataStore.edit { it[Keys.THEME] = theme.name }
+        dataStore.edit { it[Keys.THEME] = theme.name }
     }
 
     suspend fun saveJournalStyle(style: JournalStyle) {
-        context.dataStore.edit { it[Keys.JOURNAL_STYLE] = style.name }
+        dataStore.edit { it[Keys.JOURNAL_STYLE] = style.name }
     }
 
     suspend fun saveInkColor(color: JournalInkColor) {
-        context.dataStore.edit { it[Keys.INK_COLOR] = color.name }
+        dataStore.edit { it[Keys.INK_COLOR] = color.name }
     }
 }

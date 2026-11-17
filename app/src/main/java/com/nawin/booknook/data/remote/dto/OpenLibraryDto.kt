@@ -1,19 +1,22 @@
 package com.nawin.booknook.data.remote.dto
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class OpenLibraryResponse(
-    @SerializedName("docs") val docs: List<BookDto>
+    @SerialName("docs") val docs: List<BookDto>
 )
 
+@Serializable
 data class BookDto(
-    @SerializedName("key")          val key: String?,
-    @SerializedName("title")        val title: String?,
-    @SerializedName("author_name")  val authorName: List<String>?,
-    @SerializedName("cover_i")      val coverId: Long?,
-    @SerializedName("first_publish_year") val firstPublishYear: Int?,
-    @SerializedName("number_of_pages_median") val pageCount: Int?,
-    @SerializedName("isbn")         val isbn: List<String>?
+    @SerialName("key")          val key: String? = null,
+    @SerialName("title")        val title: String? = null,
+    @SerialName("author_name")  val authorName: List<String>? = null,
+    @SerialName("cover_i")      val coverId: Long? = null,
+    @SerialName("first_publish_year") val firstPublishYear: Int? = null,
+    @SerialName("number_of_pages_median") val pageCount: Int? = null,
+    @SerialName("isbn")         val isbn: List<String>? = null
 ) {
     fun toDomain() = com.nawin.booknook.domain.model.Book(
         id = key?.replace("/works/", "") ?: title.orEmpty(),

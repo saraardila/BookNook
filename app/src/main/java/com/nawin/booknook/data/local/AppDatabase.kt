@@ -10,7 +10,7 @@ import com.nawin.booknook.data.local.entity.BookNoteEntity
 @Database(
     entities = [BookEntity::class, BookNoteEntity::class],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookDao(): BookDao

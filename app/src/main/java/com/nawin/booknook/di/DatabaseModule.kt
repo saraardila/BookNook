@@ -1,31 +1,20 @@
 package com.nawin.booknook.di
 
-import android.content.Context
 import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.nawin.booknook.data.local.AppDatabase
-import com.nawin.booknook.data.local.dao.BookDao
-import com.nawin.booknook.data.local.dao.BookNoteDao
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
-
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, "booknook_db")
-            .fallbackToDestructiveMigration()
+val databaseModule = module {
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "booknook_db")
+            .setDriver(BundledSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
-
-    @Provides
-    fun provideBookDao(db: AppDatabase): BookDao = db.bookDao()
-
-    @Provides
-    fun provideBookNoteDao(db: AppDatabase): BookNoteDao = db.bookNoteDao()
+    }
+    factory { get<AppDatabase>().bookDao() }
+    factory { get<AppDatabase>().bookNoteDao() }
 }

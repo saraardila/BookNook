@@ -8,11 +8,11 @@ import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.repository.BookRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class BookRepositoryImpl @Inject constructor(
+class BookRepositoryImpl(
     private val bookDao: BookDao,
     private val bookNoteDao: BookNoteDao,
     private val api: OpenLibraryApi
@@ -22,6 +22,9 @@ class BookRepositoryImpl @Inject constructor(
         return try {
             val response = api.searchBooks(query)
             Result.success(response.docs.map { it.toDomain() })
+        } catch (e: CancellationException) {
+            // A cancelled search is not a failure to report: let it unwind the coroutine
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
