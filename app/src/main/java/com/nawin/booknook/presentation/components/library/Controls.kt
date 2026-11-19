@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -159,6 +160,43 @@ fun SegmentedPills(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+/**
+ * On/off switch in the library style: a bordered pill that fills with the
+ * primary colour when on. Announced as a switch named [contentDescription].
+ */
+@Composable
+fun LibraryToggle(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LibraryTheme.colors
+    Box(
+        modifier
+            .minimumInteractiveComponentSize()
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            Modifier
+                .size(LibraryDimens.toggleWidth, LibraryDimens.toggleHeight)
+                .background(if (checked) colors.primary else colors.paper, LibraryShapes.pill)
+                .border(LibraryDimens.stroke, colors.outline, LibraryShapes.pill)
+                .padding(LibraryDimens.spaceXxs),
+            contentAlignment = if (checked) Alignment.CenterEnd else Alignment.CenterStart,
+        ) {
+            Box(
+                Modifier
+                    .size(LibraryDimens.toggleThumb)
+                    .background(if (checked) colors.onPrimary else colors.neutralWarm, LibraryShapes.pill)
+                    .border(LibraryDimens.strokeHairline, colors.outline, LibraryShapes.pill),
+            )
         }
     }
 }

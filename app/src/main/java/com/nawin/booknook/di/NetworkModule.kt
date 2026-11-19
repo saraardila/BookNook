@@ -1,7 +1,7 @@
 package com.nawin.booknook.di
 
 import com.nawin.booknook.BuildConfig
-import com.nawin.booknook.data.locale.DeviceLanguageProvider
+import com.nawin.booknook.data.locale.AppLanguageProvider
 import com.nawin.booknook.data.locale.LanguageProvider
 import com.nawin.booknook.data.remote.api.OpenLibraryApi
 import io.ktor.client.HttpClient
@@ -42,5 +42,5 @@ val networkModule = module {
         }
     }
     singleOf(::OpenLibraryApi)
-    single<LanguageProvider> { DeviceLanguageProvider() }
+    single<LanguageProvider> { AppLanguageProvider() }
 }

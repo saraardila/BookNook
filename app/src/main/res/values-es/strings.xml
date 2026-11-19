@@ -215,4 +215,37 @@
     <string name="detail_add_note_short">+ Nota</string>
     <string name="detail_notes_label">NOTAS</string>
     <string name="detail_note_page">pág. %d</string>
+    <!-- Rediseño: ajustes -->
+    <string name="settings_tagline">a tu manera</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_language">IDIOMA</string>
+    <string name="settings_language_note">Cambia los textos de la app y el idioma de los resultados al buscar libros.</string>
+    <string name="settings_theme">TEMA DE TU BIBLIOTECA</string>
+    <string name="theme_standard">Estándar</string>
+    <string name="theme_romantasy">Romantasy</string>
+    <string name="theme_witchy">Witchy</string>
+    <string name="theme_cowboy">Cowboy</string>
+    <string name="theme_romance">Romance</string>
+    <string name="theme_thriller">Thriller</string>
+    <string name="settings_notifications">AVISOS</string>
+    <string name="settings_reminder">Recordatorio para leer</string>
+    <string name="settings_reminder_time">%s · todos los días</string>
+    <string name="settings_reminder_pick_time">Hora del recordatorio</string>
+    <string name="settings_notifications_denied">Las notificaciones de BookNook están desactivadas. Puedes permitirlas en los ajustes del sistema.</string>
+    <string name="settings_account">CUENTA</string>
+    <string name="settings_your_name">Tu nombre</string>
+    <string name="settings_reader_since">lectora desde %s</string>
+    <string name="settings_export">Exportar mis libros</string>
+    <string name="settings_exporting">exportando…</string>
+    <plurals name="settings_exported">
+        <item quantity="one">%d libro exportado</item>
+        <item quantity="many">%d libros exportados</item>
+        <item quantity="other">%d libros exportados</item>
+    </plurals>
+    <string name="settings_export_failed">No se ha podido guardar el archivo. Inténtalo de nuevo.</string>
+    <string name="common_save">Guardar</string>
+    <!-- Notificación del recordatorio -->
+    <string name="reminder_channel_name">Recordatorio para leer</string>
+    <string name="reminder_notification_title">Hora de leer 📖</string>
+    <string name="reminder_notification_text">Tu libro te espera. Unas pocas páginas también cuentan.</string>
 </resources>

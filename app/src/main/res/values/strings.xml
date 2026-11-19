@@ -212,4 +212,39 @@
     <string name="detail_add_note_short">+ Note</string>
     <string name="detail_notes_label">NOTES</string>
     <string name="detail_note_page">p. %d</string>
+    <!-- Redesign: settings -->
+    <string name="settings_tagline">your way</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">LANGUAGE</string>
+    <!-- Each language is named in its own language, so these are not translated. -->
+    <string name="language_spanish" translatable="false">Español (España)</string>
+    <string name="language_english" translatable="false">English</string>
+    <string name="settings_language_note">Changes the app\'s text and the language of book search results.</string>
+    <string name="settings_theme">YOUR LIBRARY\'S THEME</string>
+    <string name="theme_standard">Standard</string>
+    <string name="theme_romantasy">Romantasy</string>
+    <string name="theme_witchy">Witchy</string>
+    <string name="theme_cowboy">Cowboy</string>
+    <string name="theme_romance">Romance</string>
+    <string name="theme_thriller">Thriller</string>
+    <string name="settings_notifications">NOTIFICATIONS</string>
+    <string name="settings_reminder">Reading reminder</string>
+    <string name="settings_reminder_time">%s · every day</string>
+    <string name="settings_reminder_pick_time">Reminder time</string>
+    <string name="settings_notifications_denied">Notifications are off for BookNook. You can allow them in the system settings.</string>
+    <string name="settings_account">ACCOUNT</string>
+    <string name="settings_your_name">Your name</string>
+    <string name="settings_reader_since">reader since %s</string>
+    <string name="settings_export">Export my books</string>
+    <string name="settings_exporting">exporting…</string>
+    <plurals name="settings_exported">
+        <item quantity="one">%d book exported</item>
+        <item quantity="other">%d books exported</item>
+    </plurals>
+    <string name="settings_export_failed">The file couldn\'t be saved. Try again.</string>
+    <string name="common_save">Save</string>
+    <!-- Reading reminder notification -->
+    <string name="reminder_channel_name">Reading reminder</string>
+    <string name="reminder_notification_title">Time to read 📖</string>
+    <string name="reminder_notification_text">Your book is waiting for you. A few pages count too.</string>
 </resources>

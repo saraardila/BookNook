@@ -141,6 +141,8 @@ data class LibraryTypography(
     val label: TextStyle,
     val navLabel: TextStyle,
     val body: TextStyle,
+    /** Small help text under a control. */
+    val caption: TextStyle,
     val button: TextStyle,
     val chip: TextStyle,
 )
@@ -155,6 +157,7 @@ val DefaultLibraryTypography = LibraryTypography(
     label = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Bold, fontSize = 10.5.sp, letterSpacing = 1.5.sp),
     navLabel = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Bold, fontSize = 10.sp),
     body = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 22.sp),
+    caption = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Normal, fontSize = 12.5.sp, lineHeight = 17.sp),
     button = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Bold, fontSize = 16.sp),
     chip = TextStyle(fontFamily = Nunito, fontWeight = FontWeight.Bold, fontSize = 12.5.sp),
 )
@@ -254,6 +257,11 @@ object LibraryDimens {
     val stampSize = 62.dp
     val stampSizeSmall = 46.dp
     val rosetteSize = 52.dp
+    val themeMiniDot = 10.dp
+    val themeMiniSeal = 22.dp
+    val toggleWidth = 46.dp
+    val toggleHeight = 28.dp
+    val toggleThumb = 21.dp
     val sealSize = 72.dp
     val daisySize = 24.dp
     val sprigSize = 46.dp

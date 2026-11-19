@@ -50,7 +50,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             BookDetailScreen(bookId = bookId, navController = navController)
         }
         composable(Screen.Settings.route) {
-            LegacyScreen { SettingsScreen(navController = navController) }
+            SettingsScreen(navController = navController)
         }
     }
 }

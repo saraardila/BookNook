@@ -7,6 +7,7 @@ import com.nawin.booknook.presentation.ui.journal.JournalViewModel
 import com.nawin.booknook.presentation.ui.library.LibraryViewModel
 import com.nawin.booknook.presentation.ui.main.MainViewModel
 import com.nawin.booknook.presentation.ui.search.SearchViewModel
+import com.nawin.booknook.presentation.ui.settings.SettingsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -18,6 +19,7 @@ val viewModelModule = module {
     viewModelOf(::LibraryViewModel)
     viewModelOf(::MainViewModel)
     viewModelOf(::SearchViewModel)
+    viewModelOf(::SettingsViewModel)
 }
 
 val appModules = listOf(
@@ -26,5 +28,6 @@ val appModules = listOf(
     preferencesModule,
     repositoryModule,
     domainModule,
+    servicesModule,
     viewModelModule
 )

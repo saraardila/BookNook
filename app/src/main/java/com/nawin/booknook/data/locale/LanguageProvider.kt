@@ -1,5 +1,6 @@
 package com.nawin.booknook.data.locale
 
+import androidx.appcompat.app.AppCompatDelegate
 import java.util.Locale
 
 /**
@@ -10,7 +11,11 @@ fun interface LanguageProvider {
     fun current(): String
 }
 
-/** Reads the process default locale, which follows the per-app language on Android 13+. */
-class DeviceLanguageProvider : LanguageProvider {
-    override fun current(): String = Locale.getDefault().language
+/**
+ * The language chosen in Settings (stored by AppCompat on every Android
+ * version), or the device language when the reader has not chosen one.
+ */
+class AppLanguageProvider : LanguageProvider {
+    override fun current(): String =
+        AppCompatDelegate.getApplicationLocales()[0]?.language ?: Locale.getDefault().language
 }
