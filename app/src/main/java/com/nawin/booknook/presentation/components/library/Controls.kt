@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,8 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import kotlin.math.roundToInt
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
@@ -79,6 +85,46 @@ fun LibraryChip(
         Text(text, style = LibraryTheme.typography.chip, color = if (selected) colors.onPrimary else colors.ink)
     }
 }
+
+/** Small read-only pill naming a book's reading status, e.g. READING. */
+@Composable
+fun StatusTag(text: String, color: Color, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    Text(
+        text = text,
+        style = LibraryTheme.typography.label,
+        color = colors.ink,
+        maxLines = 1,
+        modifier = modifier
+            .background(color, LibraryShapes.pill)
+            .border(LibraryDimens.strokeHairline, colors.outline, LibraryShapes.pill)
+            .padding(horizontal = LibraryDimens.spaceSm, vertical = LibraryDimens.spaceXxs),
+    )
+}
+
+/**
+ * Read-only rating out of [RATING_MAX] stars, rounded to whole stars.
+ * [contentDescription] is read instead of the individual stars.
+ */
+@Composable
+fun StarRating(rating: Float, contentDescription: String, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val filled = rating.roundToInt().coerceIn(0, RATING_MAX)
+    Row(modifier.semantics(mergeDescendants = true) { this.contentDescription = contentDescription }) {
+        repeat(RATING_MAX) { index ->
+            Icon(
+                Icons.Filled.Star,
+                contentDescription = null,
+                tint = if (index < filled) colors.primary else colors.primary.copy(alpha = EMPTY_STAR_ALPHA),
+                modifier = Modifier.size(LibraryDimens.starSize),
+            )
+        }
+    }
+}
+
+/** Highest rating a book can get. */
+const val RATING_MAX = 5
+private const val EMPTY_STAR_ALPHA = 0.28f
 
 /** One tab of [PillNavBar]. [highlighted] keeps a filled circle even when not selected. */
 data class NavTab(val label: String, val icon: ImageVector, val highlighted: Boolean = false)

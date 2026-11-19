@@ -1,248 +1,420 @@
 package com.nawin.booknook.presentation.ui.library
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.presentation.components.BookCover
+import com.nawin.booknook.presentation.components.library.Daisy
+import com.nawin.booknook.presentation.components.library.DateStamp
+import com.nawin.booknook.presentation.components.library.LaceHeader
+import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.components.library.PaperCard
+import com.nawin.booknook.presentation.components.library.PillButton
+import com.nawin.booknook.presentation.components.library.RATING_MAX
+import com.nawin.booknook.presentation.components.library.ReadingProgress
+import com.nawin.booknook.presentation.components.library.SpineLabel
+import com.nawin.booknook.presentation.components.library.Sprig
+import com.nawin.booknook.presentation.components.library.StarRating
+import com.nawin.booknook.presentation.components.library.StatusTag
 import com.nawin.booknook.presentation.navigation.Screen
-import com.nawin.booknook.presentation.ui.search.EmptyState
+import com.nawin.booknook.presentation.navigation.navigateToTopLevel
+import com.nawin.booknook.presentation.theme.LibraryDimens
+import com.nawin.booknook.presentation.theme.LibraryShapes
+import com.nawin.booknook.presentation.theme.LibraryTheme
+import org.koin.compose.viewmodel.koinViewModel
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.math.roundToInt
 
+/** Shelves tab: every book in the library as a catalogue card, filtered by status. */
 @Composable
 fun LibraryScreen(
     navController: NavController,
-    viewModel: LibraryViewModel = koinViewModel()
+    viewModel: LibraryViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.library_title),
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                text = stringResource(R.string.library_collection_count, uiState.totalBooks),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+    LibraryContent(
+        state = uiState,
+        selectedFilter = selectedFilter,
+        onFilterSelected = viewModel::setFilter,
+        onOpenBook = { bookId -> navController.navigate(Screen.BookDetail.createRoute(bookId)) },
+        onSearch = { navController.navigateToTopLevel(Screen.Search.route) },
+    )
+}
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(LibraryFilter.entries) { filter ->
-                val label = when (filter) {
-                    LibraryFilter.ALL          -> stringResource(R.string.filter_all)
-                    LibraryFilter.READING      -> stringResource(R.string.filter_reading)
-                    LibraryFilter.FINISHED     -> stringResource(R.string.filter_finished)
-                    LibraryFilter.WANT_TO_READ -> stringResource(R.string.filter_want_to_read)
-                    LibraryFilter.DNF          -> stringResource(R.string.filter_dnf)
-                    LibraryFilter.FAVORITES    -> stringResource(R.string.filter_favourites)
-                }
-                FilterChip(
-                    selected = selectedFilter == filter,
-                    onClick = { viewModel.setFilter(filter) },
-                    label = {
-                        Text(
-                            text = "${filter.emoji} $label",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+/** Stateless shelves layout, driven only by [state] so it can be previewed and tested. */
+@Composable
+fun LibraryContent(
+    state: LibraryUiState,
+    selectedFilter: LibraryFilter,
+    onFilterSelected: (LibraryFilter) -> Unit,
+    onOpenBook: (String) -> Unit,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LibraryTheme.colors
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
+    LazyColumn(
+        modifier.fillMaxSize().background(colors.background),
+        contentPadding = PaddingValues(bottom = LibraryDimens.spaceXl),
+    ) {
+        item(key = KEY_HEADER) {
+            Box {
+                LaceHeader(height = LibraryDimens.headerHeightCompact + statusBarTop, color = colors.accentLight)
+                ShelvesHeader(
+                    totalBooks = state.totalBooks,
+                    modifier = Modifier.padding(
+                        start = LibraryDimens.screenPadding,
+                        end = LibraryDimens.screenPadding,
+                        top = statusBarTop + LibraryDimens.spaceXl,
                     ),
-                    shape = RoundedCornerShape(20.dp)
                 )
             }
         }
+        item(key = KEY_FILTERS) {
+            FilterRow(state.counts, selectedFilter, onFilterSelected)
+        }
+        item(key = KEY_SECTION) {
+            SectionLine(selectedFilter, state.books.size)
+        }
+        if (state.isEmpty) {
+            item(key = KEY_EMPTY) {
+                EmptyShelf(onSearch, Modifier.padding(horizontal = LibraryDimens.screenPadding))
+            }
+        } else {
+            items(state.books, key = { it.id }) { book ->
+                CatalogueRow(
+                    book = book,
+                    onClick = { onOpenBook(book.id) },
+                    modifier = Modifier.padding(
+                        horizontal = LibraryDimens.screenPadding,
+                        vertical = LibraryDimens.spaceXs + LibraryDimens.spaceXxs,
+                    ),
+                )
+            }
+        }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
+private const val KEY_HEADER = "header"
+private const val KEY_FILTERS = "filters"
+private const val KEY_SECTION = "section"
+private const val KEY_EMPTY = "empty"
 
-        AnimatedContent(
-            targetState = uiState.isEmpty,
-            label = "library_content"
-        ) { isEmpty ->
-            if (isEmpty) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    EmptyState(
-                        icon = "📭",
-                        title = stringResource(R.string.library_empty_title),
-                        subtitle = stringResource(R.string.library_empty_subtitle)
+@Composable
+private fun ShelvesHeader(totalBooks: Int, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                pluralStringResource(R.plurals.shelves_books_catalogued, totalBooks, totalBooks),
+                style = type.hand,
+                color = colors.accentDeep,
+            )
+            Text(stringResource(R.string.shelves_title), style = type.title, color = colors.ink)
+        }
+        Sprig(stem = colors.accentDeep, leaf = colors.paper)
+    }
+}
+
+@Composable
+private fun FilterRow(
+    counts: Map<LibraryFilter, Int>,
+    selected: LibraryFilter,
+    onSelected: (LibraryFilter) -> Unit,
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = LibraryDimens.screenPadding),
+        horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        modifier = Modifier.padding(top = LibraryDimens.spaceLg),
+    ) {
+        items(LibraryFilter.entries, key = { it.name }) { filter ->
+            LibraryChip(
+                text = stringResource(R.string.shelves_filter_count, stringResource(filter.labelRes), counts[filter] ?: 0),
+                selected = filter == selected,
+                onClick = { onSelected(filter) },
+            )
+        }
+    }
+}
+
+/** Small caps line naming the current filter and how many books it shows. */
+@Composable
+private fun SectionLine(filter: LibraryFilter, count: Int) {
+    val locale = LocalConfiguration.current.locales[0]
+    val text = listOf(
+        stringResource(filter.labelRes),
+        pluralStringResource(R.plurals.shelves_section_count, count, count),
+    ).joinToString(stringResource(R.string.home_stats_separator)).uppercase(locale)
+    Text(
+        text,
+        style = LibraryTheme.typography.label,
+        color = LibraryTheme.colors.inkMuted,
+        modifier = Modifier.padding(
+            start = LibraryDimens.screenPadding,
+            end = LibraryDimens.screenPadding,
+            top = LibraryDimens.spaceLg,
+            bottom = LibraryDimens.spaceSm,
+        ),
+    )
+}
+
+/** One book as a catalogue card: cover with its spine label, title, author and status line. */
+@Composable
+private fun CatalogueRow(book: Book, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    PaperCard(
+        modifier
+            .fillMaxWidth()
+            .clip(LibraryShapes.row)
+            .clickable(role = Role.Button, onClick = onClick),
+        cornerRadius = LibraryDimens.radiusRow,
+    ) {
+        Row(
+            Modifier.padding(
+                start = LibraryDimens.spaceSm + LibraryDimens.spaceXxs,
+                top = LibraryDimens.spaceSm + LibraryDimens.spaceXxs,
+                bottom = LibraryDimens.spaceSm + LibraryDimens.spaceXxs,
+                end = LibraryDimens.spaceMd,
+            ),
+            horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CoverWithSpineLabel(book)
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(
+                        book.title,
+                        style = type.titleSmall,
+                        color = colors.ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (book.isFavorite) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = stringResource(R.string.cd_favourite),
+                            tint = colors.blush,
+                            modifier = Modifier.size(LibraryDimens.badgeIcon),
+                        )
+                    }
+                }
+                Text(book.author, style = type.body, color = colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(LibraryDimens.spaceXs + LibraryDimens.spaceXxs))
+                StatusLine(book)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CoverWithSpineLabel(book: Book) {
+    val spine = SpineCode.from(book.author, book.title)
+    Box {
+        BookCover(
+            title = book.title,
+            author = book.author,
+            coverUrl = book.coverUrl,
+            modifier = Modifier.size(LibraryDimens.coverRowWidth, LibraryDimens.coverRowHeight),
+            cornerRadius = LibraryDimens.radiusCover,
+        )
+        if (spine.author.isNotEmpty()) {
+            SpineLabel(
+                topLine = spine.author,
+                bottomLine = spine.title,
+                modifier = Modifier.align(Alignment.BottomStart).padding(LibraryDimens.spaceXxs),
+            )
+        }
+    }
+}
+
+/** What each status shows under the author: progress, rating and finish stamp, or where it was left. */
+@Composable
+private fun StatusLine(book: Book) {
+    val colors = LibraryTheme.colors
+    val locale = LocalConfiguration.current.locales[0]
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+    ) {
+        StatusTag(stringResource(book.status.labelRes).uppercase(locale), book.status.tagColor())
+        when (book.status) {
+            ReadingStatus.READING -> {
+                val pages = book.pageCount
+                if (pages != null && pages > 0) {
+                    ReadingProgress(
+                        fraction = book.currentPage.toFloat() / pages,
+                        height = LibraryDimens.progressHeightSmall,
+                        modifier = Modifier.weight(1f),
                     )
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 16.dp
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.books, key = { it.id }) { book ->
-                        LibraryBookItem(
-                            book = book,
-                            onClick = {
-                                navController.navigate(
-                                    Screen.BookDetail.createRoute(book.id)
-                                )
-                            }
-                        )
-                    }
+            }
+            ReadingStatus.FINISHED -> {
+                if (book.rating > 0f) {
+                    val stars = book.rating.roundToInt()
+                    StarRating(book.rating, pluralStringResource(R.plurals.cd_rating, RATING_MAX, stars, RATING_MAX))
+                }
+                Spacer(Modifier.weight(1f))
+                book.finishDate?.let { finished ->
+                    DateStamp(
+                        label = stringResource(R.string.stamp_read),
+                        epochMillis = finished,
+                        size = LibraryDimens.stampSizeSmall,
+                        rotation = FINISH_STAMP_ROTATION,
+                    )
                 }
             }
+            ReadingStatus.DNF -> if (book.currentPage > 0) {
+                Text(
+                    stringResource(R.string.shelves_dnf_at_page, book.currentPage),
+                    style = LibraryTheme.typography.handSmall,
+                    color = colors.inkMuted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            ReadingStatus.WANT_TO_READ -> Unit
         }
     }
 }
 
+private const val FINISH_STAMP_ROTATION = -10f
+
 @Composable
-fun LibraryBookItem(
-    book: Book,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier.clickable(onClick = onClick),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        // ─── Portada con badges encima ───────────────────
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.65f)
+private fun EmptyShelf(onSearch: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    PaperCard(modifier.fillMaxWidth()) {
+        Column(
+            Modifier.fillMaxWidth().padding(LibraryDimens.spaceXl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
         ) {
-            BookCover(
-                title = book.title,
-                author = book.author,
-                coverUrl = book.coverUrl,
-                modifier = Modifier.fillMaxSize(),
-                cornerRadius = 10.dp
-            )
-
-            // Status badge
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(4.dp),
-                shape = RoundedCornerShape(4.dp),
-                color = statusColor(book.status)
-            ) {
-                Text(
-                    text = statusEmoji(book.status),
-                    modifier = Modifier.padding(2.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // Favorite
-            if (book.isFavorite) {
-                Text(
-                    text = "❤️",
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // Progress bar
-            if (book.status == ReadingStatus.READING && book.pageCount != null && book.pageCount > 0) {
-                val progress = (book.currentPage.toFloat() / book.pageCount).coerceIn(0f, 1f)
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .align(Alignment.BottomCenter),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
-                )
-            }
-
-            // Rating badge
-            if (book.rating > 0f && book.status == ReadingStatus.FINISHED) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(4.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text("⭐", style = MaterialTheme.typography.bodyMedium)
-                        Text(
-                            text = book.rating.toString(),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            }
+            Daisy(size = LibraryDimens.navIconContainer)
+            Text(stringResource(R.string.library_empty_title), style = type.titleSmall, color = colors.ink, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.library_empty_subtitle), style = type.body, color = colors.inkMuted, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(LibraryDimens.spaceXs))
+            PillButton(stringResource(R.string.home_search_book), onClick = onSearch)
         }
-
-        Text(
-            text = book.title,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = book.author,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 
+@get:StringRes
+private val LibraryFilter.labelRes: Int
+    get() = when (this) {
+        LibraryFilter.ALL -> R.string.filter_all
+        LibraryFilter.READING -> R.string.filter_reading
+        LibraryFilter.FINISHED -> R.string.filter_finished
+        LibraryFilter.WANT_TO_READ -> R.string.filter_want_to_read
+        LibraryFilter.DNF -> R.string.filter_dnf
+        LibraryFilter.FAVORITES -> R.string.filter_favourites
+    }
+
+@get:StringRes
+private val ReadingStatus.labelRes: Int
+    get() = when (this) {
+        ReadingStatus.READING -> R.string.status_reading
+        ReadingStatus.FINISHED -> R.string.status_finished
+        ReadingStatus.WANT_TO_READ -> R.string.status_want_to_read
+        ReadingStatus.DNF -> R.string.status_dnf
+    }
+
 @Composable
-private fun statusColor(status: ReadingStatus) = when (status) {
-    ReadingStatus.READING      -> MaterialTheme.colorScheme.secondaryContainer
-    ReadingStatus.FINISHED     -> MaterialTheme.colorScheme.primaryContainer
-    ReadingStatus.WANT_TO_READ -> MaterialTheme.colorScheme.tertiaryContainer
-    ReadingStatus.DNF          -> MaterialTheme.colorScheme.surfaceVariant
+private fun ReadingStatus.tagColor(): Color {
+    val colors = LibraryTheme.colors
+    return when (this) {
+        ReadingStatus.READING -> colors.accentLight
+        ReadingStatus.FINISHED -> colors.accent
+        ReadingStatus.WANT_TO_READ -> colors.primaryLight
+        ReadingStatus.DNF -> colors.blush
+    }
 }
 
-private fun statusEmoji(status: ReadingStatus) = when (status) {
-    ReadingStatus.READING      -> "📖"
-    ReadingStatus.FINISHED     -> "✅"
-    ReadingStatus.WANT_TO_READ -> "🔖"
-    ReadingStatus.DNF          -> "🚫"
+// region Previews
+
+private fun previewMillis(month: Int, day: Int) =
+    LocalDate.of(2026, month, day).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+private val previewBooks = listOf(
+    Book("1", "Throne of Glass", "Sarah J. Maas", null, null, 2012, 404, null, ReadingStatus.READING, currentPage = 212),
+    Book(
+        "2", "A Court of Thorns and Roses", "Sarah J. Maas", null, null, 2015, 419, null, ReadingStatus.FINISHED,
+        rating = 4f, finishDate = previewMillis(10, 28), isFavorite = true,
+    ),
+    Book("3", "Fourth Wing", "Rebecca Yarros", null, null, 2023, 498, null, ReadingStatus.READING, currentPage = 90),
+    Book("4", "Heir of Fire", "Sarah J. Maas", null, null, 2014, 562, null, ReadingStatus.WANT_TO_READ),
+    Book("5", "Six of Crows", "Leigh Bardugo", null, null, 2015, 465, null, ReadingStatus.DNF, currentPage = 140),
+)
+
+private val previewState = LibraryUiState(
+    books = previewBooks,
+    totalBooks = 27,
+    counts = mapOf(
+        LibraryFilter.ALL to 27,
+        LibraryFilter.READING to 2,
+        LibraryFilter.FINISHED to 9,
+        LibraryFilter.WANT_TO_READ to 14,
+        LibraryFilter.DNF to 2,
+        LibraryFilter.FAVORITES to 5,
+    ),
+)
+
+@Preview(name = "Shelves · English", locale = "en", widthDp = 390, heightDp = 844)
+@Preview(name = "Shelves · Spanish", locale = "es", widthDp = 390, heightDp = 844)
+@Composable
+private fun ShelvesPreview() = LibraryTheme {
+    LibraryContent(previewState, LibraryFilter.ALL, onFilterSelected = {}, onOpenBook = {}, onSearch = {})
 }
+
+@Preview(name = "Shelves · empty", locale = "es", widthDp = 390, heightDp = 844)
+@Composable
+private fun ShelvesEmptyPreview() = LibraryTheme {
+    LibraryContent(LibraryUiState(isEmpty = true), LibraryFilter.ALL, onFilterSelected = {}, onOpenBook = {}, onSearch = {})
+}
+
+// endregion

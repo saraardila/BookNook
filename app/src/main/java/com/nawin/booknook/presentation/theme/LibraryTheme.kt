@@ -185,7 +185,8 @@ object LibraryDimens {
     val sectionGap = 28.dp
 
     // Screen layout
-    val homeHeaderHeight = 150.dp
+    val headerHeight = 150.dp
+    val headerHeightCompact = 112.dp
     val navBarMargin = 16.dp
 
     // Covers and photos
@@ -193,6 +194,8 @@ object LibraryDimens {
     val coverLoanHeight = 88.dp
     val coverShelfWidth = 90.dp
     val coverShelfHeight = 134.dp
+    val coverRowWidth = 50.dp
+    val coverRowHeight = 76.dp
     val polaroidBorder = 4.dp
     val polaroidCaption = 12.dp
 
@@ -219,6 +222,9 @@ object LibraryDimens {
     val navIconContainer = 34.dp
     val navIcon = 20.dp
     val progressHeight = 9.dp
+    val progressHeightSmall = 7.dp
+    val starSize = 13.dp
+    val badgeIcon = 16.dp
 
     // Decorations
     val washiHeight = 18.dp
@@ -230,6 +236,7 @@ object LibraryDimens {
     val screwSize = 6.dp
     val archRingGap = 6.dp
     val stampSize = 62.dp
+    val stampSizeSmall = 46.dp
     val rosetteSize = 52.dp
     val sealSize = 72.dp
     val daisySize = 24.dp

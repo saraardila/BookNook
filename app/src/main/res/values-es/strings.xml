@@ -38,7 +38,6 @@
     <string name="search_clear">Borrar</string>
 
     <!-- Library -->
-    <string name="library_title">Mi biblioteca</string>
     <string name="library_all">Todos</string>
     <string name="library_reading">Leyendo</string>
     <string name="library_finished">Terminados</string>
@@ -74,7 +73,6 @@
     <string name="common_published">Publicado en %1$d</string>
 
     <!-- Library -->
-    <string name="library_collection_count">%1$d libros en tu colección</string>
 
     <!-- Library filters -->
     <string name="filter_all">Todos</string>
@@ -178,4 +176,23 @@
     <string name="cd_licence_earned">Licencia conseguida</string>
     <string name="cd_licence_locked">Licencia aún sin conseguir</string>
     <string name="cd_wax_seal">Sello de la biblioteca</string>
+    <!-- Redesign: shelves -->
+    <string name="shelves_title">Mis estantes</string>
+    <plurals name="shelves_books_catalogued">
+        <item quantity="one">%d libro fichado</item>
+        <item quantity="many">%d libros fichados</item>
+        <item quantity="other">%d libros fichados</item>
+    </plurals>
+    <plurals name="shelves_section_count">
+        <item quantity="one">%d libro</item>
+        <item quantity="many">%d libros</item>
+        <item quantity="other">%d libros</item>
+    </plurals>
+    <string name="shelves_dnf_at_page">en la pág. %d</string>
+    <plurals name="cd_rating">
+        <item quantity="one">%1$d de %2$d estrella</item>
+        <item quantity="many">%1$d de %2$d estrellas</item>
+        <item quantity="other">%1$d de %2$d estrellas</item>
+    </plurals>
+    <string name="cd_favourite">Favorito</string>
 </resources>

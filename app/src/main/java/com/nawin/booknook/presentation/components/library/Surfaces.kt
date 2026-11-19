@@ -122,10 +122,11 @@ private fun Screw() = Box(
 
 /**
  * Spine label (the library call-number sticker) for the bottom corner of a
- * cover: a shelf code over the first letters of the author.
+ * cover, with two short lines of code: usually a shelf or author code over
+ * a title code (see `SpineCode` in the shelves screen).
  */
 @Composable
-fun SpineLabel(shelfCode: String, authorCode: String, modifier: Modifier = Modifier) {
+fun SpineLabel(topLine: String, bottomLine: String, modifier: Modifier = Modifier) {
     val colors = LibraryTheme.colors
     Box(
         modifier
@@ -134,7 +135,7 @@ fun SpineLabel(shelfCode: String, authorCode: String, modifier: Modifier = Modif
             .padding(horizontal = LibraryDimens.spaceXs, vertical = LibraryDimens.spaceXxs),
     ) {
         Text(
-            text = "$shelfCode\n$authorCode",
+            text = "$topLine\n$bottomLine",
             style = LibraryTheme.typography.label.copy(fontSize = SPINE_LABEL_TEXT, letterSpacing = SPINE_LABEL_TRACKING, lineHeight = SPINE_LABEL_TEXT),
             color = colors.spineLabelInk,
         )
@@ -146,12 +147,16 @@ private val SPINE_LABEL_TRACKING = 0.3.sp
 
 /** Reading progress: a rounded track with the read part filled. */
 @Composable
-fun ReadingProgress(fraction: Float, modifier: Modifier = Modifier) {
+fun ReadingProgress(
+    fraction: Float,
+    modifier: Modifier = Modifier,
+    height: Dp = LibraryDimens.progressHeight,
+) {
     val colors = LibraryTheme.colors
     Box(
         modifier
             .fillMaxWidth()
-            .height(LibraryDimens.progressHeight)
+            .height(height)
             .clip(LibraryShapes.pill)
             .background(colors.accentLight)
             .border(LibraryDimens.strokeThin, colors.outline, LibraryShapes.pill),
@@ -159,7 +164,7 @@ fun ReadingProgress(fraction: Float, modifier: Modifier = Modifier) {
         Box(
             Modifier
                 .fillMaxWidth(fraction.coerceIn(0f, 1f))
-                .height(LibraryDimens.progressHeight)
+                .height(height)
                 .background(colors.accentDeep),
         )
     }

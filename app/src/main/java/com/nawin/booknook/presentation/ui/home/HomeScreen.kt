@@ -44,7 +44,7 @@ import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.presentation.components.BookCover
 import com.nawin.booknook.presentation.components.library.Daisy
-import com.nawin.booknook.presentation.components.library.InkStamp
+import com.nawin.booknook.presentation.components.library.DateStamp
 import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.LibraryChip
 import com.nawin.booknook.presentation.components.library.PaperCard
@@ -61,11 +61,9 @@ import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
 import org.koin.compose.viewmodel.koinViewModel
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.TextStyle as DateTextStyle
 
 /** Home tab: greeting, library summary, the book being read and recent finishes. */
 @Composable
@@ -109,7 +107,7 @@ fun HomeContent(
             .verticalScroll(rememberScrollState()),
     ) {
         Box {
-            LaceHeader(height = LibraryDimens.homeHeaderHeight + statusBarTop)
+            LaceHeader(height = LibraryDimens.headerHeight + statusBarTop)
             HomeHeader(
                 dayPeriod = dayPeriod,
                 state = state,
@@ -221,6 +219,8 @@ private fun LoanCard(book: Book, onClick: () -> Unit) {
                 label = stringResource(R.string.stamp_started),
                 epochMillis = started,
                 modifier = Modifier.align(Alignment.TopEnd).offset(x = LibraryDimens.spaceSm, y = -LibraryDimens.spaceXl),
+                rotation = DATE_STAMP_ROTATION,
+                background = colors.paper,
             )
         }
     }
@@ -251,21 +251,6 @@ private fun ProgressRow(book: Book) {
 }
 
 private const val PERCENT = 100
-
-/** Ink stamp showing a day and short month, formatted for the current locale. */
-@Composable
-private fun DateStamp(label: String, epochMillis: Long, modifier: Modifier = Modifier) {
-    val locale = currentLocale()
-    val date = remember(epochMillis) { Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
-    InkStamp(
-        top = label,
-        middle = date.dayOfMonth.toString().padStart(2, '0'),
-        bottom = date.month.getDisplayName(DateTextStyle.SHORT, locale).uppercase(locale).trimEnd('.'),
-        modifier = modifier,
-        rotation = DATE_STAMP_ROTATION,
-        background = LibraryTheme.colors.paper,
-    )
-}
 
 private const val DATE_STAMP_ROTATION = 12f
 

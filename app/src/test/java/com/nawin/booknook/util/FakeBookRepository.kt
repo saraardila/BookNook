@@ -5,6 +5,7 @@ import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
 /** Lets a test decide what each query returns and how long it takes. */
@@ -14,13 +15,16 @@ class FakeBookRepository(
 
     val addedBooks = mutableListOf<Book>()
 
+    /** What getMyLibrary() emits; set its value to change the library during a test. */
+    val library = MutableStateFlow<List<Book>>(emptyList())
+
     override suspend fun searchBooks(query: String): Result<List<Book>> = onSearch(query)
 
     override suspend fun addBookToLibrary(book: Book) {
         addedBooks += book
     }
 
-    override fun getMyLibrary(): Flow<List<Book>> = flowOf(emptyList())
+    override fun getMyLibrary(): Flow<List<Book>> = library
     override fun getBooksByStatus(status: ReadingStatus): Flow<List<Book>> = flowOf(emptyList())
     override fun getBookById(id: String): Flow<Book?> = flowOf(null)
     override suspend fun updateBook(book: Book) = Unit

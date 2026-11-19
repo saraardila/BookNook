@@ -8,6 +8,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryTheme
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.TextStyle as DateTextStyle
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -100,6 +105,33 @@ private fun StampLine(text: String, style: TextStyle, maxSize: TextUnit, width: 
     )
 }
 
+/**
+ * [InkStamp] showing a day and short month under [label] (e.g. READ / 28 / OCT),
+ * with the month name formatted for the current locale.
+ */
+@Composable
+fun DateStamp(
+    label: String,
+    epochMillis: Long,
+    modifier: Modifier = Modifier,
+    size: Dp = LibraryDimens.stampSize,
+    rotation: Float = STAMP_DEFAULT_ROTATION,
+    background: Color = Color.Transparent,
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val date = remember(epochMillis) { Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
+    InkStamp(
+        top = label,
+        middle = date.dayOfMonth.toString().padStart(DAY_DIGITS, '0'),
+        bottom = date.month.getDisplayName(DateTextStyle.SHORT, locale).uppercase(locale).trimEnd('.'),
+        modifier = modifier,
+        size = size,
+        rotation = rotation,
+        background = background,
+    )
+}
+
+private const val DAY_DIGITS = 2
 private val STAMP_MIN_TEXT = 5.sp
 private const val STAMP_OUTER_LINE_WIDTH = 0.62f
 private const val STAMP_DEFAULT_ROTATION = -8f

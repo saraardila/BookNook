@@ -5,38 +5,36 @@ import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
+/** Shelves tab: the whole library, filtered by reading status or favourites. */
 class LibraryViewModel(
-    private val getMyLibraryUseCase: GetMyLibraryUseCase
+    getMyLibraryUseCase: GetMyLibraryUseCase,
 ) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(LibraryFilter.ALL)
     val selectedFilter: StateFlow<LibraryFilter> = _selectedFilter.asStateFlow()
 
-    private val _allBooks = getMyLibraryUseCase()
-
     val uiState: StateFlow<LibraryUiState> = combine(
-        _allBooks,
-        _selectedFilter
+        getMyLibraryUseCase(),
+        _selectedFilter,
     ) { books, filter ->
-        val filtered = when (filter) {
-            LibraryFilter.ALL          -> books
-            LibraryFilter.READING      -> books.filter { it.status == ReadingStatus.READING }
-            LibraryFilter.FINISHED     -> books.filter { it.status == ReadingStatus.FINISHED }
-            LibraryFilter.WANT_TO_READ -> books.filter { it.status == ReadingStatus.WANT_TO_READ }
-            LibraryFilter.DNF          -> books.filter { it.status == ReadingStatus.DNF }
-            LibraryFilter.FAVORITES    -> books.filter { it.isFavorite }
-        }
+        val filtered = books.filter(filter::matches)
         LibraryUiState(
             books = filtered,
             totalBooks = books.size,
-            isEmpty = filtered.isEmpty()
+            counts = LibraryFilter.entries.associateWith { f -> books.count(f::matches) },
+            isEmpty = filtered.isEmpty(),
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = LibraryUiState()
+        initialValue = LibraryUiState(),
     )
 
     fun setFilter(filter: LibraryFilter) {
@@ -44,17 +42,33 @@ class LibraryViewModel(
     }
 }
 
-enum class LibraryFilter(val label: String, val emoji: String) {
-    ALL("All", "📚"),
-    READING("Reading", "📖"),
-    FINISHED("Finished", "✅"),
-    WANT_TO_READ("Want to Read", "🔖"),
-    DNF("DNF", "🚫"),
-    FAVORITES("Favourites", "❤️")
+/** Filters shown as chips on the shelves screen. Labels live in the UI layer. */
+enum class LibraryFilter {
+    ALL,
+    READING,
+    FINISHED,
+    WANT_TO_READ,
+    DNF,
+    FAVORITES;
+
+    fun matches(book: Book): Boolean = when (this) {
+        ALL -> true
+        READING -> book.status == ReadingStatus.READING
+        FINISHED -> book.status == ReadingStatus.FINISHED
+        WANT_TO_READ -> book.status == ReadingStatus.WANT_TO_READ
+        DNF -> book.status == ReadingStatus.DNF
+        FAVORITES -> book.isFavorite
+    }
 }
 
+/**
+ * @property books books matching the selected filter.
+ * @property totalBooks size of the whole library.
+ * @property counts number of books each filter would show.
+ */
 data class LibraryUiState(
     val books: List<Book> = emptyList(),
     val totalBooks: Int = 0,
-    val isEmpty: Boolean = false
+    val counts: Map<LibraryFilter, Int> = emptyMap(),
+    val isEmpty: Boolean = false,
 )
