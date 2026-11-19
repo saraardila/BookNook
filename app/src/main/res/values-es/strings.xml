@@ -198,4 +198,7 @@
     <string name="stamp_in_your">EN TU</string>
     <string name="stamp_shelf">ESTANTE</string>
     <string name="cd_add_to_shelves">Añadir a mis estantes</string>
+    <!-- Redesign: loading -->
+    <string name="loading_shelves">buscando en los estantes…</string>
+    <string name="cd_loading">Cargando</string>
 </resources>

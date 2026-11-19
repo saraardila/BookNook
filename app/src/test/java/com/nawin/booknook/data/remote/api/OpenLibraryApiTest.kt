@@ -62,6 +62,21 @@ class OpenLibraryApiTest {
     }
 
     @Test
+    fun `searchBooks sends lang only when a language is given`() = runTest {
+        val urls = mutableListOf<String>()
+        val api = apiRespondingWith { request ->
+            urls += request.url.toString()
+            respond(searchJson, HttpStatusCode.OK, jsonHeaders)
+        }
+
+        api.searchBooks("maas", language = "es", limit = 5, fields = "key")
+        api.searchBooks("maas", limit = 5, fields = "key")
+
+        assertEquals("https://openlibrary.org/search.json?q=maas&lang=es&limit=5&fields=key", urls[0])
+        assertEquals("https://openlibrary.org/search.json?q=maas&limit=5&fields=key", urls[1])
+    }
+
+    @Test
     fun `searchBooks parses docs with missing and unknown fields`() = runTest {
         val api = apiRespondingWith { respond(searchJson, HttpStatusCode.OK, jsonHeaders) }
 

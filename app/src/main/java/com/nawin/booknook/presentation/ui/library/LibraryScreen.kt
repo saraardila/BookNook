@@ -49,6 +49,7 @@ import com.nawin.booknook.presentation.components.library.NoticeCard
 import com.nawin.booknook.presentation.components.library.PaperCard
 import com.nawin.booknook.presentation.components.library.RATING_MAX
 import com.nawin.booknook.presentation.components.library.ReadingProgress
+import com.nawin.booknook.presentation.components.library.ShelfLoader
 import com.nawin.booknook.presentation.components.library.Sprig
 import com.nawin.booknook.presentation.components.library.StarRating
 import com.nawin.booknook.presentation.components.library.StatusTag
@@ -110,8 +111,11 @@ fun LibraryContent(
                 )
             }
         }
-        // While the library loads, only the header is shown: no zero counts or empty card.
-        if (state.isLoading) return@LazyColumn
+        // While the library loads: no zero counts or empty card, only the loader if it is slow.
+        if (state.isLoading) {
+            item(key = KEY_LOADING) { ShelfLoader(Modifier.padding(top = LibraryDimens.sectionGap)) }
+            return@LazyColumn
+        }
         item(key = KEY_FILTERS) {
             FilterRow(state.counts, selectedFilter, onFilterSelected)
         }
@@ -141,6 +145,7 @@ private const val KEY_HEADER = "header"
 private const val KEY_FILTERS = "filters"
 private const val KEY_SECTION = "section"
 private const val KEY_EMPTY = "empty"
+private const val KEY_LOADING = "loading"
 
 /** [totalBooks] is null while the library loads; the count line then stays blank. */
 @Composable

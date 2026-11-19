@@ -243,6 +243,10 @@ object LibraryDimens {
     val sealSize = 72.dp
     val daisySize = 24.dp
     val sprigSize = 46.dp
+    val loaderWidth = 72.dp
+    val loaderHeight = 56.dp
+    val loaderSpineWidth = 13.dp
+    val loaderLift = 10.dp
 }
 
 // endregion

@@ -15,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,7 +35,8 @@ class BookRepositoryImplTest {
         return BookRepositoryImpl(
             bookDao = StubBookDao(),
             bookNoteDao = StubBookNoteDao(),
-            api = OpenLibraryApi(client)
+            api = OpenLibraryApi(client),
+            languageProvider = { "en" },
         )
     }
 
@@ -57,11 +59,56 @@ class BookRepositoryImplTest {
         val client = HttpClient(MockEngine { respond("", HttpStatusCode.ServiceUnavailable) }) {
             openLibraryDefaults()
         }
-        val repository = BookRepositoryImpl(StubBookDao(), StubBookNoteDao(), OpenLibraryApi(client))
+        val repository = BookRepositoryImpl(StubBookDao(), StubBookNoteDao(), OpenLibraryApi(client)) { "en" }
 
         val result = repository.searchBooks("heir of fire")
 
         assertTrue(result.isFailure)
+    }
+
+    // Trimmed real answer to "sarah j maas" with lang=es: the first edition is in
+    // Spanish, the second work's only matched edition is Polish.
+    private val editionsJson = """
+        {"docs":[
+          {"key":"/works/OL17860744W","title":"Throne of Glass","author_name":["Sarah J. Maas"],"cover_i":1,
+           "editions":{"docs":[{"key":"/books/OL1M","title":"Trono de Cristal","cover_i":2,"language":["spa"]}]}},
+          {"key":"/works/OL2W","title":"Heir of Fire","cover_i":3,
+           "editions":{"docs":[{"key":"/books/OL2M","title":"Dziedziczka ognia","cover_i":4,"language":["pol"]}]}}
+        ]}
+    """.trimIndent()
+
+    private fun repositoryInLanguage(language: String, onUrl: (String) -> Unit = {}): BookRepositoryImpl {
+        val client = HttpClient(MockEngine { request ->
+            onUrl(request.url.toString())
+            respond(editionsJson, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+        }) { openLibraryDefaults() }
+        return BookRepositoryImpl(StubBookDao(), StubBookNoteDao(), OpenLibraryApi(client)) { language }
+    }
+
+    @Test
+    fun `searches in the app language and uses the edition in that language`() = runTest {
+        var url = ""
+        val books = repositoryInLanguage("es") { url = it }.searchBooks("sarah j maas").getOrThrow()
+
+        assertTrue("lang not sent: $url", "lang=es" in url)
+        assertEquals("OL17860744W", books[0].id) // still the work, so the library recognises it
+        assertEquals("Trono de Cristal", books[0].title)
+        assertEquals("https://covers.openlibrary.org/b/id/2-L.jpg", books[0].coverUrl)
+    }
+
+    @Test
+    fun `an edition in another language is ignored`() = runTest {
+        val books = repositoryInLanguage("es").searchBooks("sarah j maas").getOrThrow()
+
+        assertEquals("Heir of Fire", books[1].title)
+        assertEquals("https://covers.openlibrary.org/b/id/3-L.jpg", books[1].coverUrl)
+    }
+
+    @Test
+    fun `in English the Spanish edition is not used`() = runTest {
+        val books = repositoryInLanguage("en").searchBooks("sarah j maas").getOrThrow()
+
+        assertEquals("Throne of Glass", books[0].title)
     }
 }
 

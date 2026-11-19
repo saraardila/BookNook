@@ -3,6 +3,8 @@ package com.nawin.booknook.data.repository
 import com.nawin.booknook.data.local.dao.BookDao
 import com.nawin.booknook.data.local.dao.BookNoteDao
 import com.nawin.booknook.data.local.entity.toEntity
+import com.nawin.booknook.data.locale.LanguageProvider
+import com.nawin.booknook.data.remote.OpenLibraryLanguage
 import com.nawin.booknook.data.remote.api.OpenLibraryApi
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
@@ -15,13 +17,17 @@ import kotlinx.coroutines.flow.map
 class BookRepositoryImpl(
     private val bookDao: BookDao,
     private val bookNoteDao: BookNoteDao,
-    private val api: OpenLibraryApi
+    private val api: OpenLibraryApi,
+    private val languageProvider: LanguageProvider,
 ) : BookRepository {
 
     override suspend fun searchBooks(query: String): Result<List<Book>> {
         return try {
-            val response = api.searchBooks(query)
-            Result.success(response.docs.map { it.toDomain() })
+            // Results come in the app language when Open Library has an edition in it.
+            val language = languageProvider.current()
+            val response = api.searchBooks(query, language = language)
+            val marcCode = OpenLibraryLanguage.marcCode(language)
+            Result.success(response.docs.map { it.toDomain(marcCode) })
         } catch (e: CancellationException) {
             // A cancelled search is not a failure to report: let it unwind the coroutine
             throw e

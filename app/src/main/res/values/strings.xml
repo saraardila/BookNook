@@ -196,4 +196,7 @@
     <string name="stamp_shelf">SHELF</string>
     <string name="stamp_check" translatable="false">✓</string>
     <string name="cd_add_to_shelves">Add to my shelves</string>
+    <!-- Redesign: loading -->
+    <string name="loading_shelves">looking through the shelves…</string>
+    <string name="cd_loading">Loading</string>
 </resources>

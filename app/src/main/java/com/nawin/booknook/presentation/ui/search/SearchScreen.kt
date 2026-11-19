@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -60,6 +59,7 @@ import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.NoticeCard
 import com.nawin.booknook.presentation.components.library.PaperCard
 import com.nawin.booknook.presentation.components.library.RoundIconButton
+import com.nawin.booknook.presentation.components.library.ShelfLoader
 import com.nawin.booknook.presentation.components.library.drawFlatShadow
 import com.nawin.booknook.presentation.navigation.Screen
 import com.nawin.booknook.presentation.theme.LibraryDimens
@@ -233,12 +233,7 @@ private fun ClearButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun Loading() = Box(
-    Modifier.fillMaxWidth().padding(vertical = LibraryDimens.sectionGap),
-    contentAlignment = Alignment.Center,
-) {
-    CircularProgressIndicator(color = LibraryTheme.colors.primary)
-}
+private fun Loading() = ShelfLoader(Modifier.padding(vertical = LibraryDimens.sectionGap))
 
 @Composable
 private fun Notice(@StringRes titleRes: Int, @StringRes subtitleRes: Int, modifier: Modifier) = NoticeCard(

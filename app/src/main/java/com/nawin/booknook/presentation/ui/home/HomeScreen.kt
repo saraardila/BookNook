@@ -50,6 +50,7 @@ import com.nawin.booknook.presentation.components.library.PaperCard
 import com.nawin.booknook.presentation.components.library.Polaroid
 import com.nawin.booknook.presentation.components.library.ReadingProgress
 import com.nawin.booknook.presentation.components.library.Shelf
+import com.nawin.booknook.presentation.components.library.ShelfLoader
 import com.nawin.booknook.presentation.components.library.ShelfLabel
 import com.nawin.booknook.presentation.components.library.Sprig
 import com.nawin.booknook.presentation.components.library.WashiTape
@@ -124,9 +125,9 @@ fun HomeContent(
         ) {
             Spacer(Modifier.height(LibraryDimens.spaceSm))
             val current = state.currentlyReading
-            // While the library loads, show nothing rather than the empty-library card.
+            // While the library loads, show the loader (only if it is slow) rather than the empty card.
             when {
-                state.isLoading -> Unit
+                state.isLoading -> ShelfLoader(Modifier.padding(top = LibraryDimens.sectionGap))
                 current != null -> LoanCard(book = current, onClick = { onOpenBook(current.id) })
                 else -> EmptyLoanCard(onSearch = onSearch)
             }
