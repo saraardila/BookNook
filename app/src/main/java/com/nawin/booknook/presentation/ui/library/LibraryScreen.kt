@@ -101,7 +101,7 @@ fun LibraryContent(
             Box {
                 LaceHeader(height = LibraryDimens.headerHeightCompact + statusBarTop, color = colors.accentLight)
                 ShelvesHeader(
-                    totalBooks = state.totalBooks,
+                    totalBooks = state.totalBooks.takeUnless { state.isLoading },
                     modifier = Modifier.padding(
                         start = LibraryDimens.screenPadding,
                         end = LibraryDimens.screenPadding,
@@ -110,6 +110,8 @@ fun LibraryContent(
                 )
             }
         }
+        // While the library loads, only the header is shown: no zero counts or empty card.
+        if (state.isLoading) return@LazyColumn
         item(key = KEY_FILTERS) {
             FilterRow(state.counts, selectedFilter, onFilterSelected)
         }
@@ -140,14 +142,15 @@ private const val KEY_FILTERS = "filters"
 private const val KEY_SECTION = "section"
 private const val KEY_EMPTY = "empty"
 
+/** [totalBooks] is null while the library loads; the count line then stays blank. */
 @Composable
-private fun ShelvesHeader(totalBooks: Int, modifier: Modifier = Modifier) {
+private fun ShelvesHeader(totalBooks: Int?, modifier: Modifier = Modifier) {
     val colors = LibraryTheme.colors
     val type = LibraryTheme.typography
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f)) {
             Text(
-                pluralStringResource(R.plurals.shelves_books_catalogued, totalBooks, totalBooks),
+                totalBooks?.let { pluralStringResource(R.plurals.shelves_books_catalogued, it, it) }.orEmpty(),
                 style = type.hand,
                 color = colors.accentDeep,
             )
@@ -360,6 +363,7 @@ private val previewBooks = listOf(
 private val previewState = LibraryUiState(
     books = previewBooks,
     totalBooks = 27,
+    isLoading = false,
     counts = mapOf(
         LibraryFilter.ALL to 27,
         LibraryFilter.READING to 2,
@@ -380,7 +384,7 @@ private fun ShelvesPreview() = LibraryTheme {
 @Preview(name = "Shelves · empty", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun ShelvesEmptyPreview() = LibraryTheme {
-    LibraryContent(LibraryUiState(isEmpty = true), LibraryFilter.ALL, onFilterSelected = {}, onOpenBook = {}, onSearch = {})
+    LibraryContent(LibraryUiState(isEmpty = true, isLoading = false), LibraryFilter.ALL, onFilterSelected = {}, onOpenBook = {}, onSearch = {})
 }
 
 // endregion

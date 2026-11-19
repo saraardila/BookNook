@@ -73,4 +73,13 @@ class LibraryViewModelTest {
 
         assertTrue(viewModel.uiState.value.isEmpty)
     }
+
+    @Test
+    fun `is loading until the library has been read`() = runTest {
+        assertTrue(viewModel.uiState.value.isLoading)
+        collectState()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.isLoading)
+    }
 }

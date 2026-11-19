@@ -21,7 +21,8 @@ class HomeViewModel(
             recentlyFinished = finished.take(4),
             totalBooks = all.size,
             booksFinished = finished.size,
-            booksReading = reading.size
+            booksReading = reading.size,
+            isLoading = false,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -30,10 +31,15 @@ class HomeViewModel(
     )
 }
 
+/**
+ * @property isLoading true until the library has been read once, so an empty
+ * library is not shown ("0 books", the empty loan card) while it loads.
+ */
 data class HomeUiState(
     val currentlyReading: Book? = null,
     val recentlyFinished: List<Book> = emptyList(),
     val totalBooks: Int = 0,
     val booksFinished: Int = 0,
-    val booksReading: Int = 0
+    val booksReading: Int = 0,
+    val isLoading: Boolean = true,
 )

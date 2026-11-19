@@ -124,10 +124,11 @@ fun HomeContent(
         ) {
             Spacer(Modifier.height(LibraryDimens.spaceSm))
             val current = state.currentlyReading
-            if (current != null) {
-                LoanCard(book = current, onClick = { onOpenBook(current.id) })
-            } else {
-                EmptyLoanCard(onSearch = onSearch)
+            // While the library loads, show nothing rather than the empty-library card.
+            when {
+                state.isLoading -> Unit
+                current != null -> LoanCard(book = current, onClick = { onOpenBook(current.id) })
+                else -> EmptyLoanCard(onSearch = onSearch)
             }
             if (state.recentlyFinished.isNotEmpty()) {
                 RecentlyFinishedShelf(
@@ -161,7 +162,8 @@ private fun HomeHeader(
         Spacer(Modifier.height(LibraryDimens.spaceSm))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = libraryStats(state),
+                // Empty while loading, so the row keeps its height and nothing jumps.
+                text = if (state.isLoading) "" else libraryStats(state),
                 style = type.chip,
                 color = colors.inkMuted,
                 modifier = Modifier.weight(1f),
@@ -339,6 +341,7 @@ private val previewState = HomeUiState(
     totalBooks = 27,
     booksFinished = 9,
     booksReading = 2,
+    isLoading = false,
 )
 
 @Preview(name = "Home · English", locale = "en", widthDp = 390, heightDp = 844)
@@ -351,7 +354,7 @@ private fun HomePreview() = LibraryTheme {
 @Preview(name = "Home · empty", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomeEmptyPreview() = LibraryTheme {
-    HomeContent(HomeUiState(), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
+    HomeContent(HomeUiState(isLoading = false), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
 }
 
 // endregion

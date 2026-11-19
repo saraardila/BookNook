@@ -30,6 +30,7 @@ class LibraryViewModel(
             totalBooks = books.size,
             counts = LibraryFilter.entries.associateWith { f -> books.count(f::matches) },
             isEmpty = filtered.isEmpty(),
+            isLoading = false,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -65,10 +66,12 @@ enum class LibraryFilter {
  * @property books books matching the selected filter.
  * @property totalBooks size of the whole library.
  * @property counts number of books each filter would show.
+ * @property isLoading true until the library has been read once.
  */
 data class LibraryUiState(
     val books: List<Book> = emptyList(),
     val totalBooks: Int = 0,
     val counts: Map<LibraryFilter, Int> = emptyMap(),
     val isEmpty: Boolean = false,
+    val isLoading: Boolean = true,
 )
