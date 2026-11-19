@@ -199,6 +199,46 @@ fun StarRating(rating: Float, contentDescription: String, modifier: Modifier = M
     }
 }
 
+/**
+ * Editable rating: one star button per point, each at least the minimum touch
+ * size. Tapping the current rating again clears it. Each star is announced as a
+ * radio button with [starDescription] (e.g. "3 of 5 stars").
+ */
+@Composable
+fun RatingInput(
+    rating: Float,
+    onRatingChange: (Float) -> Unit,
+    starDescription: @Composable (stars: Int) -> String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LibraryTheme.colors
+    val current = rating.roundToInt().coerceIn(0, RATING_MAX)
+    Row(modifier.selectableGroup()) {
+        for (stars in 1..RATING_MAX) {
+            val description = starDescription(stars)
+            Box(
+                Modifier
+                    .minimumInteractiveComponentSize()
+                    .clip(LibraryShapes.pill)
+                    .selectable(
+                        selected = stars == current,
+                        role = Role.RadioButton,
+                        onClick = { onRatingChange(if (stars == current) 0f else stars.toFloat()) },
+                    )
+                    .semantics { contentDescription = description },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Filled.Star,
+                    contentDescription = null,
+                    tint = if (stars <= current) colors.primary else colors.primary.copy(alpha = EMPTY_STAR_ALPHA),
+                    modifier = Modifier.size(LibraryDimens.ratingStar),
+                )
+            }
+        }
+    }
+}
+
 /** Highest rating a book can get. */
 const val RATING_MAX = 5
 private const val EMPTY_STAR_ALPHA = 0.28f

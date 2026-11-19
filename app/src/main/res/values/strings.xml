@@ -41,7 +41,7 @@
     <string name="library_empty_subtitle">Search and add books to your library</string>
 
     <!-- Book Detail -->
-    <string name="detail_my_review">My Review</string>
+    <string name="detail_my_review">MY REVIEW</string>
     <string name="detail_write_review">Write your thoughts about this book…</string>
     <string name="detail_update_progress">Update progress</string>
     <string name="detail_current_page">Current page</string>
@@ -75,8 +75,8 @@
     <string name="filter_favourites">Favourites</string>
 
     <!-- Book Detail -->
-    <string name="detail_rating">My Rating</string>
-    <string name="detail_notes_empty">No notes yet. Add your first one!</string>
+    <string name="detail_rating">MY RATING</string>
+    <string name="detail_notes_empty">no notes yet</string>
     <string name="detail_favourite">Favourite</string>
 
     <!-- Status -->
@@ -95,10 +95,10 @@
     <string name="stat_reading_label">reading</string>
     <string name="stat_finished_label">finished</string>
 
-    <string name="detail_dates">Reading Dates</string>
-    <string name="detail_start_date">Started</string>
-    <string name="detail_finish_date">Finished</string>
-    <string name="detail_date_not_set">Tap to set</string>
+    <string name="detail_dates">READING DATES</string>
+    <string name="detail_start_date">STARTED</string>
+    <string name="detail_finish_date">FINISHED</string>
+    <string name="detail_date_not_set">tap to choose</string>
     <string name="detail_share_progress">Share progress</string>
 
 
@@ -210,4 +210,6 @@
     <string name="detail_catalogue_year">YEAR</string>
     <string name="detail_catalogue_pages">PAGES</string>
     <string name="detail_add_note_short">+ Note</string>
+    <string name="detail_notes_label">NOTES</string>
+    <string name="detail_note_page">p. %d</string>
 </resources>

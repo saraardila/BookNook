@@ -43,7 +43,7 @@
     <string name="library_empty_subtitle">Busca y añade libros a tu biblioteca</string>
 
     <!-- Book Detail -->
-    <string name="detail_my_review">Mi reseña</string>
+    <string name="detail_my_review">MI RESEÑA</string>
     <string name="detail_write_review">Escribe lo que te ha parecido…</string>
     <string name="detail_update_progress">Actualizar progreso</string>
     <string name="detail_current_page">Página actual</string>
@@ -77,8 +77,8 @@
     <string name="filter_favourites">Favoritos</string>
 
     <!-- Book Detail -->
-    <string name="detail_rating">Mi valoración</string>
-    <string name="detail_notes_empty">Aún no hay notas. ¡Añade la primera!</string>
+    <string name="detail_rating">MI VALORACIÓN</string>
+    <string name="detail_notes_empty">aún no hay notas</string>
     <string name="detail_favourite">Favorito</string>
 
     <!-- Status -->
@@ -97,10 +97,10 @@
     <string name="stat_reading_label">leyendo</string>
     <string name="stat_finished_label">terminados</string>
 
-    <string name="detail_dates">Fechas de lectura</string>
-    <string name="detail_start_date">Empezado</string>
-    <string name="detail_finish_date">Terminado</string>
-    <string name="detail_date_not_set">Toca para elegir</string>
+    <string name="detail_dates">FECHAS DE LECTURA</string>
+    <string name="detail_start_date">EMPEZADO</string>
+    <string name="detail_finish_date">TERMINADO</string>
+    <string name="detail_date_not_set">toca para elegir</string>
     <string name="detail_share_progress">Compartir progreso</string>
 
     <!-- Calendar -->
@@ -213,4 +213,6 @@
     <string name="detail_catalogue_year">AÑO</string>
     <string name="detail_catalogue_pages">PÁGINAS</string>
     <string name="detail_add_note_short">+ Nota</string>
+    <string name="detail_notes_label">NOTAS</string>
+    <string name="detail_note_page">pág. %d</string>
 </resources>

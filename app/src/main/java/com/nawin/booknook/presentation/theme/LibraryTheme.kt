@@ -238,6 +238,7 @@ object LibraryDimens {
     val progressHeight = 9.dp
     val progressHeightSmall = 7.dp
     val starSize = 13.dp
+    val ratingStar = 30.dp
     val badgeIcon = 16.dp
 
     // Decorations

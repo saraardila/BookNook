@@ -3,6 +3,7 @@ package com.nawin.booknook.presentation.ui.bookdetail
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -26,13 +28,14 @@ import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
-import com.nawin.booknook.presentation.components.CozyCard
 import com.nawin.booknook.presentation.components.library.CatalogueCover
 import com.nawin.booknook.presentation.components.library.ArchFrame
 import com.nawin.booknook.presentation.components.library.Daisy
 import com.nawin.booknook.presentation.components.library.DateStamp
 import com.nawin.booknook.presentation.components.library.PaperCard
 import com.nawin.booknook.presentation.components.library.PillButton
+import com.nawin.booknook.presentation.components.library.RATING_MAX
+import com.nawin.booknook.presentation.components.library.RatingInput
 import com.nawin.booknook.presentation.components.library.ReadingProgress
 import com.nawin.booknook.presentation.components.library.RoundIconButton
 import com.nawin.booknook.presentation.components.library.SegmentedPills
@@ -42,13 +45,12 @@ import com.nawin.booknook.presentation.components.library.Sprig
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +100,9 @@ fun BookDetailScreen(
         )
     }
 
-    Column(Modifier.fillMaxSize().background(colors.background)) {
+    // Insets on the outer column: scrolled content is clipped below the status bar,
+    // and imePadding keeps the review field above the keyboard.
+    Column(Modifier.fillMaxSize().background(colors.background).statusBarsPadding().imePadding()) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             BookSummary(
                 book = book,
@@ -109,100 +113,16 @@ fun BookDetailScreen(
                 onEditPage = { viewModel.showProgressDialog(true) },
             )
 
-            Spacer(modifier = Modifier.height(LibraryDimens.sectionGap))
-
-            // Rating
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.detail_rating),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                StarRating(
-                    rating = book.rating,
-                    onRatingChange = { viewModel.updateRating(it) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Dates
-            DateSection(
-                startDate = book.startDate,
-                finishDate = book.finishDate,
-                onStartDateChange = { viewModel.updateStartDate(it) },
-                onFinishDateChange = { viewModel.updateFinishDate(it) }
+            Spacer(Modifier.height(LibraryDimens.spaceMd))
+            ReadingRecord(
+                book = book,
+                notes = uiState.notes,
+                onRatingChange = viewModel::updateRating,
+                onStartDateChange = viewModel::updateStartDate,
+                onFinishDateChange = viewModel::updateFinishDate,
+                onSaveReview = viewModel::updateReview,
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Review
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.detail_my_review),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                var reviewText by remember { mutableStateOf(book.review ?: "") }
-                OutlinedTextField(
-                    value = reviewText,
-                    onValueChange = { reviewText = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.detail_write_review),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    minLines = 3,
-                    maxLines = 6,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                    )
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                FilledTonalButton(
-                    onClick = { viewModel.updateReview(reviewText) },
-                    modifier = Modifier.align(Alignment.End),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.detail_save),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Notes
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.detail_notes),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                if (uiState.notes.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.detail_notes_empty),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        uiState.notes.forEach { note -> NoteCard(note = note) }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(LibraryDimens.sectionGap))
+            Spacer(Modifier.height(LibraryDimens.sectionGap))
         }
 
         BookActions(
@@ -256,7 +176,7 @@ private fun BookSummary(
 @Composable
 private fun CoverHeader(book: Book, onBack: () -> Unit, onToggleFavourite: () -> Unit) {
     val colors = LibraryTheme.colors
-    Box(Modifier.fillMaxWidth().statusBarsPadding()) {
+    Box(Modifier.fillMaxWidth()) {
         Box(
             Modifier.align(Alignment.TopCenter).padding(top = LibraryDimens.spaceLg),
             contentAlignment = Alignment.TopCenter,
@@ -506,146 +426,222 @@ private val ReadingStatus.labelRes: Int
         ReadingStatus.DNF -> R.string.status_dnf
     }
 
+/**
+ * The reader's own record of the book, below the summary: rating, reading
+ * dates, review and notes, each on its own paper card.
+ */
+@Composable
+private fun ReadingRecord(
+    book: Book,
+    notes: List<BookNote>,
+    onRatingChange: (Float) -> Unit,
+    onStartDateChange: (Long) -> Unit,
+    onFinishDateChange: (Long) -> Unit,
+    onSaveReview: (String) -> Unit,
+) {
+    Column(
+        Modifier.padding(horizontal = LibraryDimens.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+    ) {
+        RatingCard(book.rating, onRatingChange)
+        DatesCard(book.startDate, book.finishDate, onStartDateChange, onFinishDateChange)
+        ReviewCard(book.review.orEmpty(), onSaveReview)
+        NotesCard(notes)
+    }
+}
+
+/** A paper card with a small uppercase [label] over its [content]. */
+@Composable
+private fun RecordCard(
+    label: String,
+    modifier: Modifier = Modifier,
+    trailing: @Composable () -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = LibraryTheme.colors
+    PaperCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(horizontal = LibraryDimens.spaceLg - LibraryDimens.spaceXxs, vertical = LibraryDimens.spaceMd)) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(label, style = LibraryTheme.typography.label, color = colors.primary)
+                trailing()
+            }
+            content()
+        }
+    }
+}
+
+@Composable
+private fun RatingCard(rating: Float, onRatingChange: (Float) -> Unit) {
+    RecordCard(stringResource(R.string.detail_rating)) {
+        RatingInput(
+            rating = rating,
+            onRatingChange = onRatingChange,
+            // The noun agrees with the total ("1 of 5 stars"), so the quantity is RATING_MAX.
+            starDescription = { stars -> pluralStringResource(R.plurals.cd_rating, RATING_MAX, stars, RATING_MAX) },
+            modifier = Modifier.offset(x = -LibraryDimens.spaceSm),
+        )
+    }
+}
+
+/**
+ * Start and finish dates side by side; each opens a date picker. The picker
+ * works in UTC midnights, so dates are converted through [LocalDate] to keep
+ * the same calendar day in any time zone.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateSection(
+private fun DatesCard(
     startDate: Long?,
     finishDate: Long?,
     onStartDateChange: (Long) -> Unit,
-    onFinishDateChange: (Long) -> Unit
+    onFinishDateChange: (Long) -> Unit,
 ) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-    var showStartPicker by remember { mutableStateOf(false) }
-    var showFinishPicker by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf<DateField?>(null) }
 
-    if (showStartPicker) {
-        val state = rememberDatePickerState(initialSelectedDateMillis = startDate ?: System.currentTimeMillis())
+    editing?.let { field ->
+        val initial = if (field == DateField.START) startDate else finishDate
+        val state = rememberDatePickerState(initialSelectedDateMillis = (initial ?: System.currentTimeMillis()).toPickerMillis())
         DatePickerDialog(
-            onDismissRequest = { showStartPicker = false },
+            onDismissRequest = { editing = null },
             confirmButton = {
                 TextButton(onClick = {
-                    state.selectedDateMillis?.let { onStartDateChange(it) }
-                    showStartPicker = false
+                    state.selectedDateMillis?.let { picked ->
+                        val local = picked.fromPickerMillis()
+                        if (field == DateField.START) onStartDateChange(local) else onFinishDateChange(local)
+                    }
+                    editing = null
                 }) { Text(stringResource(R.string.detail_save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showStartPicker = false }) { Text(stringResource(R.string.common_cancel)) }
-            }
-        ) { DatePicker(state = state) }
-    }
-
-    if (showFinishPicker) {
-        val state = rememberDatePickerState(initialSelectedDateMillis = finishDate ?: System.currentTimeMillis())
-        DatePickerDialog(
-            onDismissRequest = { showFinishPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    state.selectedDateMillis?.let { onFinishDateChange(it) }
-                    showFinishPicker = false
-                }) { Text(stringResource(R.string.detail_save)) }
+                TextButton(onClick = { editing = null }) { Text(stringResource(R.string.common_cancel)) }
             },
-            dismissButton = {
-                TextButton(onClick = { showFinishPicker = false }) { Text(stringResource(R.string.common_cancel)) }
-            }
         ) { DatePicker(state = state) }
     }
 
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.detail_dates),
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+    RecordCard(stringResource(R.string.detail_dates)) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Same height for both, whether a date or the taller handwritten hint is shown.
+            Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(top = LibraryDimens.spaceSm),
+            horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
         ) {
-            DateChip(
-                modifier = Modifier.weight(1f),
-                label = stringResource(R.string.detail_start_date),
-                date = startDate?.let { dateFormat.format(Date(it)) },
-                emoji = "📖",
-                onClick = { showStartPicker = true }
-            )
-            DateChip(
-                modifier = Modifier.weight(1f),
-                label = stringResource(R.string.detail_finish_date),
-                date = finishDate?.let { dateFormat.format(Date(it)) },
-                emoji = "✅",
-                onClick = { showFinishPicker = true }
+            DateField(stringResource(R.string.detail_start_date), startDate, { editing = DateField.START }, Modifier.weight(1f).fillMaxHeight())
+            DateField(stringResource(R.string.detail_finish_date), finishDate, { editing = DateField.FINISH }, Modifier.weight(1f).fillMaxHeight())
+        }
+    }
+}
+
+private enum class DateField { START, FINISH }
+
+@Composable
+private fun DateField(label: String, date: Long?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Column(
+        modifier
+            .clip(LibraryShapes.label)
+            .background(colors.background)
+            .border(LibraryDimens.strokeHairline, colors.outline, LibraryShapes.label)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = LibraryDimens.spaceMd, vertical = LibraryDimens.spaceSm),
+        verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXxs),
+    ) {
+        Text(label, style = type.label, color = colors.inkMuted)
+        if (date != null) {
+            Text(formatDate(date), style = type.chip, color = colors.ink)
+        } else {
+            Text(stringResource(R.string.detail_date_not_set), style = type.handSmall, color = colors.inkMuted)
+        }
+    }
+}
+
+/** Free-text review; "Save" appears only when the text differs from the saved one. */
+@Composable
+private fun ReviewCard(savedReview: String, onSave: (String) -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    var text by remember(savedReview) { mutableStateOf(savedReview) }
+    RecordCard(stringResource(R.string.detail_my_review)) {
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it },
+            textStyle = type.body.copy(color = colors.ink),
+            cursorBrush = SolidColor(colors.primary),
+            minLines = REVIEW_MIN_LINES,
+            modifier = Modifier.fillMaxWidth().padding(top = LibraryDimens.spaceSm),
+            decorationBox = { field ->
+                Box {
+                    if (text.isEmpty()) {
+                        Text(stringResource(R.string.detail_write_review), style = type.body, color = colors.inkMuted)
+                    }
+                    field()
+                }
+            },
+        )
+        if (text.trim() != savedReview.trim()) {
+            PillButton(
+                stringResource(R.string.detail_save),
+                onClick = { onSave(text.trim()) },
+                modifier = Modifier.align(Alignment.End).padding(top = LibraryDimens.spaceSm),
             )
         }
     }
 }
 
+/** The book's notes, newest first, or a short handwritten hint when there are none. */
 @Composable
-fun DateChip(
-    modifier: Modifier = Modifier,
-    label: String,
-    date: String?,
-    emoji: String,
-    onClick: () -> Unit
-) {
-    CozyCard(
-        modifier = modifier,
-        onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        contentPadding = PaddingValues(12.dp)
+private fun NotesCard(notes: List<BookNote>) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    RecordCard(
+        label = stringResource(R.string.detail_notes_label),
+        trailing = {
+            if (notes.isNotEmpty()) Text(notes.size.toString(), style = type.label, color = colors.inkMuted)
+        },
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = emoji, style = MaterialTheme.typography.bodyMedium)
-                Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+        if (notes.isEmpty()) {
             Text(
-                text = date ?: stringResource(R.string.detail_date_not_set),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (date != null) MaterialTheme.colorScheme.onSurface
-                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                stringResource(R.string.detail_notes_empty),
+                style = type.handSmall,
+                color = colors.inkMuted,
+                modifier = Modifier.padding(top = LibraryDimens.spaceSm),
             )
         }
-    }
-}
-
-@Composable
-fun StarRating(rating: Float, onRatingChange: (Float) -> Unit, maxStars: Int = 5) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        for (i in 1..maxStars) {
-            IconButton(onClick = { onRatingChange(i.toFloat()) }, modifier = Modifier.size(36.dp)) {
-                Icon(
-                    imageVector = if (i <= rating) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = null,
-                    tint = if (i <= rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(28.dp)
-                )
+        notes.sortedByDescending { it.createdAt }.forEachIndexed { index, note ->
+            if (index > 0) {
+                HorizontalDivider(thickness = LibraryDimens.strokeHairline, color = colors.outline)
+            }
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = LibraryDimens.spaceSm),
+                verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXxs),
+            ) {
+                val where = listOfNotNull(
+                    note.chapter,
+                    note.page?.let { stringResource(R.string.detail_note_page, it) },
+                ).joinToString(NOTE_META_SEPARATOR)
+                if (where.isNotEmpty()) Text(where, style = type.label, color = colors.primary)
+                Text(note.content, style = type.body, color = colors.ink)
+                Text(formatDate(note.createdAt), style = type.handSmall, color = colors.inkMuted)
             }
         }
     }
 }
 
-@Composable
-fun NoteCard(note: BookNote) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (note.chapter != null) {
-                Text(text = note.chapter, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            }
-            Text(text = note.content, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-            Text(text = dateFormat.format(Date(note.createdAt)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
+/** Local midnight of the same calendar day, as the date picker expects it: UTC midnight. */
+private fun Long.toPickerMillis(): Long =
+    Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
+        .atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+/** The picker's UTC midnight back to local midnight of the same calendar day. */
+private fun Long.fromPickerMillis(): Long =
+    Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
+        .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+private const val REVIEW_MIN_LINES = 3
+private const val NOTE_META_SEPARATOR = " · "
 
 @Composable
 fun ProgressUpdateDialog(currentPage: Int, totalPages: Int, onConfirm: (Int) -> Unit, onDismiss: () -> Unit) {
