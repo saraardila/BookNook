@@ -1,4 +1,4 @@
-package com.nawin.booknook.presentation.ui.library
+package com.nawin.booknook.presentation.components.library
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

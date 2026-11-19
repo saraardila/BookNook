@@ -218,6 +218,8 @@ object LibraryDimens {
     val touchTarget = 48.dp
     val buttonMinHeight = 52.dp
     val chipMinHeight = 36.dp
+    val roundButton = 44.dp
+    val clearButton = 32.dp
     val navBarHeight = 66.dp
     val navIconContainer = 34.dp
     val navIcon = 20.dp

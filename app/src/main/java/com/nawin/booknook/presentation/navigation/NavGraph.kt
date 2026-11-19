@@ -31,11 +31,11 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable(Screen.Library.route) {
             LibraryScreen(navController = navController)
         }
+        composable(Screen.Search.route) {
+            SearchScreen(navController = navController)
+        }
 
         // Screens not redesigned yet keep the top inset they always had.
-        composable(Screen.Search.route) {
-            LegacyScreen { SearchScreen(navController = navController) }
-        }
         composable(Screen.Calendar.route) {
             LegacyScreen { CalendarScreen(navController = navController) }
         }

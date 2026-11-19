@@ -1,6 +1,7 @@
 package com.nawin.booknook.presentation.ui.search
 
 import com.nawin.booknook.domain.usecase.AddBookToLibraryUseCase
+import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
 import com.nawin.booknook.domain.usecase.SearchBooksUseCase
 import com.nawin.booknook.util.FakeBookRepository
 import com.nawin.booknook.util.MainDispatcherRule
@@ -11,6 +12,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
@@ -25,7 +27,8 @@ class SearchViewModelTest {
 
     private fun viewModel() = SearchViewModel(
         SearchBooksUseCase(repository),
-        AddBookToLibraryUseCase(repository)
+        AddBookToLibraryUseCase(repository),
+        GetMyLibraryUseCase(repository),
     )
 
     /**
@@ -87,5 +90,32 @@ class SearchViewModelTest {
 
         assertNull(viewModel.uiState.value.error)
         assertEquals(emptyList<String>(), viewModel.uiState.value.books.map { it.id })
+    }
+
+    @Test
+    fun `books already in the library come first`() = runTest {
+        repository.library.value = listOf(book("MINE"))
+        repository.onSearch = { Result.success(listOf(book("OTHER"), book("MINE"))) }
+        val viewModel = viewModel()
+
+        viewModel.onQueryChange("maas")
+        advanceUntilIdle()
+
+        assertEquals(listOf("MINE", "OTHER"), viewModel.uiState.value.books.map { it.id })
+    }
+
+    @Test
+    fun `adding a book marks it as shelved without reordering the results`() = runTest {
+        repository.onSearch = { Result.success(listOf(book("A"), book("B"))) }
+        val viewModel = viewModel()
+        viewModel.onQueryChange("maas")
+        advanceUntilIdle()
+
+        viewModel.addToLibrary(book("B"))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue("B" in state.library)
+        assertEquals(listOf("A", "B"), state.books.map { it.id })
     }
 }

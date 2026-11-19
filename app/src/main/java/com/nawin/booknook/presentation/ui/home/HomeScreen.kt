@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,12 +42,11 @@ import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.presentation.components.BookCover
-import com.nawin.booknook.presentation.components.library.Daisy
 import com.nawin.booknook.presentation.components.library.DateStamp
 import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.components.library.NoticeCard
 import com.nawin.booknook.presentation.components.library.PaperCard
-import com.nawin.booknook.presentation.components.library.PillButton
 import com.nawin.booknook.presentation.components.library.Polaroid
 import com.nawin.booknook.presentation.components.library.ReadingProgress
 import com.nawin.booknook.presentation.components.library.Shelf
@@ -255,23 +253,12 @@ private const val PERCENT = 100
 private const val DATE_STAMP_ROTATION = 12f
 
 @Composable
-private fun EmptyLoanCard(onSearch: () -> Unit) {
-    val colors = LibraryTheme.colors
-    val type = LibraryTheme.typography
-    PaperCard(Modifier.fillMaxWidth()) {
-        Column(
-            Modifier.fillMaxWidth().padding(LibraryDimens.spaceXl),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
-        ) {
-            Daisy(size = LibraryDimens.navIconContainer)
-            Text(stringResource(R.string.home_no_book_title), style = type.titleSmall, color = colors.ink, textAlign = TextAlign.Center)
-            Text(stringResource(R.string.home_no_book_subtitle), style = type.body, color = colors.inkMuted, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(LibraryDimens.spaceXs))
-            PillButton(stringResource(R.string.home_search_book), onClick = onSearch)
-        }
-    }
-}
+private fun EmptyLoanCard(onSearch: () -> Unit) = NoticeCard(
+    title = stringResource(R.string.home_no_book_title),
+    subtitle = stringResource(R.string.home_no_book_subtitle),
+    actionLabel = stringResource(R.string.home_search_book),
+    onAction = onSearch,
+)
 
 /** Recently finished books standing on a shelf, with a link to all shelves. */
 @Composable

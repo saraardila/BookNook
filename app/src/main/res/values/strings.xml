@@ -22,8 +22,6 @@
     <string name="stat_finished">Finished</string>
 
     <!-- Search -->
-    <string name="search_title">Discover Books</string>
-    <string name="search_subtitle">Find your next great read</string>
     <string name="search_placeholder">Search by title, author…</string>
     <string name="search_empty_title">Search for books</string>
     <string name="search_empty_subtitle">Type at least 2 characters to start searching</string>
@@ -31,8 +29,6 @@
     <string name="search_no_results_subtitle">Try a different search term</string>
     <string name="search_error_title">Oops!</string>
     <string name="search_error_subtitle">Couldn\'t connect. Check your internet.</string>
-    <string name="search_add">Add</string>
-    <string name="search_added">Added!</string>
     <string name="search_clear">Clear</string>
 
     <!-- Library -->
@@ -192,4 +188,12 @@
         <item quantity="other">%1$d of %2$d stars</item>
     </plurals>
     <string name="cd_favourite">Favourite</string>
+    <!-- Redesign: search -->
+    <string name="search_heading">Search</string>
+    <string name="search_scope">in all of Open Library</string>
+    <string name="search_your_shelf_first">your shelf first ↓</string>
+    <string name="stamp_in_your">IN YOUR</string>
+    <string name="stamp_shelf">SHELF</string>
+    <string name="stamp_check" translatable="false">✓</string>
+    <string name="cd_add_to_shelves">Add to my shelves</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -83,6 +84,35 @@ fun LibraryChip(
         contentAlignment = Alignment.Center,
     ) {
         Text(text, style = LibraryTheme.typography.chip, color = if (selected) colors.onPrimary else colors.ink)
+    }
+}
+
+/**
+ * Round paper button with an icon and the flat shadow (add, back, favourite…).
+ * The touch area grows to the minimum interactive size around the drawn circle.
+ */
+@Composable
+fun RoundIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    fill: Color = LibraryTheme.colors.paper,
+    tint: Color = LibraryTheme.colors.ink,
+) {
+    val colors = LibraryTheme.colors
+    Box(
+        modifier
+            .minimumInteractiveComponentSize()
+            .size(LibraryDimens.roundButton)
+            .drawBehind { drawFlatShadow(colors.shadow, CornerRadius(size.height / 2), LibraryDimens.shadowOffsetSmall) }
+            .clip(LibraryShapes.pill)
+            .background(fill)
+            .border(LibraryDimens.stroke, colors.outline, LibraryShapes.pill)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = contentDescription, tint = tint, modifier = Modifier.size(LibraryDimens.navIcon))
     }
 }
 

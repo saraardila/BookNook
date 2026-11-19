@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,16 +41,14 @@ import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
-import com.nawin.booknook.presentation.components.BookCover
-import com.nawin.booknook.presentation.components.library.Daisy
+import com.nawin.booknook.presentation.components.library.CatalogueCover
 import com.nawin.booknook.presentation.components.library.DateStamp
 import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.components.library.NoticeCard
 import com.nawin.booknook.presentation.components.library.PaperCard
-import com.nawin.booknook.presentation.components.library.PillButton
 import com.nawin.booknook.presentation.components.library.RATING_MAX
 import com.nawin.booknook.presentation.components.library.ReadingProgress
-import com.nawin.booknook.presentation.components.library.SpineLabel
 import com.nawin.booknook.presentation.components.library.Sprig
 import com.nawin.booknook.presentation.components.library.StarRating
 import com.nawin.booknook.presentation.components.library.StatusTag
@@ -224,7 +221,7 @@ private fun CatalogueRow(book: Book, onClick: () -> Unit, modifier: Modifier = M
             horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CoverWithSpineLabel(book)
+            CatalogueCover(book)
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.Top) {
                     Text(
@@ -248,27 +245,6 @@ private fun CatalogueRow(book: Book, onClick: () -> Unit, modifier: Modifier = M
                 Spacer(Modifier.height(LibraryDimens.spaceXs + LibraryDimens.spaceXxs))
                 StatusLine(book)
             }
-        }
-    }
-}
-
-@Composable
-private fun CoverWithSpineLabel(book: Book) {
-    val spine = SpineCode.from(book.author, book.title)
-    Box {
-        BookCover(
-            title = book.title,
-            author = book.author,
-            coverUrl = book.coverUrl,
-            modifier = Modifier.size(LibraryDimens.coverRowWidth, LibraryDimens.coverRowHeight),
-            cornerRadius = LibraryDimens.radiusCover,
-        )
-        if (spine.author.isNotEmpty()) {
-            SpineLabel(
-                topLine = spine.author,
-                bottomLine = spine.title,
-                modifier = Modifier.align(Alignment.BottomStart).padding(LibraryDimens.spaceXxs),
-            )
         }
     }
 }
@@ -326,23 +302,13 @@ private fun StatusLine(book: Book) {
 private const val FINISH_STAMP_ROTATION = -10f
 
 @Composable
-private fun EmptyShelf(onSearch: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = LibraryTheme.colors
-    val type = LibraryTheme.typography
-    PaperCard(modifier.fillMaxWidth()) {
-        Column(
-            Modifier.fillMaxWidth().padding(LibraryDimens.spaceXl),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
-        ) {
-            Daisy(size = LibraryDimens.navIconContainer)
-            Text(stringResource(R.string.library_empty_title), style = type.titleSmall, color = colors.ink, textAlign = TextAlign.Center)
-            Text(stringResource(R.string.library_empty_subtitle), style = type.body, color = colors.inkMuted, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(LibraryDimens.spaceXs))
-            PillButton(stringResource(R.string.home_search_book), onClick = onSearch)
-        }
-    }
-}
+private fun EmptyShelf(onSearch: () -> Unit, modifier: Modifier = Modifier) = NoticeCard(
+    title = stringResource(R.string.library_empty_title),
+    subtitle = stringResource(R.string.library_empty_subtitle),
+    modifier = modifier,
+    actionLabel = stringResource(R.string.home_search_book),
+    onAction = onSearch,
+)
 
 @get:StringRes
 private val LibraryFilter.labelRes: Int

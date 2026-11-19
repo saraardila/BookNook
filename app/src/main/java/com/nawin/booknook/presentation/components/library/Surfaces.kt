@@ -5,7 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.nawin.booknook.presentation.theme.LibraryDimens
@@ -47,6 +50,37 @@ fun PaperCard(
             .border(LibraryDimens.stroke, colors.outline, shape),
         content = content,
     )
+}
+
+/**
+ * Centred paper card with a daisy, a title and a line of help, used for empty
+ * and error states. Shows a button when both [actionLabel] and [onAction] are set.
+ */
+@Composable
+fun NoticeCard(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    PaperCard(modifier.fillMaxWidth()) {
+        Column(
+            Modifier.fillMaxWidth().padding(LibraryDimens.spaceXl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        ) {
+            Daisy(size = LibraryDimens.navIconContainer)
+            Text(title, style = type.titleSmall, color = colors.ink, textAlign = TextAlign.Center)
+            Text(subtitle, style = type.body, color = colors.inkMuted, textAlign = TextAlign.Center)
+            if (actionLabel != null && onAction != null) {
+                Spacer(Modifier.height(LibraryDimens.spaceXs))
+                PillButton(actionLabel, onClick = onAction)
+            }
+        }
+    }
 }
 
 /** Cottage-window arch with a double ring, shown behind covers. */

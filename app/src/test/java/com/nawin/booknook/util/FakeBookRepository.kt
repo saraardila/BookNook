@@ -22,6 +22,7 @@ class FakeBookRepository(
 
     override suspend fun addBookToLibrary(book: Book) {
         addedBooks += book
+        library.value = library.value + book
     }
 
     override fun getMyLibrary(): Flow<List<Book>> = library
