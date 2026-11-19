@@ -128,7 +128,7 @@
     <string name="journal_subtitle">%d libros terminados ✨</string>
     <string name="journal_empty_title">aún no hay libros</string>
     <string name="journal_empty_subtitle">termina un libro para verlo aquí 🌿</string>
-    <string name="journal_no_review">aún sin reseña... toca para escribir una</string>
+    <string name="journal_no_review">aún sin reseña… toca para escribir una</string>
 
     <!-- Redesign: bottom navigation -->
     <string name="nav_home">Inicio</string>
@@ -136,15 +136,34 @@
     <string name="nav_log">Anotar</string>
     <string name="nav_search">Buscar</string>
     <string name="nav_card">Carnet</string>
+    <string name="nav_journal">Diario</string>
+    <string name="nav_settings">Ajustes</string>
 
     <!-- Redesign: home -->
     <string name="home_greeting_afternoon">buenas tardes, %1$s</string>
     <string name="home_my_library">Mi biblioteca</string>
     <string name="loan_card_title">FICHA DE PRÉSTAMO · Nº %1$d</string>
+    <string name="loan_card_label">FICHA DE PRÉSTAMO</string>
+    <plurals name="home_stat_books">
+        <item quantity="one">%d libro</item>
+        <item quantity="many">%d libros</item>
+        <item quantity="other">%d libros</item>
+    </plurals>
+    <plurals name="home_stat_reading">
+        <item quantity="one">%d leyendo</item>
+        <item quantity="many">%d leyendo</item>
+        <item quantity="other">%d leyendo</item>
+    </plurals>
+    <plurals name="home_stat_finished">
+        <item quantity="one">%d terminado</item>
+        <item quantity="many">%d terminados</item>
+        <item quantity="other">%d terminados</item>
+    </plurals>
 
     <!-- Redesign: stamps -->
     <string name="stamp_return">DEVOLVER</string>
     <string name="stamp_read">LEÍDO</string>
+    <string name="stamp_started">EMPEZADO</string>
 
     <!-- Redesign: onboarding -->
     <string name="onboarding_get_card">Hacerme el carnet</string>

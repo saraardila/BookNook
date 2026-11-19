@@ -1,477 +1,385 @@
 package com.nawin.booknook.presentation.ui.home
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
+import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.presentation.components.BookCover
-import com.nawin.booknook.presentation.components.CozyButton
-import com.nawin.booknook.presentation.components.CozyCard
+import com.nawin.booknook.presentation.components.library.Daisy
+import com.nawin.booknook.presentation.components.library.InkStamp
+import com.nawin.booknook.presentation.components.library.LaceHeader
+import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.components.library.PaperCard
+import com.nawin.booknook.presentation.components.library.PillButton
+import com.nawin.booknook.presentation.components.library.Polaroid
+import com.nawin.booknook.presentation.components.library.ReadingProgress
+import com.nawin.booknook.presentation.components.library.Shelf
+import com.nawin.booknook.presentation.components.library.ShelfLabel
+import com.nawin.booknook.presentation.components.library.Sprig
+import com.nawin.booknook.presentation.components.library.WashiTape
 import com.nawin.booknook.presentation.navigation.Screen
-import java.util.Calendar
+import com.nawin.booknook.presentation.navigation.navigateToTopLevel
+import com.nawin.booknook.presentation.theme.LibraryDimens
+import com.nawin.booknook.presentation.theme.LibraryShapes
+import com.nawin.booknook.presentation.theme.LibraryTheme
+import org.koin.compose.viewmodel.koinViewModel
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.TextStyle as DateTextStyle
 
-data class FloatingElement(
-    val emoji: String,
-    val x: Float,
-    val y: Float,
-    val size: Float,
-    val rotationOffset: Float,
-    val animDelay: Int
-)
-
-val cozyElements = listOf(
-    FloatingElement("🐉", 0.05f, 0.08f, 28f, -15f, 0),
-    FloatingElement("⚔️", 0.88f, 0.05f, 22f, 20f, 200),
-    FloatingElement("🕯️", 0.15f, 0.22f, 20f, -5f, 400),
-    FloatingElement("☕", 0.82f, 0.18f, 24f, 8f, 100),
-    FloatingElement("🌿", 0.04f, 0.42f, 22f, -12f, 600),
-    FloatingElement("🌸", 0.90f, 0.38f, 20f, 15f, 300),
-    FloatingElement("🍓", 0.20f, 0.72f, 18f, -8f, 500),
-    FloatingElement("🦋", 0.78f, 0.65f, 22f, 10f, 700),
-    FloatingElement("❤️", 0.50f, 0.06f, 16f, 0f, 150),
-    FloatingElement("✨", 0.35f, 0.15f, 18f, 5f, 250),
-    FloatingElement("📚", 0.92f, 0.55f, 24f, -10f, 450),
-    FloatingElement("✨", 0.70f, 0.10f, 14f, 0f, 350),
-    FloatingElement("🤠", 0.08f, 0.60f, 22f, -5f, 550),
-    FloatingElement("🌸", 0.55f, 0.75f, 16f, 12f, 650),
-    FloatingElement("⭐", 0.40f, 0.82f, 14f, 0f, 750),
-    FloatingElement("🐉", 0.75f, 0.85f, 20f, 8f, 800)
-)
-
-@Composable
-fun FloatingBackground(modifier: Modifier = Modifier) {
-    BoxWithConstraints(modifier = modifier) {
-        val screenWidth = maxWidth
-        val screenHeight = maxHeight
-
-        cozyElements.forEach { element ->
-            val infiniteTransition = rememberInfiniteTransition(
-                label = "float_${element.animDelay}"
-            )
-            val offsetY by infiniteTransition.animateFloat(
-                initialValue = -6f,
-                targetValue = 6f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 3000 + element.animDelay,
-                        easing = EaseInOutSine
-                    ),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "offsetY_${element.animDelay}"
-            )
-            val rotation by infiniteTransition.animateFloat(
-                initialValue = element.rotationOffset - 3f,
-                targetValue = element.rotationOffset + 3f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = 4000 + element.animDelay,
-                        easing = EaseInOutSine
-                    ),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "rotation_${element.animDelay}"
-            )
-
-            Text(
-                text = element.emoji,
-                fontSize = element.size.sp,
-                modifier = Modifier
-                    .offset(
-                        x = screenWidth * element.x,
-                        y = screenHeight * element.y + offsetY.dp
-                    )
-                    .rotate(rotation)
-                    .alpha(0.30f)
-            )
-        }
-    }
-}
-
+/** Home tab: greeting, library summary, the book being read and recent finishes. */
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // Computed once per entry to Home; the greeting does not need to tick live.
+    val dayPeriod = remember { DayPeriod.fromHour(LocalTime.now().hour) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        FloatingBackground(modifier = Modifier.fillMaxSize())
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            GreetingHeader()
-            Spacer(modifier = Modifier.height(24.dp))
-            StatsRow(
-                totalBooks = uiState.totalBooks,
-                finished = uiState.booksFinished,
-                reading = uiState.booksReading
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.home_currently_reading),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            if (uiState.currentlyReading != null) {
-                CurrentlyReadingCard(
-                    book = uiState.currentlyReading!!,
-                    onClick = {
-                        navController.navigate(
-                            Screen.BookDetail.createRoute(uiState.currentlyReading!!.id)
-                        )
-                    }
-                )
-            } else {
-                EmptyReadingCard(
-                    onClick = { navController.navigate(Screen.Search.route) }
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            if (uiState.recentlyFinished.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.home_recently_finished),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    TextButton(onClick = { navController.navigate(Screen.Library.route) }) {
-                        Text(
-                            text = stringResource(R.string.home_see_all),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(uiState.recentlyFinished, key = { it.id }) { book ->
-                        SmallBookCard(book = book, onClick = {
-                            navController.navigate(Screen.BookDetail.createRoute(book.id))
-                        })
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-        }
-    }
+    HomeContent(
+        state = uiState,
+        dayPeriod = dayPeriod,
+        onOpenBook = { bookId -> navController.navigate(Screen.BookDetail.createRoute(bookId)) },
+        // Search and Shelves are tabs: open them as tabs, not on top of Home.
+        onSearch = { navController.navigateToTopLevel(Screen.Search.route) },
+        onSeeShelves = { navController.navigateToTopLevel(Screen.Library.route) },
+        onOpenCalendar = { navController.navigate(Screen.Calendar.route) },
+    )
 }
 
+/** Stateless Home layout, driven only by [state] so it can be previewed and tested. */
 @Composable
-fun GreetingHeader() {
-    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-    val greeting = when (hour) {
-        in 5..11  -> stringResource(R.string.greeting_morning)
-        in 12..17 -> stringResource(R.string.greeting_afternoon)
-        in 18..21 -> stringResource(R.string.greeting_evening)
-        else      -> stringResource(R.string.greeting_night)
-    }
-    val emoji = when (hour) {
-        in 5..11  -> "☀️"
-        in 12..17 -> "🌤️"
-        in 18..21 -> "🌙"
-        else      -> "✨"
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(text = emoji, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = greeting,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Text(
-            text = stringResource(R.string.home_title),
-            style = MaterialTheme.typography.displayMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Text(
-            text = "your reading companion 🌿",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-        )
-    }
-}
-
-@Composable
-fun StatsRow(totalBooks: Int, finished: Int, reading: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-    ) {
-        ScrapbookStatCard(
-            modifier = Modifier
-                .width(110.dp)
-                .align(Alignment.CenterStart)
-                .rotate(-4f)
-                .offset(x = 8.dp, y = 8.dp),
-            value = "$totalBooks",
-            label = "books",
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-        ScrapbookStatCard(
-            modifier = Modifier
-                .width(110.dp)
-                .align(Alignment.Center)
-                .rotate(2f)
-                .zIndex(1f),
-            value = "$reading",
-            label = "reading",
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        )
-        ScrapbookStatCard(
-            modifier = Modifier
-                .width(110.dp)
-                .align(Alignment.CenterEnd)
-                .rotate(5f)
-                .offset(x = (-8).dp, y = 4.dp),
-            value = "$finished",
-            label = "finished",
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        )
-    }
-}
-
-@Composable
-fun ScrapbookStatCard(
+fun HomeContent(
+    state: HomeUiState,
+    dayPeriod: DayPeriod,
+    onOpenBook: (String) -> Unit,
+    onSearch: () -> Unit,
+    onSeeShelves: () -> Unit,
+    onOpenCalendar: () -> Unit,
     modifier: Modifier = Modifier,
-    value: String,
-    label: String,
-    containerColor: Color
 ) {
-    Box(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(x = 3.dp, y = 3.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x22000000))
-        )
-        Column(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(containerColor)
-                .padding(12.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Box(
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(2.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
-            )
-        }
-    }
-}
+    val colors = LibraryTheme.colors
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
-@Composable
-fun CurrentlyReadingCard(book: Book, onClick: () -> Unit) {
-    CozyCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            // ─── BookCover ───────────────────────────────
-            BookCover(
-                title = book.title,
-                author = book.author,
-                coverUrl = book.coverUrl,
-                modifier = Modifier
-                    .width(90.dp)
-                    .height(130.dp),
-                cornerRadius = 18.dp
-            )
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = book.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = book.author,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                if (book.pageCount != null && book.pageCount > 0) {
-                    val progress = (book.currentPage.toFloat() / book.pageCount).coerceIn(0f, 1f)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    R.string.home_page_progress,
-                                    book.currentPage,
-                                    book.pageCount
-                                ),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = "${(progress * 100).toInt()}%",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp)),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EmptyReadingCard(onClick: () -> Unit) {
-    CozyCard(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        contentPadding = PaddingValues(32.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text("📖", style = MaterialTheme.typography.displayMedium)
-            Text(
-                text = stringResource(R.string.home_no_book_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.home_no_book_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            CozyButton(
-                text = stringResource(R.string.home_search_book),
-                onClick = onClick,
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Composable
-fun SmallBookCard(book: Book, onClick: () -> Unit) {
     Column(
-        modifier = Modifier
-            .width(90.dp)
-            .clickable(onClick = onClick),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        modifier
+            .fillMaxSize()
+            .background(colors.background)
+            .verticalScroll(rememberScrollState()),
     ) {
-        // ─── BookCover ───────────────────────────────────
-        Box(
-            modifier = Modifier
-                .width(90.dp)
-                .height(130.dp)
-        ) {
-            BookCover(
-                title = book.title,
-                author = book.author,
-                coverUrl = book.coverUrl,
-                modifier = Modifier.fillMaxSize(),
-                cornerRadius = 12.dp
+        Box {
+            LaceHeader(height = LibraryDimens.homeHeaderHeight + statusBarTop)
+            HomeHeader(
+                dayPeriod = dayPeriod,
+                state = state,
+                onOpenCalendar = onOpenCalendar,
+                modifier = Modifier.padding(
+                    start = LibraryDimens.screenPadding,
+                    end = LibraryDimens.screenPadding,
+                    top = statusBarTop + LibraryDimens.spaceXl,
+                ),
             )
-            if (book.rating > 0f) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(4.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text("⭐", style = MaterialTheme.typography.bodyMedium)
-                        Text(
-                            text = book.rating.toString(),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+        }
+
+        Column(
+            Modifier.padding(horizontal = LibraryDimens.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.sectionGap),
+        ) {
+            Spacer(Modifier.height(LibraryDimens.spaceSm))
+            val current = state.currentlyReading
+            if (current != null) {
+                LoanCard(book = current, onClick = { onOpenBook(current.id) })
+            } else {
+                EmptyLoanCard(onSearch = onSearch)
+            }
+            if (state.recentlyFinished.isNotEmpty()) {
+                RecentlyFinishedShelf(
+                    books = state.recentlyFinished,
+                    onOpenBook = onOpenBook,
+                    onSeeAll = onSeeShelves,
+                )
+            }
+            Spacer(Modifier.height(LibraryDimens.spaceLg))
+        }
+    }
+}
+
+@Composable
+private fun HomeHeader(
+    dayPeriod: DayPeriod,
+    state: HomeUiState,
+    onOpenCalendar: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Column(modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(dayPeriod.greetingRes).lowercase(currentLocale()), style = type.hand, color = colors.stamp)
+                Text(stringResource(R.string.home_my_library), style = type.title, color = colors.ink)
+            }
+            Sprig(stem = colors.primary, leaf = colors.primaryMid)
+        }
+        Spacer(Modifier.height(LibraryDimens.spaceSm))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = libraryStats(state),
+                style = type.chip,
+                color = colors.inkMuted,
+                modifier = Modifier.weight(1f),
+            )
+            LibraryChip(text = stringResource(R.string.calendar_title), onClick = onOpenCalendar)
+        }
+    }
+}
+
+@Composable
+private fun libraryStats(state: HomeUiState): String = listOf(
+    pluralStringResource(R.plurals.home_stat_books, state.totalBooks, state.totalBooks),
+    pluralStringResource(R.plurals.home_stat_reading, state.booksReading, state.booksReading),
+    pluralStringResource(R.plurals.home_stat_finished, state.booksFinished, state.booksFinished),
+).joinToString(stringResource(R.string.home_stats_separator))
+
+/** The book being read, shown as a library loan card with tape and a date stamp. */
+@Composable
+private fun LoanCard(book: Book, onClick: () -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Box {
+        PaperCard(
+            Modifier
+                .fillMaxWidth()
+                .clip(LibraryShapes.card)
+                .clickable(role = Role.Button, onClick = onClick),
+        ) {
+            Column(Modifier.padding(LibraryDimens.spaceLg - LibraryDimens.spaceXxs)) {
+                Text(stringResource(R.string.loan_card_label), style = type.label, color = colors.primary)
+                Spacer(Modifier.height(LibraryDimens.spaceMd))
+                Row(horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceLg)) {
+                    Polaroid {
+                        BookCover(
+                            title = book.title,
+                            author = book.author,
+                            coverUrl = book.coverUrl,
+                            modifier = Modifier.size(LibraryDimens.coverLoanWidth, LibraryDimens.coverLoanHeight),
+                            cornerRadius = LibraryDimens.radiusCover,
                         )
+                    }
+                    Column(Modifier.weight(1f).padding(end = LibraryDimens.spaceXl)) {
+                        Text(book.title, style = type.titleSmall, color = colors.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text(book.author, style = type.body, color = colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        ProgressRow(book)
                     }
                 }
             }
         }
+        WashiTape(Modifier.offset(x = LibraryDimens.spaceXl + LibraryDimens.spaceXs, y = -LibraryDimens.laceScallop))
+        book.startDate?.let { started ->
+            DateStamp(
+                label = stringResource(R.string.stamp_started),
+                epochMillis = started,
+                modifier = Modifier.align(Alignment.TopEnd).offset(x = LibraryDimens.spaceSm, y = -LibraryDimens.spaceXl),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProgressRow(book: Book) {
+    val pages = book.pageCount ?: return
+    if (pages <= 0) return
+    val colors = LibraryTheme.colors
+    val fraction = book.currentPage.toFloat() / pages
+    Spacer(Modifier.height(LibraryDimens.spaceSm))
+    ReadingProgress(fraction)
+    Spacer(Modifier.height(LibraryDimens.spaceXs))
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = book.title,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            stringResource(R.string.home_page_progress, book.currentPage, pages),
+            style = LibraryTheme.typography.chip,
+            color = colors.inkMuted,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            stringResource(R.string.home_progress_percent, (fraction * PERCENT).toInt()),
+            style = LibraryTheme.typography.handSmall,
+            color = colors.stamp,
         )
     }
 }
+
+private const val PERCENT = 100
+
+/** Ink stamp showing a day and short month, formatted for the current locale. */
+@Composable
+private fun DateStamp(label: String, epochMillis: Long, modifier: Modifier = Modifier) {
+    val locale = currentLocale()
+    val date = remember(epochMillis) { Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
+    InkStamp(
+        top = label,
+        middle = date.dayOfMonth.toString().padStart(2, '0'),
+        bottom = date.month.getDisplayName(DateTextStyle.SHORT, locale).uppercase(locale).trimEnd('.'),
+        modifier = modifier,
+        rotation = DATE_STAMP_ROTATION,
+        background = LibraryTheme.colors.paper,
+    )
+}
+
+private const val DATE_STAMP_ROTATION = 12f
+
+@Composable
+private fun EmptyLoanCard(onSearch: () -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    PaperCard(Modifier.fillMaxWidth()) {
+        Column(
+            Modifier.fillMaxWidth().padding(LibraryDimens.spaceXl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        ) {
+            Daisy(size = LibraryDimens.navIconContainer)
+            Text(stringResource(R.string.home_no_book_title), style = type.titleSmall, color = colors.ink, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.home_no_book_subtitle), style = type.body, color = colors.inkMuted, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(LibraryDimens.spaceXs))
+            PillButton(stringResource(R.string.home_search_book), onClick = onSearch)
+        }
+    }
+}
+
+/** Recently finished books standing on a shelf, with a link to all shelves. */
+@Composable
+private fun RecentlyFinishedShelf(
+    books: List<Book>,
+    onOpenBook: (String) -> Unit,
+    onSeeAll: () -> Unit,
+) {
+    val colors = LibraryTheme.colors
+    Column(verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ShelfLabel(stringResource(R.string.home_recently_finished))
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.home_see_all),
+                style = LibraryTheme.typography.chip,
+                color = colors.primary,
+                modifier = Modifier
+                    .heightIn(min = LibraryDimens.touchTarget)
+                    .clickable(role = Role.Button, onClick = onSeeAll)
+                    .padding(horizontal = LibraryDimens.spaceSm, vertical = LibraryDimens.spaceMd),
+            )
+        }
+        Column {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = LibraryDimens.spaceSm),
+                horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                books.take(SHELF_CAPACITY).forEach { book ->
+                    BookCover(
+                        title = book.title,
+                        author = book.author,
+                        coverUrl = book.coverUrl,
+                        modifier = Modifier
+                            .width(LibraryDimens.coverShelfWidth)
+                            .height(LibraryDimens.coverShelfHeight)
+                            .semantics { contentDescription = book.title }
+                            .clickable(role = Role.Button) { onOpenBook(book.id) },
+                        cornerRadius = LibraryDimens.radiusCover,
+                    )
+                }
+            }
+            Shelf()
+        }
+    }
+}
+
+/** How many covers fit on the Home shelf at phone width. */
+private const val SHELF_CAPACITY = 3
+
+@Composable
+private fun currentLocale() = LocalConfiguration.current.locales[0]
+
+// region Previews
+
+private val previewBook = Book(
+    id = "preview",
+    title = "Throne of Glass",
+    author = "Sarah J. Maas",
+    coverUrl = null,
+    description = null,
+    publishYear = 2012,
+    pageCount = 404,
+    isbn = null,
+    status = ReadingStatus.READING,
+    currentPage = 212,
+    startDate = LocalDate.of(2026, 11, 2).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+)
+
+private val previewState = HomeUiState(
+    currentlyReading = previewBook,
+    recentlyFinished = listOf(
+        previewBook.copy(id = "1", title = "Heir of Fire", status = ReadingStatus.FINISHED),
+        previewBook.copy(id = "2", title = "Fourth Wing", author = "Rebecca Yarros", status = ReadingStatus.FINISHED),
+        previewBook.copy(id = "3", title = "A Court of Mist and Fury", status = ReadingStatus.FINISHED),
+    ),
+    totalBooks = 27,
+    booksFinished = 9,
+    booksReading = 2,
+)
+
+@Preview(name = "Home · English", locale = "en", widthDp = 390, heightDp = 844)
+@Preview(name = "Home · Spanish", locale = "es", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomePreview() = LibraryTheme {
+    HomeContent(previewState, DayPeriod.Afternoon, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
+}
+
+@Preview(name = "Home · empty", locale = "es", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeEmptyPreview() = LibraryTheme {
+    HomeContent(HomeUiState(), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
+}
+
+// endregion

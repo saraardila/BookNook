@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -61,6 +62,34 @@ fun ArchFrame(
         Box(Modifier.matchParentSize().clip(shape).background(fill), content = content)
     }
 }
+
+/**
+ * Polaroid photo frame: white border, a wider strip at the bottom and a slight
+ * tilt. Used for the cover on the loan card and the reader's photo.
+ */
+@Composable
+fun Polaroid(
+    modifier: Modifier = Modifier,
+    rotation: Float = POLAROID_DEFAULT_ROTATION,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val colors = LibraryTheme.colors
+    Box(
+        modifier
+            .rotate(rotation)
+            .drawBehind { drawFlatShadow(colors.shadow, CornerRadius.Zero, LibraryDimens.shadowOffsetSmall) }
+            .background(colors.photoFrame)
+            .padding(
+                start = LibraryDimens.polaroidBorder,
+                top = LibraryDimens.polaroidBorder,
+                end = LibraryDimens.polaroidBorder,
+                bottom = LibraryDimens.polaroidCaption,
+            ),
+        content = content,
+    )
+}
+
+private const val POLAROID_DEFAULT_ROTATION = -3f
 
 /** Shelf label holder: a small frame with two screws that names a shelf. */
 @Composable

@@ -135,15 +135,33 @@
     <string name="nav_log">Log</string>
     <string name="nav_search">Search</string>
     <string name="nav_card">Card</string>
+    <string name="nav_journal">Journal</string>
+    <string name="nav_settings">Settings</string>
 
     <!-- Redesign: home -->
     <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
     <string name="home_my_library">My library</string>
     <string name="loan_card_title">LOAN CARD · Nº %1$d</string>
+    <string name="loan_card_label">LOAN CARD</string>
+    <string name="home_progress_percent" translatable="false">%1$d %%</string>
+    <string name="home_stats_separator" translatable="false">" · "</string>
+    <plurals name="home_stat_books">
+        <item quantity="one">%d book</item>
+        <item quantity="other">%d books</item>
+    </plurals>
+    <plurals name="home_stat_reading">
+        <item quantity="one">%d reading</item>
+        <item quantity="other">%d reading</item>
+    </plurals>
+    <plurals name="home_stat_finished">
+        <item quantity="one">%d finished</item>
+        <item quantity="other">%d finished</item>
+    </plurals>
 
     <!-- Redesign: stamps. Short, upper case: they are printed inside a small circle. -->
     <string name="stamp_return">RETURN</string>
     <string name="stamp_read">READ</string>
+    <string name="stamp_started">STARTED</string>
 
     <!-- Redesign: onboarding -->
     <string name="onboarding_get_card">Get my library card</string>

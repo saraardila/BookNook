@@ -3,6 +3,9 @@ package com.nawin.booknook.presentation.components.library
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,8 +21,11 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nawin.booknook.presentation.theme.LibraryDimens
@@ -63,8 +69,10 @@ fun InkStamp(
             },
         contentAlignment = Alignment.Center,
     ) {
+        // Outer lines sit where the circle is narrower, so they get less width and
+        // shrink to fit: long words ("EMPEZADO", "ABANDONADO") stay inside the ring.
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(top, style = type.label.copy(fontSize = (scale * 0.13f).sp, letterSpacing = 1.sp), color = color)
+            StampLine(top, type.label.copy(letterSpacing = 1.sp, color = color), maxSize = (scale * 0.13f).sp, width = size * STAMP_OUTER_LINE_WIDTH)
             Text(
                 middle,
                 style = type.titleSmall.copy(
@@ -73,12 +81,27 @@ fun InkStamp(
                     textDecoration = if (struck) TextDecoration.LineThrough else null,
                 ),
                 color = color,
+                maxLines = 1,
             )
-            Text(bottom, style = type.label.copy(fontSize = (scale * 0.12f).sp, letterSpacing = 1.sp), color = color)
+            StampLine(bottom, type.label.copy(letterSpacing = 1.sp, color = color), maxSize = (scale * 0.12f).sp, width = size * STAMP_OUTER_LINE_WIDTH)
         }
     }
 }
 
+/** One outer line of a stamp, auto-sized down from [maxSize] to fit [width] on a single line. */
+@Composable
+private fun StampLine(text: String, style: TextStyle, maxSize: TextUnit, width: Dp) {
+    BasicText(
+        text = text,
+        style = style.copy(textAlign = TextAlign.Center),
+        maxLines = 1,
+        autoSize = TextAutoSize.StepBased(minFontSize = STAMP_MIN_TEXT, maxFontSize = maxSize),
+        modifier = Modifier.width(width),
+    )
+}
+
+private val STAMP_MIN_TEXT = 5.sp
+private const val STAMP_OUTER_LINE_WIDTH = 0.62f
 private const val STAMP_DEFAULT_ROTATION = -8f
 private const val STAMP_INK_OPACITY = 0.92f
 private val STAMP_RING_GAP = 4.dp

@@ -96,6 +96,8 @@ data class LibraryColors(
     /** Spine labels are always white paper, whatever the palette. */
     val spineLabel: Color,
     val spineLabelInk: Color,
+    /** The white border of a polaroid photo. */
+    val photoFrame: Color,
 )
 
 val VanillaColors = LibraryColors(
@@ -119,6 +121,7 @@ val VanillaColors = LibraryColors(
     shadow = Color(0x265E442E),
     spineLabel = Color(0xFFFFFDF6),
     spineLabelInk = Color(0xFF3B2A2E),
+    photoFrame = Color(0xFFFFFFFF),
 )
 
 // endregion
@@ -179,6 +182,19 @@ object LibraryDimens {
     val spaceLg = 16.dp
     val spaceXl = 20.dp
     val screenPadding = 22.dp
+    val sectionGap = 28.dp
+
+    // Screen layout
+    val homeHeaderHeight = 150.dp
+    val navBarMargin = 16.dp
+
+    // Covers and photos
+    val coverLoanWidth = 58.dp
+    val coverLoanHeight = 88.dp
+    val coverShelfWidth = 90.dp
+    val coverShelfHeight = 134.dp
+    val polaroidBorder = 4.dp
+    val polaroidCaption = 12.dp
 
     // Radii
     val radiusCard = 18.dp
