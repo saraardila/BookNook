@@ -132,6 +132,8 @@ val VanillaColors = LibraryColors(
 @Immutable
 data class LibraryTypography(
     val title: TextStyle,
+    /** Between [title] and [titleSmall]: a book title on its own page, a big page number. */
+    val heading: TextStyle,
     val titleSmall: TextStyle,
     val emphasis: TextStyle,
     val hand: TextStyle,
@@ -145,6 +147,7 @@ data class LibraryTypography(
 
 val DefaultLibraryTypography = LibraryTypography(
     title = TextStyle(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold, fontSize = 34.sp, lineHeight = 36.sp, letterSpacing = (-0.3).sp),
+    heading = TextStyle(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold, fontSize = 26.sp, lineHeight = 28.sp),
     titleSmall = TextStyle(fontFamily = Fraunces, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, lineHeight = 20.sp),
     emphasis = TextStyle(fontFamily = Fraunces, fontWeight = FontWeight.Medium, fontStyle = FontStyle.Italic, fontSize = 28.sp),
     hand = TextStyle(fontFamily = Caveat, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 22.sp),
@@ -187,6 +190,13 @@ object LibraryDimens {
     // Screen layout
     val headerHeight = 150.dp
     val headerHeightCompact = 112.dp
+    /** Outer size of the arch behind the cover on the book page, ring included. */
+    val detailArchWidth = 220.dp
+    val detailArchHeight = 248.dp
+    /** From the top of that arch to the top of the cover. */
+    val detailCoverInset = 36.dp
+    /** Width of the key column on a catalogue card (YEAR, PAGES…). */
+    val catalogueKeyWidth = 74.dp
     val navBarMargin = 16.dp
 
     // Covers and photos
@@ -196,6 +206,8 @@ object LibraryDimens {
     val coverShelfHeight = 134.dp
     val coverRowWidth = 50.dp
     val coverRowHeight = 76.dp
+    val coverDetailWidth = 124.dp
+    val coverDetailHeight = 186.dp
     val polaroidBorder = 4.dp
     val polaroidCaption = 12.dp
 
@@ -236,6 +248,7 @@ object LibraryDimens {
     val laceHole = 1.8.dp
     val shelfHeight = 9.dp
     val screwSize = 6.dp
+    val punchHole = 12.dp
     val archRingGap = 6.dp
     val stampSize = 62.dp
     val stampSizeSmall = 46.dp

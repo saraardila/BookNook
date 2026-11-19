@@ -63,8 +63,6 @@
     <!-- Common -->
     <string name="common_book_cover">Book cover</string>
     <string name="common_unknown_author">Unknown author</string>
-    <string name="common_pages">%1$d pages</string>
-    <string name="common_published">Published %1$d</string>
 
     <!-- Library -->
 
@@ -78,9 +76,7 @@
 
     <!-- Book Detail -->
     <string name="detail_rating">My Rating</string>
-    <string name="detail_progress">Reading Progress</string>
     <string name="detail_notes_empty">No notes yet. Add your first one!</string>
-    <string name="detail_add_note_btn">Add Note</string>
     <string name="detail_favourite">Favourite</string>
 
     <!-- Status -->
@@ -190,7 +186,7 @@
     <string name="cd_favourite">Favourite</string>
     <!-- Redesign: search -->
     <string name="search_heading">Search</string>
-    <string name="search_scope">in all of Open Library</string>
+    <string name="search_tagline">your next read</string>
     <string name="search_your_shelf_first">your shelf first ↓</string>
     <string name="stamp_in_your">IN YOUR</string>
     <string name="stamp_shelf">SHELF</string>
@@ -199,4 +195,19 @@
     <!-- Redesign: loading -->
     <string name="loading_shelves">looking through the shelves…</string>
     <string name="cd_loading">Loading</string>
+    <!-- Redesign: book page -->
+    <string name="detail_your_progress">YOUR PROGRESS</string>
+    <string name="detail_started_on">started on %s</string>
+    <plurals name="detail_of_pages">
+        <item quantity="one">/ %d page</item>
+        <item quantity="other">/ %d pages</item>
+    </plurals>
+    <string name="cd_page_back">One page back</string>
+    <string name="cd_page_forward">One page forward</string>
+    <string name="detail_put_down">I put it down</string>
+    <string name="detail_put_down_at">you put it down at page %d</string>
+    <string name="detail_catalogue_card">CATALOGUE CARD</string>
+    <string name="detail_catalogue_year">YEAR</string>
+    <string name="detail_catalogue_pages">PAGES</string>
+    <string name="detail_add_note_short">+ Note</string>
 </resources>

@@ -47,7 +47,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             arguments = listOf(navArgument("bookId") { type = NavType.StringType }),
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId").orEmpty()
-            LegacyScreen { BookDetailScreen(bookId = bookId, navController = navController) }
+            BookDetailScreen(bookId = bookId, navController = navController)
         }
         composable(Screen.Settings.route) {
             LegacyScreen { SettingsScreen(navController = navController) }

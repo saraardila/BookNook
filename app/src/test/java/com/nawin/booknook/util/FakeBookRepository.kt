@@ -7,6 +7,7 @@ import com.nawin.booknook.domain.repository.BookRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 /** Lets a test decide what each query returns and how long it takes. */
 class FakeBookRepository(
@@ -27,8 +28,16 @@ class FakeBookRepository(
 
     override fun getMyLibrary(): Flow<List<Book>> = library
     override fun getBooksByStatus(status: ReadingStatus): Flow<List<Book>> = flowOf(emptyList())
-    override fun getBookById(id: String): Flow<Book?> = flowOf(null)
-    override suspend fun updateBook(book: Book) = Unit
+    override fun getBookById(id: String): Flow<Book?> = library.map { books -> books.firstOrNull { it.id == id } }
+
+    /** Books passed to updateBook(), oldest first. */
+    val updatedBooks = mutableListOf<Book>()
+
+    override suspend fun updateBook(book: Book) {
+        updatedBooks += book
+        library.value = library.value.map { if (it.id == book.id) book else it }
+    }
+
     override suspend fun deleteBook(bookId: String) = Unit
     override fun getNotesByBook(bookId: String): Flow<List<BookNote>> = flowOf(emptyList())
     override suspend fun addNote(note: BookNote) = Unit

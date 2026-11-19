@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -113,6 +114,52 @@ fun RoundIconButton(
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = contentDescription, tint = tint, modifier = Modifier.size(LibraryDimens.navIcon))
+    }
+}
+
+/**
+ * A row of mutually exclusive options inside one paper pill; the selected one is
+ * filled. [selectedIndex] may be null when none of the options applies. Each
+ * option is announced as a radio button of the same group.
+ */
+@Composable
+fun SegmentedPills(
+    options: List<String>,
+    selectedIndex: Int?,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LibraryTheme.colors
+    Row(
+        modifier
+            .fillMaxWidth()
+            .drawBehind { drawFlatShadow(colors.shadow, CornerRadius(size.height / 2)) }
+            .background(colors.paper, LibraryShapes.pill)
+            .border(LibraryDimens.stroke, colors.outline, LibraryShapes.pill)
+            .padding(LibraryDimens.spaceXs)
+            .selectableGroup(),
+    ) {
+        options.forEachIndexed { index, option ->
+            val selected = index == selectedIndex
+            Box(
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = LibraryDimens.chipMinHeight)
+                    .clip(LibraryShapes.pill)
+                    .background(if (selected) colors.primary else Color.Transparent)
+                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) })
+                    .padding(horizontal = LibraryDimens.spaceXs),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    option,
+                    style = LibraryTheme.typography.chip,
+                    color = if (selected) colors.onPrimary else colors.ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
     }
 }
 

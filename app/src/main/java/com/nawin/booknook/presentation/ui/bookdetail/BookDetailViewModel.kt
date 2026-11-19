@@ -57,11 +57,24 @@ class BookDetailViewModel(
         }
     }
 
+    /**
+     * Sets the current page, kept between 0 and the page count when it is known.
+     * The new page shows at once, before the database emits it back, so quick
+     * taps on the page buttons build on each other instead of on a stale book.
+     */
     fun updateProgress(currentPage: Int) {
         val book = _uiState.value.book ?: return
-        viewModelScope.launch {
-            updateBookUseCase(book.copy(currentPage = currentPage))
-        }
+        val page = currentPage.coerceIn(0, book.pageCount ?: Int.MAX_VALUE)
+        if (page == book.currentPage) return
+        val updated = book.copy(currentPage = page)
+        _uiState.update { it.copy(book = updated) }
+        viewModelScope.launch { updateBookUseCase(updated) }
+    }
+
+    /** Moves the current page forwards or backwards by [delta] pages. */
+    fun changePage(delta: Int) {
+        val book = _uiState.value.book ?: return
+        updateProgress(book.currentPage + delta)
     }
 
     fun toggleFavorite() {

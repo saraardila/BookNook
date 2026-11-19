@@ -160,7 +160,7 @@ private fun SearchHeader(modifier: Modifier = Modifier) {
     val colors = LibraryTheme.colors
     val type = LibraryTheme.typography
     Column(modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.search_scope), style = type.hand, color = colors.stamp)
+        Text(stringResource(R.string.search_tagline), style = type.hand, color = colors.stamp)
         Text(stringResource(R.string.search_heading), style = type.title, color = colors.ink)
     }
 }
