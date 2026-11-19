@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spanish (Spain). Keys mirror values/strings.xml; untranslatable keys live only there. -->
+<resources>
+    <string name="app_name">BookNook</string>
+
+    <!-- Greetings -->
+    <string name="greeting_morning">Buenos días</string>
+    <string name="greeting_afternoon">Buenas tardes</string>
+    <string name="greeting_evening">Buenas tardes</string>
+    <string name="greeting_night">Buenas noches</string>
+
+    <!-- Home -->
+    <string name="home_title">BookNook</string>
+    <string name="home_currently_reading">Leyendo ahora</string>
+    <string name="home_recently_finished">Terminados hace poco</string>
+    <string name="home_see_all">Ver todos</string>
+    <string name="home_no_book_title">Ningún libro en curso</string>
+    <string name="home_no_book_subtitle">Toca para buscar y empezar a leer</string>
+    <string name="home_page_progress">Página %1$d de %2$d</string>
+
+    <!-- Stats -->
+    <string name="stat_total">Total</string>
+    <string name="stat_reading">Leyendo</string>
+    <string name="stat_finished">Terminados</string>
+
+    <!-- Search -->
+    <string name="search_title">Descubre libros</string>
+    <string name="search_subtitle">Encuentra tu próxima lectura</string>
+    <string name="search_placeholder">Busca por título, autora…</string>
+    <string name="search_empty_title">Busca libros</string>
+    <string name="search_empty_subtitle">Escribe al menos 2 caracteres para empezar</string>
+    <string name="search_no_results_title">Sin resultados</string>
+    <string name="search_no_results_subtitle">Prueba con otra búsqueda</string>
+    <string name="search_error_title">¡Vaya!</string>
+    <string name="search_error_subtitle">No hay conexión. Revisa tu internet.</string>
+    <string name="search_add">Añadir</string>
+    <string name="search_added">¡Añadido!</string>
+    <string name="search_clear">Borrar</string>
+
+    <!-- Library -->
+    <string name="library_title">Mi biblioteca</string>
+    <string name="library_all">Todos</string>
+    <string name="library_reading">Leyendo</string>
+    <string name="library_finished">Terminados</string>
+    <string name="library_want_to_read">Quiero leer</string>
+    <string name="library_dnf">Abandonados</string>
+    <string name="library_empty_title">Aún no hay libros aquí</string>
+    <string name="library_empty_subtitle">Busca y añade libros a tu biblioteca</string>
+
+    <!-- Book Detail -->
+    <string name="detail_my_review">Mi reseña</string>
+    <string name="detail_write_review">Escribe lo que te ha parecido…</string>
+    <string name="detail_update_progress">Actualizar progreso</string>
+    <string name="detail_current_page">Página actual</string>
+    <string name="detail_notes">Notas</string>
+    <string name="detail_add_note">Añade una nota…</string>
+    <string name="detail_chapter">Capítulo (opcional)</string>
+    <string name="detail_save">Guardar</string>
+    <string name="detail_delete">Eliminar</string>
+    <string name="detail_mark_finished">Marcar como terminado</string>
+    <string name="detail_mark_reading">Marcar como leyendo</string>
+    <string name="detail_share">Compartir progreso</string>
+
+    <!-- Journal -->
+    <string name="journal_title">Mi diario</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Calendario de lectura</string>
+
+    <!-- Common -->
+    <string name="common_book_cover">Portada del libro</string>
+    <string name="common_unknown_author">Autoría desconocida</string>
+    <string name="common_pages">%1$d páginas</string>
+    <string name="common_published">Publicado en %1$d</string>
+
+    <!-- Library -->
+    <string name="library_collection_count">%1$d libros en tu colección</string>
+
+    <!-- Library filters -->
+    <string name="filter_all">Todos</string>
+    <string name="filter_reading">Leyendo</string>
+    <string name="filter_finished">Terminados</string>
+    <string name="filter_want_to_read">Quiero leer</string>
+    <string name="filter_dnf">Abandonados</string>
+    <string name="filter_favourites">Favoritos</string>
+
+    <!-- Book Detail -->
+    <string name="detail_rating">Mi valoración</string>
+    <string name="detail_progress">Progreso de lectura</string>
+    <string name="detail_notes_empty">Aún no hay notas. ¡Añade la primera!</string>
+    <string name="detail_add_note_btn">Añadir nota</string>
+    <string name="detail_favourite">Favorito</string>
+
+    <!-- Status -->
+    <string name="status_reading">Leyendo</string>
+    <string name="status_finished">Terminado</string>
+    <string name="status_want_to_read">Quiero leer</string>
+    <string name="status_dnf">Abandonado</string>
+
+    <!-- Common -->
+    <string name="common_back">Atrás</string>
+    <string name="common_cancel">Cancelar</string>
+
+    <string name="home_tagline">tu compañera de lectura 🌿</string>
+
+    <string name="stat_books">libros</string>
+    <string name="stat_reading_label">leyendo</string>
+    <string name="stat_finished_label">terminados</string>
+
+    <string name="detail_dates">Fechas de lectura</string>
+    <string name="detail_start_date">Empezado</string>
+    <string name="detail_finish_date">Terminado</string>
+    <string name="detail_date_not_set">Toca para elegir</string>
+    <string name="detail_share_progress">Compartir progreso</string>
+
+    <!-- Calendar -->
+    <string name="calendar_started">Empezado</string>
+    <string name="calendar_finished">Terminado</string>
+    <string name="calendar_reading">Leyendo</string>
+    <string name="calendar_this_month">Este mes</string>
+    <string name="calendar_prev_month">Mes anterior</string>
+    <string name="calendar_next_month">Mes siguiente</string>
+    <string name="calendar_journey">tu viaje lector 📅</string>
+
+    <string name="home_search_book">Buscar un libro</string>
+
+    <!-- Journal -->
+    <string name="journal_subtitle">%d libros terminados ✨</string>
+    <string name="journal_empty_title">aún no hay libros</string>
+    <string name="journal_empty_subtitle">termina un libro para verlo aquí 🌿</string>
+    <string name="journal_no_review">aún sin reseña... toca para escribir una</string>
+
+    <!-- Redesign: bottom navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_shelves">Estantes</string>
+    <string name="nav_log">Anotar</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_card">Carnet</string>
+
+    <!-- Redesign: home -->
+    <string name="home_greeting_afternoon">buenas tardes, %1$s</string>
+    <string name="home_my_library">Mi biblioteca</string>
+    <string name="loan_card_title">FICHA DE PRÉSTAMO · Nº %1$d</string>
+
+    <!-- Redesign: stamps -->
+    <string name="stamp_return">DEVOLVER</string>
+    <string name="stamp_read">LEÍDO</string>
+
+    <!-- Redesign: onboarding -->
+    <string name="onboarding_get_card">Hacerme el carnet</string>
+    <string name="onboarding_have_card">Ya tengo carnet</string>
+
+    <!-- Redesign: shelves, genres and tropes -->
+    <string name="shelf_romantasy">Romantasy</string>
+    <string name="shelf_fantasy">Fantasía</string>
+    <string name="trope_slow_burn">slow burn</string>
+
+    <!-- Redesign: accessibility -->
+    <string name="cd_licence_earned">Licencia conseguida</string>
+    <string name="cd_licence_locked">Licencia aún sin conseguir</string>
+    <string name="cd_wax_seal">Sello de la biblioteca</string>
+</resources>

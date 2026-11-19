@@ -128,4 +128,35 @@
     <string name="journal_empty_title">no books yet</string>
     <string name="journal_empty_subtitle">finish a book to see it here 🌿</string>
     <string name="journal_no_review">no review yet... tap to add one</string>
+
+    <!-- Redesign: bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_shelves">Shelves</string>
+    <string name="nav_log">Log</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_card">Card</string>
+
+    <!-- Redesign: home -->
+    <string name="home_greeting_afternoon">Good afternoon, %1$s</string>
+    <string name="home_my_library">My library</string>
+    <string name="loan_card_title">LOAN CARD · Nº %1$d</string>
+
+    <!-- Redesign: stamps. Short, upper case: they are printed inside a small circle. -->
+    <string name="stamp_return">RETURN</string>
+    <string name="stamp_read">READ</string>
+
+    <!-- Redesign: onboarding -->
+    <string name="onboarding_get_card">Get my library card</string>
+    <string name="onboarding_have_card">I already have a card</string>
+
+    <!-- Redesign: shelves, genres and tropes -->
+    <string name="shelf_romantasy">Romantasy</string>
+    <string name="shelf_fantasy">Fantasy</string>
+    <string name="trope_slow_burn">slow burn</string>
+    <string name="licence_progress" translatable="false">%1$d/%2$d</string>
+
+    <!-- Redesign: accessibility -->
+    <string name="cd_licence_earned">Licence earned</string>
+    <string name="cd_licence_locked">Licence not earned yet</string>
+    <string name="cd_wax_seal">Library seal</string>
 </resources>

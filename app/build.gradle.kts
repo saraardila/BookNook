@@ -37,6 +37,12 @@ android {
         buildConfig = true
     }
 
+    // Generates the locale list from res/values-* so Android 13+ offers a
+    // per-app language setting. The default locale is set in res/resources.properties.
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
