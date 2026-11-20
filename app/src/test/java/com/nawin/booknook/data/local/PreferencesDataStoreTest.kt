@@ -2,8 +2,10 @@ package com.nawin.booknook.data.local
 
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
+import com.nawin.booknook.domain.model.StoryHook
 import com.nawin.booknook.domain.model.UserPreferences
 import com.nawin.booknook.util.InMemoryPreferencesDataStore
 import kotlinx.coroutines.flow.first
@@ -40,6 +42,19 @@ class PreferencesDataStoreTest {
         assertEquals(ShelfTheme.WITCHY, stored.theme)
         assertEquals(ReadingReminder(enabled = true, hour = 7, minute = 5), stored.reminder)
         assertEquals("Sara", stored.profile.name)
+    }
+
+    @Test
+    fun `the test result is read back and unknown hooks are dropped`() = runTest {
+        val dataStore = InMemoryPreferencesDataStore()
+        val preferences = PreferencesDataStore(dataStore)
+
+        preferences.saveQuizResult(ShelfTheme.COWBOY, setOf(StoryHook.SMALL_TOWN))
+        dataStore.edit { it[stringSetPreferencesKey("story_hooks")] = setOf("SMALL_TOWN", "REMOVED_IN_A_LATER_VERSION") }
+
+        val profile = preferences.userPreferences.first().profile
+        assertEquals(ShelfTheme.COWBOY, profile.favouriteShelf)
+        assertEquals(setOf(StoryHook.SMALL_TOWN), profile.hooks)
     }
 
     @Test

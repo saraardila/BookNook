@@ -7,31 +7,25 @@ import android.text.format.DateFormat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,16 +44,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -71,11 +61,10 @@ import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.LibraryToggle
 import com.nawin.booknook.presentation.components.library.PaperCard
 import com.nawin.booknook.presentation.components.library.SegmentedPills
-import com.nawin.booknook.presentation.components.library.WaxSeal
-import com.nawin.booknook.presentation.components.library.drawFlatShadow
+import com.nawin.booknook.presentation.components.library.ThemeMini
 import com.nawin.booknook.presentation.theme.LibraryDimens
-import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
+import com.nawin.booknook.presentation.theme.nameRes
 import com.nawin.booknook.presentation.theme.palette
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.Instant
@@ -174,7 +163,10 @@ private fun SettingsContent(
             SettingsSection(stringResource(R.string.settings_language)) {
                 LanguagePicker(language, onLanguageSelected)
             }
-            SettingsSection(stringResource(R.string.settings_theme)) {
+            SettingsSection(
+                label = stringResource(R.string.settings_theme),
+                hint = state.profile.favouriteShelf?.let { stringResource(R.string.settings_theme_from_test, stringResource(it.nameRes)) },
+            ) {
                 ThemePicker(state.theme, onThemeSelected)
             }
             SettingsSection(stringResource(R.string.settings_notifications)) {
@@ -196,11 +188,16 @@ private fun SettingsContent(
     }
 }
 
-/** A small uppercase label over its settings. */
+/** A small uppercase label over its settings, with an optional handwritten [hint] at the end. */
 @Composable
-private fun SettingsSection(label: String, content: @Composable ColumnScope.() -> Unit) {
+private fun SettingsSection(label: String, hint: String? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm)) {
-        Text(label, style = LibraryTheme.typography.label, color = LibraryTheme.colors.inkMuted)
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm)) {
+            Text(label, style = LibraryTheme.typography.label, color = LibraryTheme.colors.inkMuted, modifier = Modifier.weight(1f))
+            if (hint != null) {
+                Text(hint, style = LibraryTheme.typography.handSmall, color = LibraryTheme.colors.accentDeep)
+            }
+        }
         content()
     }
 }
@@ -242,7 +239,8 @@ private fun ThemePicker(selected: ShelfTheme, onSelect: (ShelfTheme) -> Unit) {
     ) {
         ShelfTheme.entries.forEach { theme ->
             ThemeMini(
-                theme = theme,
+                palette = theme.palette,
+                name = stringResource(theme.nameRes),
                 selected = theme == selected,
                 onClick = { onSelect(theme) },
                 modifier = Modifier.weight(1f),
@@ -250,90 +248,6 @@ private fun ThemePicker(selected: ShelfTheme, onSelect: (ShelfTheme) -> Unit) {
         }
     }
 }
-
-@Composable
-private fun ThemeMini(theme: ShelfTheme, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = LibraryTheme.colors
-    val palette = theme.palette
-    val shape = LibraryShapes.label
-    Column(
-        modifier
-            .clip(shape)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXs),
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .aspectRatio(THEME_MINI_ASPECT)
-                .drawBehind { drawFlatShadow(colors.shadow, CornerRadius(LibraryDimens.radiusLabel.toPx()), LibraryDimens.shadowOffsetSmall) }
-                .clip(shape)
-                .background(palette.background)
-                .border(
-                    if (selected) LibraryDimens.strokeStamp else LibraryDimens.stroke,
-                    if (selected) colors.ink else colors.outline,
-                    shape,
-                ),
-        ) {
-            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                // A tiny screen: header band, a white card and two colour dots.
-                Box(Modifier.fillMaxWidth().weight(THEME_MINI_HEADER).background(palette.primary))
-                Spacer(Modifier.weight(THEME_MINI_GAP))
-                Box(
-                    Modifier
-                        .fillMaxWidth(THEME_MINI_CARD_WIDTH)
-                        .weight(THEME_MINI_CARD)
-                        .background(colors.photoFrame, LibraryShapes.cover)
-                        .border(LibraryDimens.strokeHairline, colors.outline, LibraryShapes.cover),
-                )
-                Spacer(Modifier.weight(THEME_MINI_GAP))
-                Row(horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXxs)) {
-                    Box(
-                        Modifier
-                            .size(LibraryDimens.themeMiniDot)
-                            .background(palette.tint, LibraryShapes.pill)
-                            .border(LibraryDimens.strokeHairline, colors.outline, LibraryShapes.pill),
-                    )
-                    Box(Modifier.size(LibraryDimens.themeMiniDot).background(palette.primary, LibraryShapes.pill))
-                }
-                Spacer(Modifier.weight(THEME_MINI_FOOT))
-            }
-            if (selected) {
-                WaxSeal(
-                    Modifier.align(Alignment.TopEnd).padding(LibraryDimens.spaceXxs),
-                    size = LibraryDimens.themeMiniSeal,
-                ) {
-                    Icon(Icons.Filled.Check, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(LibraryDimens.spaceMd))
-                }
-            }
-        }
-        Text(
-            stringResource(theme.nameRes),
-            style = LibraryTheme.typography.navLabel,
-            color = if (selected) colors.ink else colors.inkMuted,
-            maxLines = 1,
-        )
-    }
-}
-
-private val ShelfTheme.nameRes: Int
-    get() = when (this) {
-        ShelfTheme.STANDARD -> R.string.theme_standard
-        ShelfTheme.ROMANTASY -> R.string.theme_romantasy
-        ShelfTheme.WITCHY -> R.string.theme_witchy
-        ShelfTheme.COWBOY -> R.string.theme_cowboy
-        ShelfTheme.ROMANCE -> R.string.theme_romance
-        ShelfTheme.THRILLER -> R.string.theme_thriller
-    }
-
-// Proportions of the miniature screen, from the design (height = 1.45 × width).
-private const val THEME_MINI_ASPECT = 1f / 1.45f
-private const val THEME_MINI_HEADER = 0.30f
-private const val THEME_MINI_GAP = 0.08f
-private const val THEME_MINI_CARD = 0.22f
-private const val THEME_MINI_CARD_WIDTH = 0.72f
-private const val THEME_MINI_FOOT = 0.22f
 
 // endregion
 
@@ -511,7 +425,7 @@ private fun SettingsPreview() = LibraryTheme {
         state = SettingsUiState(
             theme = ShelfTheme.ROMANTASY,
             reminder = ReadingReminder(enabled = true),
-            profile = ReaderProfile(name = "Sara", memberSince = 1_793_620_800_000),
+            profile = ReaderProfile(name = "Sara", memberSince = 1_793_620_800_000, favouriteShelf = ShelfTheme.ROMANTASY),
             exportStatus = ExportStatus.Done(7),
         ),
         language = AppLanguage.SPANISH,

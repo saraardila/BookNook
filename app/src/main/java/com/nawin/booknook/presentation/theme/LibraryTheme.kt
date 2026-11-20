@@ -175,6 +175,8 @@ object LibraryShapes {
     val labelInner = RoundedCornerShape(LibraryDimens.radiusLabelInner)
     val cover = RoundedCornerShape(LibraryDimens.radiusCover)
     val pill = RoundedCornerShape(percent = 50)
+    val quizOption = RoundedCornerShape(LibraryDimens.radiusArchTop, LibraryDimens.radiusArchTop, LibraryDimens.radiusArchBottom, LibraryDimens.radiusArchBottom)
+    val quizRow = RoundedCornerShape(LibraryDimens.radiusRowLead, LibraryDimens.radiusArchBottom, LibraryDimens.radiusArchBottom, LibraryDimens.radiusRowLead)
     val arch = RoundedCornerShape(topStartPercent = 50, topEndPercent = 50, bottomStartPercent = 10, bottomEndPercent = 10)
 }
 
@@ -220,6 +222,11 @@ object LibraryDimens {
     val radiusLabel = 12.dp
     val radiusLabelInner = 9.dp
     val radiusCover = 4.dp
+    /** Arch top of the test options and the library card portrait. */
+    val radiusArchTop = 70.dp
+    val radiusArchBottom = 18.dp
+    /** Pill-shaped answer rows: round on the icon side. */
+    val radiusRowLead = 40.dp
 
     // Strokes and the flat shadow
     val strokeHairline = 1.dp
@@ -269,6 +276,26 @@ object LibraryDimens {
     val loaderHeight = 56.dp
     val loaderSpineWidth = 13.dp
     val loaderLift = 10.dp
+
+    // Welcome flow: test options and the library card.
+    val quizOptionHeight = 178.dp
+    val quizOptionIcon = 64.dp
+    val quizOptionIconGlyph = 34.dp
+    val quizRowIcon = 50.dp
+    val quizRowIconGlyph = 26.dp
+    val quizSeal = 34.dp
+    val quizProgressSegment = 6.dp
+    val cardPortraitWidth = 96.dp
+    val cardPortraitHeight = 118.dp
+    val cardBarcodeWidth = 150.dp
+    val cardBarcodeHeight = 32.dp
+    val cardSealSize = 74.dp
+    val cardStampSize = 58.dp
+    val cardPlaceholderStamp = 86.dp
+    val resultArchWidth = 270.dp
+    val resultArchHeight = 250.dp
+    val resultSpineWidth = 22.dp
+    val resultThemeMini = 64.dp
 }
 
 // endregion

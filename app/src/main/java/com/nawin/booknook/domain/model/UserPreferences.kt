@@ -34,14 +34,22 @@ data class ReadingReminder(
 /**
  * The reader's local profile until accounts exist. [memberSince] is the first
  * launch, in epoch milliseconds; null only before it has been recorded.
+ * [favouriteShelf] and [hooks] come from the welcome test; null and empty when
+ * the reader skipped it.
  */
 data class ReaderProfile(
     val name: String = "",
     val memberSince: Long? = null,
+    val favouriteShelf: ShelfTheme? = null,
+    val hooks: Set<StoryHook> = emptySet(),
 )
 
-/** Everything the reader can change in Settings. */
+/**
+ * Everything the reader can change in Settings, plus whether the welcome flow
+ * (test and library card) has been completed or skipped.
+ */
 data class UserPreferences(
+    val onboardingDone: Boolean = false,
     val theme: ShelfTheme = ShelfTheme.STANDARD,
     val journalStyle: JournalStyle = JournalStyle.DOTTED,
     val journalInkColor: JournalInkColor = JournalInkColor.DARK,

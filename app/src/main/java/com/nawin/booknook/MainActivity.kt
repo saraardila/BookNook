@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -19,6 +18,7 @@ import com.nawin.booknook.presentation.theme.BookNookTheme
 import com.nawin.booknook.presentation.theme.LibraryTheme
 import com.nawin.booknook.presentation.theme.libraryColors
 import com.nawin.booknook.presentation.ui.main.MainViewModel
+import com.nawin.booknook.presentation.ui.onboarding.OnboardingScreen
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -37,13 +37,18 @@ class MainActivity : AppCompatActivity() {
             viewModel.preferences.value == null
         }
         setContent {
-            val preferences by viewModel.preferences.collectAsStateWithLifecycle()
+            // The splash screen stays up until this is loaded, so null never draws a frame.
+            val preferences = viewModel.preferences.collectAsStateWithLifecycle().value ?: return@setContent
 
             // The shelf theme recolours both the redesign tokens (LibraryTheme) and
             // Material, which the dialogs and the screens not redesigned yet still use.
             val colors = remember(preferences.theme) { preferences.theme.libraryColors() }
             BookNookTheme(colors) {
                 LibraryTheme(colors) {
+                    if (!preferences.onboardingDone) {
+                        OnboardingScreen()
+                        return@LibraryTheme
+                    }
                     val navController = rememberNavController()
                     // No top inset here: redesigned screens draw their header behind
                     // the status bar; NavGraph pads the legacy screens itself.

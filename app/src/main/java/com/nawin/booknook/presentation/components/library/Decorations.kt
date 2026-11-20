@@ -15,10 +15,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryTheme
@@ -202,4 +205,14 @@ internal fun DrawScope.drawFlatShadow(
     offsetY: Dp = LibraryDimens.shadowOffset,
 ) {
     drawRoundRect(color, topLeft = Offset(0f, offsetY.toPx()), size = size, cornerRadius = corner)
+}
+
+/** The flat shadow for any [shape], e.g. arch-topped cards whose corners differ. */
+internal fun DrawScope.drawFlatShadow(
+    color: Color,
+    shape: Shape,
+    offsetY: Dp = LibraryDimens.shadowOffset,
+) {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    translate(top = offsetY.toPx()) { drawOutline(outline, color) }
 }

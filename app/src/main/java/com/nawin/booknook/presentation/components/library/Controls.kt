@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -38,7 +39,7 @@ import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
 
-/** Pill-shaped button. The [primary] variant is filled; the other is paper with an outline. */
+/** Pill-shaped button. The [primary] variant is filled; the other is paper with an outline. Faded while disabled. */
 @Composable
 fun PillButton(
     text: String,
@@ -51,6 +52,7 @@ fun PillButton(
     Box(
         modifier
             .heightIn(min = LibraryDimens.buttonMinHeight)
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .drawBehind { drawFlatShadow(colors.shadow, CornerRadius(size.height / 2)) }
             .clip(LibraryShapes.pill)
             .background(if (primary) colors.primary else colors.paper)
@@ -62,6 +64,8 @@ fun PillButton(
         Text(text, style = LibraryTheme.typography.button, color = if (primary) colors.onPrimary else colors.ink)
     }
 }
+
+private const val DISABLED_ALPHA = 0.45f
 
 /**
  * Tag or filter chip. With [onClick] it becomes a toggle (announced as a

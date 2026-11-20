@@ -9,16 +9,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** App-wide state for the activity: the preferences that style every screen. */
+/**
+ * App-wide state for the activity: the preferences that style every screen and
+ * decide whether the welcome flow is shown. Null until DataStore has been read,
+ * so the splash screen can wait for it instead of showing the defaults first.
+ */
 class MainViewModel(
     private val preferencesDataStore: PreferencesDataStore,
 ) : ViewModel() {
 
-    val preferences: StateFlow<UserPreferences> = preferencesDataStore.userPreferences
+    val preferences: StateFlow<UserPreferences?> = preferencesDataStore.userPreferences
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = UserPreferences()
+            initialValue = null,
         )
 
     init {
