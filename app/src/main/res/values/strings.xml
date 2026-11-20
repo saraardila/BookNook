@@ -100,11 +100,9 @@
     <!-- Calendar -->
     <string name="calendar_started">Started</string>
     <string name="calendar_finished">Finished</string>
-    <string name="calendar_reading">Reading</string>
-    <string name="calendar_this_month">This Month</string>
+    <string name="calendar_this_month">THIS MONTH</string>
     <string name="calendar_prev_month">Previous month</string>
     <string name="calendar_next_month">Next month</string>
-    <string name="calendar_journey">your reading journey 📅</string>
 
     <string name="home_search_book">Search a book</string>
 
@@ -425,4 +423,76 @@
     <string name="share_stamp_page_label">PAGE</string>
     <string name="share_footer">Book Nook · %1$s\'s library</string>
     <string name="share_footer_anonymous">BOOK NOOK</string>
+    <string name="home_edit">Edit home</string>
+    <string name="home_quote_label">QUOTE OF THE DAY</string>
+    <string name="edit_home_tagline">move, hide or show</string>
+    <string name="edit_home_title">Edit your home</string>
+    <string name="edit_home_change_theme">Change theme →</string>
+    <string name="edit_home_save">Save my home</string>
+    <string name="home_block_reading">Reading now</string>
+    <string name="home_block_reading_hint">your loan card</string>
+    <string name="home_block_streak">Streak</string>
+    <string name="home_block_streak_hint">the days you read in a row</string>
+    <string name="home_block_licences">Your licences</string>
+    <string name="home_block_licences_hint">the rosettes of each shelf</string>
+    <string name="home_block_recently_finished">Finished lately</string>
+    <string name="home_block_recently_finished_hint">your latest finished books</string>
+    <string name="home_block_quote">Quote of the day</string>
+    <string name="home_block_quote_hint">a line from your notes</string>
+    <string name="cd_move_up">Move up</string>
+    <string name="cd_move_down">Move down</string>
+    <!-- Account (P03) -->
+    <string name="account_tagline_onboarding">before the test…</string>
+    <string name="account_tagline_settings">your library, with you</string>
+    <string name="account_title_sign_up">Create your account</string>
+    <string name="account_title_sign_in">Welcome back</string>
+    <string name="account_mode_sign_up">Create account</string>
+    <string name="account_mode_sign_in">Sign in</string>
+    <string name="account_name">YOUR NAME</string>
+    <string name="account_email">EMAIL</string>
+    <string name="account_email_placeholder">you@example.com</string>
+    <string name="account_password">PASSWORD</string>
+    <plurals name="account_password_hint">
+        <item quantity="one">At least %1$d character</item>
+        <item quantity="other">At least %1$d characters</item>
+    </plurals>
+    <string name="account_note">With an account, your library will be able to come with you to a new phone.</string>
+    <string name="account_submit_sign_up_test">Create account and take the test</string>
+    <string name="account_submit_sign_in_test">Sign in and take the test</string>
+    <string name="account_working">One moment…</string>
+    <string name="account_skip">Continue without an account</string>
+    <string name="account_continue_to_test">Go on to the test</string>
+    <string name="account_got_it">Got it</string>
+    <string name="account_check_email">We have sent an email to %1$s. Open the link in it to confirm your account, then sign in from Settings.</string>
+    <string name="account_error_credentials">That email and password do not match.</string>
+    <string name="account_error_email_taken">There is already an account with that email. Try signing in.</string>
+    <string name="account_error_weak_password">That password is too easy to guess. Try a longer one.</string>
+    <string name="account_error_invalid_email">That email does not look right.</string>
+    <string name="account_error_not_confirmed">Confirm your account with the link we emailed you, then try again.</string>
+    <string name="account_error_too_many">Too many attempts. Wait a few minutes and try again.</string>
+    <string name="account_error_connection">No connection. Check your internet and try again.</string>
+    <string name="account_error_unknown">Something went wrong. Try again in a moment.</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+    <string name="settings_account_sign_in">Create an account or sign in</string>
+    <string name="settings_account_sign_in_hint">so your library can come with you</string>
+    <string name="settings_account_signed_in">Signed in</string>
+    <string name="settings_sign_out">Sign out</string>
+    <!-- Reading calendar -->
+    <string name="calendar_tagline">your days between pages</string>
+    <string name="calendar_reading_days">Days read</string>
+    <string name="calendar_more">+%1$d</string>
+    <plurals name="calendar_legend_read">
+        <item quantity="one">Days with %1$d page or more: they count for your streak</item>
+        <item quantity="other">Days with %1$d pages or more: they count for your streak</item>
+    </plurals>
+    <string name="calendar_today">today</string>
+    <string name="calendar_read_day">you read</string>
+    <string name="calendar_cd_started">started %1$s</string>
+    <string name="calendar_cd_finished">finished %1$s</string>
+    <string name="calendar_cd_put_down">put down %1$s</string>
+    <string name="calendar_stamp_started">started · %1$s</string>
+    <string name="calendar_stamp_finished">finished · %1$s</string>
+    <string name="calendar_stamp_put_down">put down · %1$s</string>
+    <string name="calendar_empty_month">this month is still a blank page</string>
 </resources>

@@ -102,6 +102,8 @@ import com.nawin.booknook.presentation.theme.LibraryTheme
 import com.nawin.booknook.presentation.theme.code
 import com.nawin.booknook.presentation.theme.nameRes
 import com.nawin.booknook.presentation.theme.palette
+import com.nawin.booknook.presentation.ui.account.AccountEntry
+import com.nawin.booknook.presentation.ui.account.AccountScreen
 import com.nawin.booknook.presentation.ui.settings.AppLanguage
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -148,6 +150,8 @@ private fun OnboardingContent(state: OnboardingUiState, actions: OnboardingActio
     Box(Modifier.fillMaxSize().background(LibraryTheme.colors.background)) {
         when (state.page) {
             OnboardingPage.WELCOME -> WelcomePage(actions)
+            // Signing in or skipping both carry on to the test.
+            OnboardingPage.ACCOUNT -> AccountScreen(AccountEntry.ONBOARDING, onBack = actions.onBack, onDone = actions.onNext, onSkip = actions.onNext)
             OnboardingPage.PLAN -> QuizPage(state, actions, R.string.quiz_plan_hint, R.string.quiz_plan_title, R.string.quiz_plan_note) {
                 OptionGrid(ReadingPlan.entries, state.draft.plan, actions.onPlan) { it.option }
             }

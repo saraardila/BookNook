@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.compose)
@@ -5,6 +7,17 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.androidx.room)
 }
+
+/**
+ * Supabase project URL and publishable key, read from local.properties so they never reach the repo.
+ * Without them the app builds and works as before, with no account option.
+ */
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+/** A value from local.properties, or from a Gradle property (-Pkey=value) when the file does not have it. */
+fun localProperty(key: String): String =
+    localProperties.getProperty(key) ?: providers.gradleProperty(key).orNull.orEmpty()
 
 android {
     namespace = "com.nawin.booknook"
@@ -18,6 +31,8 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+        buildConfigField("String", "SUPABASE_URL", "\"${localProperty("supabase.url")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${localProperty("supabase.key")}\"")
     }
 
     buildTypes {
@@ -99,6 +114,10 @@ dependencies {
     testImplementation(platform(libs.ktor.bom))
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)
+
+    // Supabase
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.auth)
 
     // Coil
     implementation(libs.coil.compose)

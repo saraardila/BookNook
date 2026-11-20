@@ -40,6 +40,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
+import com.nawin.booknook.domain.model.DailyQuote
+import com.nawin.booknook.domain.model.HomeBlock
+import com.nawin.booknook.domain.model.ShelfLicence
+import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.domain.model.ReadingStreak
 import com.nawin.booknook.presentation.components.BookCover
@@ -61,12 +65,13 @@ import com.nawin.booknook.presentation.navigation.navigateToTopLevel
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
+import com.nawin.booknook.presentation.ui.progress.Licences
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-/** Home tab: greeting, library summary, the book being read and recent finishes. */
+/** Home tab: greeting and library summary, then the blocks she chose in her order (P10, P11). */
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -85,6 +90,7 @@ fun HomeScreen(
         onSeeShelves = { navController.navigateToTopLevel(Screen.Library.route) },
         onOpenCalendar = { navController.navigate(Screen.Calendar.route) },
         onOpenProgress = { navController.navigate(Screen.Progress.route) },
+        onEditHome = { navController.navigate(Screen.EditHome.route) },
     )
 }
 
@@ -98,6 +104,7 @@ fun HomeContent(
     onSeeShelves: () -> Unit,
     onOpenCalendar: () -> Unit,
     onOpenProgress: () -> Unit,
+    onEditHome: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LibraryTheme.colors
@@ -123,28 +130,51 @@ fun HomeContent(
             )
         }
 
+        // Outside the blocks' column so it sits close to the first block instead of a section gap away.
+        EditHomeLink(
+            onEditHome,
+            Modifier
+                .align(Alignment.End)
+                .padding(top = LibraryDimens.laceScallop, end = LibraryDimens.screenPadding, bottom = LibraryDimens.spaceSm),
+        )
         Column(
             Modifier.padding(horizontal = LibraryDimens.screenPadding),
             verticalArrangement = Arrangement.spacedBy(LibraryDimens.sectionGap),
         ) {
-            Spacer(Modifier.height(LibraryDimens.spaceSm))
-            val current = state.currentlyReading
-            // While the library loads, show the loader (only if it is slow) rather than the empty card.
-            when {
-                state.isLoading -> ShelfLoader(Modifier.padding(top = LibraryDimens.sectionGap))
-                current != null -> LoanCard(book = current, onClick = { onOpenBook(current.id) })
-                else -> EmptyLoanCard(onSearch = onSearch)
-            }
-            if (!state.isLoading) StreakCard(state.streak, state.today, onClick = onOpenProgress)
-            if (state.recentlyFinished.isNotEmpty()) {
-                RecentlyFinishedShelf(
-                    books = state.recentlyFinished,
-                    onOpenBook = onOpenBook,
-                    onSeeAll = onSeeShelves,
-                )
+            // While the library loads, show the loader (only if it is slow) rather than empty blocks.
+            if (state.isLoading) {
+                ShelfLoader(Modifier.padding(top = LibraryDimens.sectionGap))
+            } else {
+                state.blocks.forEach { block ->
+                    HomeBlockContent(block, state, onOpenBook, onSearch, onSeeShelves, onOpenProgress)
+                }
             }
             Spacer(Modifier.height(LibraryDimens.spaceLg))
         }
+    }
+}
+
+/** One home block. A block with nothing to show yet (no finished books, no notes) draws nothing. */
+@Composable
+private fun HomeBlockContent(
+    block: HomeBlock,
+    state: HomeUiState,
+    onOpenBook: (String) -> Unit,
+    onSearch: () -> Unit,
+    onSeeShelves: () -> Unit,
+    onOpenProgress: () -> Unit,
+) {
+    when (block) {
+        HomeBlock.CURRENTLY_READING -> {
+            val current = state.currentlyReading
+            if (current != null) LoanCard(book = current, onClick = { onOpenBook(current.id) }) else EmptyLoanCard(onSearch = onSearch)
+        }
+        HomeBlock.STREAK -> StreakCard(state.streak, state.today, onClick = onOpenProgress)
+        HomeBlock.LICENCES -> if (state.licences.isNotEmpty()) LicencesCard(state.licences, onClick = onOpenProgress)
+        HomeBlock.RECENTLY_FINISHED -> if (state.recentlyFinished.isNotEmpty()) {
+            RecentlyFinishedShelf(books = state.recentlyFinished, onOpenBook = onOpenBook, onSeeAll = onSeeShelves)
+        }
+        HomeBlock.QUOTE_OF_THE_DAY -> state.quote?.let { QuoteCard(it) }
     }
 }
 
@@ -177,6 +207,21 @@ private fun HomeHeader(
             LibraryChip(text = stringResource(R.string.calendar_title), onClick = onOpenCalendar)
         }
     }
+}
+
+/** "Edit home", under the lace on the right, so the header keeps the design's height. */
+@Composable
+private fun EditHomeLink(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Text(
+        stringResource(R.string.home_edit),
+        style = LibraryTheme.typography.chip,
+        color = LibraryTheme.colors.primary,
+        modifier = modifier
+            .heightIn(min = LibraryDimens.touchTarget)
+            .clip(LibraryShapes.pill)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = LibraryDimens.spaceSm, vertical = LibraryDimens.spaceMd),
+    )
 }
 
 @Composable
@@ -353,6 +398,49 @@ private fun StreakCard(streak: ReadingStreak, today: LocalDate, onClick: () -> U
     }
 }
 
+/** The licence rosettes, as on the progress screen, which it opens. */
+@Composable
+private fun LicencesCard(licences: List<ShelfLicence>, onClick: () -> Unit) {
+    PaperCard(
+        Modifier
+            .fillMaxWidth()
+            .clip(LibraryShapes.card)
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.cd_open_progress), onClick = onClick),
+    ) {
+        Box(Modifier.padding(horizontal = LibraryDimens.spaceLg - LibraryDimens.spaceXxs, vertical = LibraryDimens.spaceMd)) {
+            Licences(licences)
+        }
+    }
+}
+
+/** Today's line from her notes, handwritten, with the book it came from. */
+@Composable
+private fun QuoteCard(quote: DailyQuote) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Box {
+        PaperCard(Modifier.fillMaxWidth(), color = colors.primaryLight) {
+            Column(Modifier.padding(horizontal = LibraryDimens.spaceLg, vertical = LibraryDimens.spaceMd)) {
+                Text(stringResource(R.string.home_quote_label), style = type.label, color = colors.primary)
+                Text(
+                    stringResource(R.string.share_quote, quote.text),
+                    style = type.emphasis,
+                    color = colors.ink,
+                    maxLines = QUOTE_MAX_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = LibraryDimens.spaceSm),
+                )
+                quote.bookTitle?.let {
+                    Text(it, style = type.handSmall, color = colors.accentDeep, modifier = Modifier.align(Alignment.End).padding(top = LibraryDimens.spaceXs))
+                }
+            }
+        }
+        WashiTape(Modifier.align(Alignment.TopEnd).offset(x = -LibraryDimens.sectionGap, y = -LibraryDimens.spaceSm))
+    }
+}
+
+private const val QUOTE_MAX_LINES = 5
+
 @Composable
 private fun currentLocale() = LocalConfiguration.current.locales[0]
 
@@ -383,6 +471,9 @@ private val previewState = HomeUiState(
     booksFinished = 9,
     booksReading = 2,
     streak = LocalDate.of(2026, 11, 20).toEpochDay().let { today -> ReadingStreak(current = 3, record = 5, daysRead = setOf(today - 2, today - 1, today)) },
+    licences = listOf(ShelfLicence(ShelfTheme.ROMANTASY, 5), ShelfLicence(ShelfTheme.WITCHY, 1), ShelfLicence(ShelfTheme.COWBOY, 0), ShelfLicence(ShelfTheme.ROMANCE, 3), ShelfLicence(ShelfTheme.THRILLER, 2)),
+    quote = DailyQuote("Hay libros que se leen y libros que se viven.", "Fourth Wing"),
+    blocks = HomeBlock.entries,
     today = LocalDate.of(2026, 11, 20),
     isLoading = false,
 )
@@ -391,13 +482,13 @@ private val previewState = HomeUiState(
 @Preview(name = "Home · Spanish", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomePreview() = LibraryTheme {
-    HomeContent(previewState, DayPeriod.Afternoon, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {})
+    HomeContent(previewState, DayPeriod.Afternoon, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {}, onEditHome = {})
 }
 
 @Preview(name = "Home · empty", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomeEmptyPreview() = LibraryTheme {
-    HomeContent(HomeUiState(isLoading = false), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {})
+    HomeContent(HomeUiState(isLoading = false), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {}, onEditHome = {})
 }
 
 // endregion

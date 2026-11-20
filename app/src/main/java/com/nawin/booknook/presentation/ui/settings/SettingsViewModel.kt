@@ -3,17 +3,21 @@ package com.nawin.booknook.presentation.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.data.local.PreferencesDataStore
+import com.nawin.booknook.domain.model.Account
 import com.nawin.booknook.domain.model.ReaderProfile
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.service.LibraryExporter
 import com.nawin.booknook.domain.service.ReminderScheduler
+import com.nawin.booknook.domain.usecase.GetAccountUseCase
+import com.nawin.booknook.domain.usecase.SignOutUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -29,6 +33,9 @@ data class SettingsUiState(
     val reminder: ReadingReminder = ReadingReminder(),
     val profile: ReaderProfile = ReaderProfile(),
     val exportStatus: ExportStatus? = null,
+    /** Whether this build has accounts at all; without them the account rows are hidden. */
+    val accountAvailable: Boolean = false,
+    val account: Account? = null,
 )
 
 /**
@@ -39,13 +46,15 @@ class SettingsViewModel(
     private val preferencesDataStore: PreferencesDataStore,
     private val reminderScheduler: ReminderScheduler,
     private val libraryExporter: LibraryExporter,
+    getAccount: GetAccountUseCase,
+    private val signOutUseCase: SignOutUseCase,
 ) : ViewModel() {
 
     private val exportStatus = MutableStateFlow<ExportStatus?>(null)
 
     val uiState: StateFlow<SettingsUiState> =
-        combine(preferencesDataStore.userPreferences, exportStatus) { preferences, export ->
-            SettingsUiState(preferences.theme, preferences.reminder, preferences.profile, export)
+        combine(preferencesDataStore.userPreferences, exportStatus, getAccount().onStart { emit(null) }) { preferences, export, account ->
+            SettingsUiState(preferences.theme, preferences.reminder, preferences.profile, export, getAccount.isAvailable, account)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), SettingsUiState())
 
     fun setTheme(theme: ShelfTheme) {
@@ -73,6 +82,11 @@ class SettingsViewModel(
                 ExportStatus.Failed
             }
         }
+    }
+
+    /** Signs out on this phone; the library and the local profile stay. */
+    fun signOut() {
+        viewModelScope.launch { signOutUseCase() }
     }
 
     /** Saves the new reminder and brings the system schedule in line with it. */

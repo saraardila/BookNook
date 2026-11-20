@@ -11,6 +11,7 @@ import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.model.StoryEnding
 import com.nawin.booknook.domain.model.StoryHook
 import com.nawin.booknook.domain.model.StoryWorld
+import com.nawin.booknook.domain.usecase.GetAccountUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,8 +20,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Pages of the welcome flow, in order. */
-enum class OnboardingPage { WELCOME, PLAN, WORLD, HOOKS, ENDING, RESULT, NAME, CARD }
+/** Pages of the welcome flow, in order. ACCOUNT is left out when the build has no account server. */
+enum class OnboardingPage { WELCOME, ACCOUNT, PLAN, WORLD, HOOKS, ENDING, RESULT, NAME, CARD }
 
 /** The test questions, numbered for the "1 / 4" progress. */
 val OnboardingPage.questionNumber: Int?
@@ -69,7 +70,11 @@ data class OnboardingUiState(
  */
 class OnboardingViewModel(
     private val preferencesDataStore: PreferencesDataStore,
+    getAccount: GetAccountUseCase,
 ) : ViewModel() {
+
+    /** The pages this build shows, in order. */
+    private val pages = OnboardingPage.entries.filter { it != OnboardingPage.ACCOUNT || getAccount.isAvailable }
 
     private val page = MutableStateFlow(OnboardingPage.WELCOME)
     private val draft = MutableStateFlow(QuizDraft())
@@ -103,14 +108,14 @@ class OnboardingViewModel(
             }
             return
         }
-        OnboardingPage.entries.getOrNull(current.ordinal + 1)?.let { page.value = it }
+        pages.getOrNull(pages.indexOf(current) + 1)?.let { page.value = it }
     }
 
     /** Goes back one page. Returns false on the first page, so the system can close the app. */
     fun back(): Boolean {
         val current = page.value
         if (current == OnboardingPage.WELCOME) return false
-        page.value = OnboardingPage.entries[current.ordinal - 1]
+        page.value = pages[pages.indexOf(current) - 1]
         return true
     }
 

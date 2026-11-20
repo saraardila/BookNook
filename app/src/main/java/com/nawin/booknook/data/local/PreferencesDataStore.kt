@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.nawin.booknook.domain.model.HomeLayout
 import com.nawin.booknook.domain.model.ReaderProfile
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
@@ -35,6 +36,9 @@ class PreferencesDataStore(
         val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         val FAVOURITE_SHELF = stringPreferencesKey("favourite_shelf")
         val STORY_HOOKS = stringSetPreferencesKey("story_hooks")
+        /** Block names top to bottom, comma separated: a set would lose the order. */
+        val HOME_ORDER = stringPreferencesKey("home_order")
+        val HOME_HIDDEN = stringSetPreferencesKey("home_hidden")
     }
 
     val userPreferences: Flow<UserPreferences> = dataStore.data
@@ -55,6 +59,10 @@ class PreferencesDataStore(
                     memberSince = prefs[Keys.MEMBER_SINCE],
                     favouriteShelf = prefs[Keys.FAVOURITE_SHELF]?.let { enumOrNull<ShelfTheme>(it) },
                     hooks = prefs[Keys.STORY_HOOKS].orEmpty().mapNotNullTo(mutableSetOf()) { enumOrNull<StoryHook>(it) },
+                ),
+                homeLayout = HomeLayout.fromNames(
+                    storedOrder = prefs[Keys.HOME_ORDER]?.split(LIST_SEPARATOR),
+                    storedHidden = prefs[Keys.HOME_HIDDEN],
                 ),
             )
         }
@@ -92,9 +100,20 @@ class PreferencesDataStore(
         dataStore.edit { it[Keys.ONBOARDING_DONE] = true }
     }
 
+    suspend fun saveHomeLayout(layout: HomeLayout) {
+        dataStore.edit {
+            it[Keys.HOME_ORDER] = layout.order.joinToString(LIST_SEPARATOR) { block -> block.name }
+            it[Keys.HOME_HIDDEN] = layout.hidden.mapTo(mutableSetOf()) { block -> block.name }
+        }
+    }
+
     /** Records [now] as the date the reader joined, only the first time it is called. */
     suspend fun ensureMemberSince(now: Long) {
         dataStore.edit { if (it[Keys.MEMBER_SINCE] == null) it[Keys.MEMBER_SINCE] = now }
+    }
+
+    private companion object {
+        const val LIST_SEPARATOR = ","
     }
 
     private inline fun <reified T : Enum<T>> enumOrDefault(stored: String?, default: T): T =

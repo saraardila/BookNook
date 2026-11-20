@@ -2,6 +2,7 @@ package com.nawin.booknook.di
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import io.github.jan.supabase.SupabaseClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import org.junit.Test
@@ -26,7 +27,9 @@ class KoinModulesTest {
                 SavedStateHandle::class,
                 // HttpClient is built in a lambda; verify() still inspects its constructor
                 HttpClientEngine::class,
-                HttpClientConfig::class
+                HttpClientConfig::class,
+                // Built in a lambda too, and null in builds without a Supabase project
+                SupabaseClient::class,
             )
         )
     }

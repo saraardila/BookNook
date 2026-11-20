@@ -39,12 +39,13 @@ data class ReaderProfile(
 )
 
 /**
- * Everything the reader can change in Settings, plus whether the welcome flow
- * (test and library card) has been completed or skipped.
+ * Everything the reader can change in Settings and on the home editor, plus
+ * whether the welcome flow (test and library card) has been completed or skipped.
  */
 data class UserPreferences(
     val onboardingDone: Boolean = false,
     val theme: ShelfTheme = ShelfTheme.STANDARD,
     val reminder: ReadingReminder = ReadingReminder(),
     val profile: ReaderProfile = ReaderProfile(),
+    val homeLayout: HomeLayout = HomeLayout(),
 )

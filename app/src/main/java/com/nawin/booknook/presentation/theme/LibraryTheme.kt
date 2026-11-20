@@ -314,6 +314,14 @@ object LibraryDimens {
     val shareCardHeight = 604.dp
     val shareHeaderHeight = 104.dp
     val shareActionSize = 56.dp
+    val homeBlockIcon = 38.dp
+
+    // Reading calendar
+    val calendarDayBadge = 18.dp
+    val calendarReadDisc = 32.dp
+    val calendarLegendDot = 10.dp
+    val dragHandleDot = 4.dp
+    val dragHandleGap = 3.dp
 }
 
 // endregion

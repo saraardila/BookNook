@@ -4,93 +4,99 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.domain.model.ReadingStreak
 import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
-import kotlinx.coroutines.flow.*
-import java.util.Calendar
+import com.nawin.booknook.domain.usecase.GetPagesPerDayUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import java.time.Clock
+import java.time.Instant
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneId
 
-class CalendarViewModel(
-    private val getMyLibraryUseCase: GetMyLibraryUseCase
-) : ViewModel() {
+/** What a day of the calendar records about a book. */
+enum class CalendarEventKind { STARTED, FINISHED, PUT_DOWN }
 
-    private val _currentMonth = MutableStateFlow(Calendar.getInstance())
-    val currentMonth: StateFlow<Calendar> = _currentMonth.asStateFlow()
+data class CalendarEvent(val book: Book, val date: LocalDate, val kind: CalendarEventKind)
 
-    val uiState: StateFlow<CalendarUiState> = combine(
-        getMyLibraryUseCase(),
-        _currentMonth
-    ) { books, calendar ->
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-
-        // Libros empezados este mes
-        val startedThisMonth = books.filter { book ->
-            book.startDate?.let { date ->
-                val cal = Calendar.getInstance().apply { timeInMillis = date }
-                cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month
-            } ?: false
-        }
-
-        // Libros terminados este mes
-        val finishedThisMonth = books.filter { book ->
-            book.finishDate?.let { date ->
-                val cal = Calendar.getInstance().apply { timeInMillis = date }
-                cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month
-            } ?: false
-        }
-
-        // Mapa día -> libros
-        val booksByDay = mutableMapOf<Int, MutableList<Book>>()
-        startedThisMonth.forEach { book ->
-            val cal = Calendar.getInstance().apply { timeInMillis = book.startDate!! }
-            val day = cal.get(Calendar.DAY_OF_MONTH)
-            booksByDay.getOrPut(day) { mutableListOf() }.add(book)
-        }
-        finishedThisMonth.forEach { book ->
-            val cal = Calendar.getInstance().apply { timeInMillis = book.finishDate!! }
-            val day = cal.get(Calendar.DAY_OF_MONTH)
-            if (booksByDay[day]?.none { it.id == book.id } != false) {
-                booksByDay.getOrPut(day) { mutableListOf() }.add(book)
-            }
-        }
-
-        CalendarUiState(
-            year = year,
-            month = month,
-            booksByDay = booksByDay,
-            startedThisMonth = startedThisMonth.size,
-            finishedThisMonth = finishedThisMonth.size,
-            currentlyReading = books.count { it.status == ReadingStatus.READING }
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = CalendarUiState()
-    )
-
-    fun previousMonth() {
-        _currentMonth.update { cal ->
-            Calendar.getInstance().apply {
-                timeInMillis = cal.timeInMillis
-                add(Calendar.MONTH, -1)
-            }
-        }
-    }
-
-    fun nextMonth() {
-        _currentMonth.update { cal ->
-            Calendar.getInstance().apply {
-                timeInMillis = cal.timeInMillis
-                add(Calendar.MONTH, 1)
-            }
-        }
-    }
+/**
+ * @property events This month's starts and endings, oldest first.
+ * @property readingDays Days of this month with at least [ReadingStreak.MIN_PAGES_PER_DAY] pages, the ones the streak counts.
+ * @property canGoForward False on the current month: the future has nothing to show.
+ */
+data class CalendarUiState(
+    val month: YearMonth = YearMonth.now(),
+    val today: LocalDate = LocalDate.now(),
+    val events: List<CalendarEvent> = emptyList(),
+    val readingDays: Set<Int> = emptySet(),
+    val isLoading: Boolean = true,
+) {
+    val eventsByDay: Map<Int, List<CalendarEvent>> get() = events.groupBy { it.date.dayOfMonth }
+    val startedCount: Int get() = events.count { it.kind == CalendarEventKind.STARTED }
+    val finishedCount: Int get() = events.count { it.kind == CalendarEventKind.FINISHED }
+    val canGoForward: Boolean get() = month < YearMonth.from(today)
 }
 
-data class CalendarUiState(
-    val year: Int = Calendar.getInstance().get(Calendar.YEAR),
-    val month: Int = Calendar.getInstance().get(Calendar.MONTH),
-    val booksByDay: Map<Int, List<Book>> = emptyMap(),
-    val startedThisMonth: Int = 0,
-    val finishedThisMonth: Int = 0,
-    val currentlyReading: Int = 0
-)
+/**
+ * Reading calendar: the books started and finished each month, and the days she
+ * read enough for the streak. Opens on the current month.
+ */
+class CalendarViewModel(
+    getMyLibrary: GetMyLibraryUseCase,
+    getPagesPerDay: GetPagesPerDayUseCase,
+    private val clock: Clock,
+) : ViewModel() {
+
+    private val today = LocalDate.now(clock)
+    private val month = MutableStateFlow(YearMonth.from(today))
+
+    val uiState: StateFlow<CalendarUiState> =
+        combine(getMyLibrary(), getPagesPerDay(), month) { books, pagesPerDay, month ->
+            CalendarUiState(
+                month = month,
+                today = today,
+                events = eventsIn(month, books, clock.zone),
+                readingDays = readingDaysIn(month, pagesPerDay),
+                isLoading = false,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), CalendarUiState(month.value, today))
+
+    fun previousMonth() = month.update { it.minusMonths(1) }
+
+    fun nextMonth() = month.update { if (it < YearMonth.from(today)) it.plusMonths(1) else it }
+
+    private companion object {
+        const val STOP_TIMEOUT_MILLIS = 5_000L
+
+        fun eventsIn(month: YearMonth, books: List<Book>, zone: ZoneId): List<CalendarEvent> {
+            fun Long.toDate() = Instant.ofEpochMilli(this).atZone(zone).toLocalDate()
+            val events = books.flatMap { book ->
+                buildList {
+                    book.startDate?.let { add(CalendarEvent(book, it.toDate(), CalendarEventKind.STARTED)) }
+                    // A finish date only counts while the book is still finished or put down,
+                    // the same rule as the journal and the reading card.
+                    val ending = when (book.status) {
+                        ReadingStatus.FINISHED -> CalendarEventKind.FINISHED
+                        ReadingStatus.DNF -> CalendarEventKind.PUT_DOWN
+                        else -> null
+                    }
+                    if (ending != null) book.finishDate?.let { add(CalendarEvent(book, it.toDate(), ending)) }
+                }
+            }
+            return events.filter { YearMonth.from(it.date) == month }.sortedBy { it.date }
+        }
+
+        fun readingDaysIn(month: YearMonth, pagesPerDay: Map<Long, Int>): Set<Int> =
+            pagesPerDay
+                .filterValues { it >= ReadingStreak.MIN_PAGES_PER_DAY }
+                .keys
+                .map(LocalDate::ofEpochDay)
+                .filter { YearMonth.from(it) == month }
+                .mapTo(mutableSetOf()) { it.dayOfMonth }
+    }
+}

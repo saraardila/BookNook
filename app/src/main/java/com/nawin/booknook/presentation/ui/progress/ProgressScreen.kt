@@ -153,9 +153,9 @@ private fun StreakSummary(streak: ReadingStreak, today: LocalDate) {
     }
 }
 
-/** One rosette per genre shelf: earned, on its way or not started. */
+/** One rosette per genre shelf: earned, on its way or not started. Also a block on Home. */
 @Composable
-private fun Licences(licences: List<ShelfLicence>) {
+internal fun Licences(licences: List<ShelfLicence>) {
     val colors = LibraryTheme.colors
     val type = LibraryTheme.typography
     Column(verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd)) {

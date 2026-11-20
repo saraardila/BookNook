@@ -6,6 +6,8 @@ import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.model.StoryEnding
 import com.nawin.booknook.domain.model.StoryHook
 import com.nawin.booknook.domain.model.StoryWorld
+import com.nawin.booknook.domain.usecase.GetAccountUseCase
+import com.nawin.booknook.util.FakeAccountRepository
 import com.nawin.booknook.util.InMemoryPreferencesDataStore
 import com.nawin.booknook.util.MainDispatcherRule
 import kotlinx.coroutines.flow.first
@@ -26,7 +28,8 @@ class OnboardingViewModelTest {
 
     private val preferences = PreferencesDataStore(InMemoryPreferencesDataStore())
     // Lazy: viewModelScope must be created after the rule has replaced Dispatchers.Main.
-    private val viewModel by lazy { OnboardingViewModel(preferences) }
+    // Most tests use a build without accounts, so the test follows the welcome page directly.
+    private val viewModel by lazy { OnboardingViewModel(preferences, GetAccountUseCase(FakeAccountRepository(isAvailable = false))) }
 
     @Test
     fun `a question cannot be left unanswered`() = runTest(mainDispatcherRule.dispatcher) {
@@ -99,5 +102,23 @@ class OnboardingViewModelTest {
         assertTrue(stored.onboardingDone)
         assertEquals(null, stored.profile.favouriteShelf)
         assertEquals(ShelfTheme.STANDARD, stored.theme)
+    }
+
+    @Test
+    fun `with accounts, the account page sits between the welcome page and the test`() = runTest(mainDispatcherRule.dispatcher) {
+        val withAccounts = OnboardingViewModel(preferences, GetAccountUseCase(FakeAccountRepository(isAvailable = true)))
+        backgroundScope.launch { withAccounts.uiState.collect {} }
+
+        withAccounts.next()
+        advanceUntilIdle()
+        assertEquals(OnboardingPage.ACCOUNT, withAccounts.uiState.value.page)
+
+        withAccounts.next()
+        advanceUntilIdle()
+        assertEquals(OnboardingPage.PLAN, withAccounts.uiState.value.page)
+
+        withAccounts.back()
+        advanceUntilIdle()
+        assertEquals(OnboardingPage.ACCOUNT, withAccounts.uiState.value.page)
     }
 }

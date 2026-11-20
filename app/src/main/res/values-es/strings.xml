@@ -99,13 +99,11 @@
     <string name="detail_date_not_set">toca para elegir</string>
 
     <!-- Calendar -->
-    <string name="calendar_started">Empezado</string>
-    <string name="calendar_finished">Terminado</string>
-    <string name="calendar_reading">Leyendo</string>
-    <string name="calendar_this_month">Este mes</string>
+    <string name="calendar_started">Empezados</string>
+    <string name="calendar_finished">Terminados</string>
+    <string name="calendar_this_month">ESTE MES</string>
     <string name="calendar_prev_month">Mes anterior</string>
     <string name="calendar_next_month">Mes siguiente</string>
-    <string name="calendar_journey">tu viaje lector 📅</string>
 
     <string name="home_search_book">Buscar un libro</string>
 
@@ -434,4 +432,78 @@
     <string name="share_stamp_page_label">PÁG</string>
     <string name="share_footer">Book Nook · biblioteca de %1$s</string>
     <string name="share_footer_anonymous">BOOK NOOK</string>
+    <string name="home_edit">Editar inicio</string>
+    <string name="home_quote_label">CITA DEL DÍA</string>
+    <string name="edit_home_tagline">mueve, quita o añade</string>
+    <string name="edit_home_title">Edita tu inicio</string>
+    <string name="edit_home_change_theme">Cambiar tema →</string>
+    <string name="edit_home_save">Guardar mi inicio</string>
+    <string name="home_block_reading">Leyendo ahora</string>
+    <string name="home_block_reading_hint">tu ficha de préstamo</string>
+    <string name="home_block_streak">Racha</string>
+    <string name="home_block_streak_hint">los días que lees seguidos</string>
+    <string name="home_block_licences">Tus licencias</string>
+    <string name="home_block_licences_hint">las rosetas de cada estante</string>
+    <string name="home_block_recently_finished">Terminados hace poco</string>
+    <string name="home_block_recently_finished_hint">tus últimos libros terminados</string>
+    <string name="home_block_quote">Cita del día</string>
+    <string name="home_block_quote_hint">una frase de tus notas</string>
+    <string name="cd_move_up">Subir</string>
+    <string name="cd_move_down">Bajar</string>
+    <!-- Cuenta (P03) -->
+    <string name="account_tagline_onboarding">antes del test…</string>
+    <string name="account_tagline_settings">tu biblioteca, contigo</string>
+    <string name="account_title_sign_up">Crea tu cuenta</string>
+    <string name="account_title_sign_in">Vuelve a entrar</string>
+    <string name="account_mode_sign_up">Crear cuenta</string>
+    <string name="account_mode_sign_in">Iniciar sesión</string>
+    <string name="account_name">TU NOMBRE</string>
+    <string name="account_email">CORREO</string>
+    <string name="account_email_placeholder">tucorreo@ejemplo.com</string>
+    <string name="account_password">CONTRASEÑA</string>
+    <plurals name="account_password_hint">
+        <item quantity="one">Al menos %1$d carácter</item>
+        <item quantity="many">Al menos %1$d caracteres</item>
+        <item quantity="other">Al menos %1$d caracteres</item>
+    </plurals>
+    <string name="account_note">Con una cuenta, tu biblioteca podrá acompañarte si cambias de móvil.</string>
+    <string name="account_submit_sign_up_test">Crear cuenta y hacer el test</string>
+    <string name="account_submit_sign_in_test">Iniciar sesión y hacer el test</string>
+    <string name="account_working">Un momento…</string>
+    <string name="account_skip">Seguir sin cuenta</string>
+    <string name="account_continue_to_test">Seguir con el test</string>
+    <string name="account_got_it">Entendido</string>
+    <string name="account_check_email">Te hemos enviado un correo a %1$s. Abre el enlace para confirmar tu cuenta y luego inicia sesión desde Ajustes.</string>
+    <string name="account_error_credentials">El correo y la contraseña no coinciden.</string>
+    <string name="account_error_email_taken">Ya hay una cuenta con ese correo. Prueba a iniciar sesión.</string>
+    <string name="account_error_weak_password">Esa contraseña es muy fácil de adivinar. Prueba con una más larga.</string>
+    <string name="account_error_invalid_email">Ese correo no parece correcto.</string>
+    <string name="account_error_not_confirmed">Confirma tu cuenta con el enlace que te enviamos y vuelve a intentarlo.</string>
+    <string name="account_error_too_many">Demasiados intentos. Espera unos minutos y vuelve a probar.</string>
+    <string name="account_error_connection">Sin conexión. Revisa internet y vuelve a intentarlo.</string>
+    <string name="account_error_unknown">Algo ha fallado. Inténtalo de nuevo en un momento.</string>
+    <string name="cd_show_password">Mostrar contraseña</string>
+    <string name="cd_hide_password">Ocultar contraseña</string>
+    <string name="settings_account_sign_in">Crea una cuenta o inicia sesión</string>
+    <string name="settings_account_sign_in_hint">para que tu biblioteca vaya contigo</string>
+    <string name="settings_account_signed_in">Sesión iniciada</string>
+    <string name="settings_sign_out">Cerrar sesión</string>
+    <!-- Calendario de lectura -->
+    <string name="calendar_tagline">tus días entre páginas</string>
+    <string name="calendar_reading_days">Días leídos</string>
+    <string name="calendar_more">+%1$d</string>
+    <plurals name="calendar_legend_read">
+        <item quantity="one">Días con %1$d página o más: cuentan para tu racha</item>
+        <item quantity="many">Días con %1$d páginas o más: cuentan para tu racha</item>
+        <item quantity="other">Días con %1$d páginas o más: cuentan para tu racha</item>
+    </plurals>
+    <string name="calendar_today">hoy</string>
+    <string name="calendar_read_day">leíste</string>
+    <string name="calendar_cd_started">empezaste %1$s</string>
+    <string name="calendar_cd_finished">terminaste %1$s</string>
+    <string name="calendar_cd_put_down">dejaste %1$s</string>
+    <string name="calendar_stamp_started">empezado · %1$s</string>
+    <string name="calendar_stamp_finished">terminado · %1$s</string>
+    <string name="calendar_stamp_put_down">dejado · %1$s</string>
+    <string name="calendar_empty_month">este mes aún es una página en blanco</string>
 </resources>

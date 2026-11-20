@@ -26,6 +26,8 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.CloudDone
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,7 +55,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.nawin.booknook.presentation.navigation.Screen
 import com.nawin.booknook.R
+import com.nawin.booknook.domain.model.Account
 import com.nawin.booknook.domain.model.ReaderProfile
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
@@ -77,7 +81,7 @@ import java.time.format.FormatStyle
 /** Settings tab: language, shelf theme, reading reminder and the local account. */
 @Composable
 fun SettingsScreen(
-    @Suppress("UNUSED_PARAMETER") navController: NavController,
+    navController: NavController,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -111,6 +115,8 @@ fun SettingsScreen(
         onReminderTimeChanged = viewModel::setReminderTime,
         onNameChanged = viewModel::setReaderName,
         onExport = { exportDocument.launch(EXPORT_FILE_PREFIX + LocalDate.now() + EXPORT_FILE_EXTENSION) },
+        onOpenAccount = { navController.navigate(Screen.Account.route) },
+        onSignOut = viewModel::signOut,
     )
 }
 
@@ -125,6 +131,8 @@ private fun SettingsContent(
     onReminderTimeChanged: (Int, Int) -> Unit,
     onNameChanged: (String) -> Unit,
     onExport: () -> Unit,
+    onOpenAccount: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LibraryTheme.colors
@@ -181,7 +189,7 @@ private fun SettingsContent(
                 }
             }
             SettingsSection(stringResource(R.string.settings_account)) {
-                AccountCard(state.profile, onNameChanged, onExport)
+                AccountCard(state, onNameChanged, onExport, onOpenAccount, onSignOut)
                 state.exportStatus?.let { ExportMessage(it) }
             }
         }
@@ -303,8 +311,16 @@ private fun ReminderCard(
 // region Account
 
 @Composable
-private fun AccountCard(profile: ReaderProfile, onNameChanged: (String) -> Unit, onExport: () -> Unit) {
+private fun AccountCard(
+    state: SettingsUiState,
+    onNameChanged: (String) -> Unit,
+    onExport: () -> Unit,
+    onOpenAccount: () -> Unit,
+    onSignOut: () -> Unit,
+) {
     val colors = LibraryTheme.colors
+    val profile = state.profile
+    val account = state.account
     val locale = LocalConfiguration.current.locales[0]
     var editingName by rememberSaveable { mutableStateOf(false) }
     val since = profile.memberSince?.let { millis ->
@@ -328,9 +344,32 @@ private fun AccountCard(profile: ReaderProfile, onNameChanged: (String) -> Unit,
         ) {
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.inkMuted)
         }
+        if (state.accountAvailable) {
+            HorizontalDivider(thickness = LibraryDimens.strokeHairline, color = colors.outline)
+            if (account == null) {
+                SettingRow(
+                    title = stringResource(R.string.settings_account_sign_in),
+                    subtitle = stringResource(R.string.settings_account_sign_in_hint),
+                    onClick = onOpenAccount,
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = colors.inkMuted)
+                }
+            } else {
+                // Not clickable yet: there is nothing to change about the account in this version.
+                SettingRow(title = account.email, subtitle = stringResource(R.string.settings_account_signed_in), onClick = {}, enabled = false) {
+                    Icon(Icons.Outlined.CloudDone, contentDescription = null, tint = colors.accentDeep)
+                }
+            }
+        }
         HorizontalDivider(thickness = LibraryDimens.strokeHairline, color = colors.outline)
         SettingRow(title = stringResource(R.string.settings_export), onClick = onExport) {
             Icon(Icons.Outlined.FileDownload, contentDescription = null, tint = colors.inkMuted)
+        }
+        if (account != null) {
+            HorizontalDivider(thickness = LibraryDimens.strokeHairline, color = colors.outline)
+            SettingRow(title = stringResource(R.string.settings_sign_out), titleColor = colors.primary, onClick = onSignOut) {
+                Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null, tint = colors.primary)
+            }
         }
     }
 }
@@ -381,6 +420,7 @@ private fun SettingRow(
     subtitle: String? = null,
     titleColor: androidx.compose.ui.graphics.Color = LibraryTheme.colors.ink,
     onClickLabel: String? = null,
+    enabled: Boolean = true,
     trailing: @Composable () -> Unit,
 ) {
     val type = LibraryTheme.typography
@@ -396,7 +436,7 @@ private fun SettingRow(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
+                .clickable(enabled = enabled, onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
                 .padding(vertical = LibraryDimens.spaceMd - LibraryDimens.spaceXxs),
         ) {
             Text(title, style = type.button, color = titleColor)
@@ -427,6 +467,8 @@ private fun SettingsPreview() = LibraryTheme {
             reminder = ReadingReminder(enabled = true),
             profile = ReaderProfile(name = "Sara", memberSince = 1_793_620_800_000, favouriteShelf = ShelfTheme.ROMANTASY),
             exportStatus = ExportStatus.Done(7),
+            accountAvailable = true,
+            account = Account(id = "preview", email = "sara@example.com", name = "Sara"),
         ),
         language = AppLanguage.SPANISH,
         notificationsDenied = false,
@@ -436,5 +478,7 @@ private fun SettingsPreview() = LibraryTheme {
         onReminderTimeChanged = { _, _ -> },
         onNameChanged = {},
         onExport = {},
+        onOpenAccount = {},
+        onSignOut = {},
     )
 }

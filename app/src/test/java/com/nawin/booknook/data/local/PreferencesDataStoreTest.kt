@@ -3,6 +3,8 @@ package com.nawin.booknook.data.local
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.nawin.booknook.domain.model.HomeBlock
+import com.nawin.booknook.domain.model.HomeLayout
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.model.StoryHook
@@ -65,5 +67,15 @@ class PreferencesDataStoreTest {
         preferences.ensureMemberSince(2_000L)
 
         assertEquals(1_000L, preferences.userPreferences.first().profile.memberSince)
+    }
+
+    @Test
+    fun `the home layout keeps its order and hidden blocks`() = runTest {
+        val preferences = PreferencesDataStore(InMemoryPreferencesDataStore())
+        val layout = HomeLayout(order = HomeBlock.entries.shuffled(kotlin.random.Random(7)), hidden = setOf(HomeBlock.STREAK))
+
+        preferences.saveHomeLayout(layout)
+
+        assertEquals(layout, preferences.userPreferences.first().homeLayout)
     }
 }

@@ -1,281 +1,425 @@
 package com.nawin.booknook.presentation.ui.calendar
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.domain.model.ReadingStreak
 import com.nawin.booknook.presentation.components.BookCover
+import com.nawin.booknook.presentation.components.library.CatalogueCover
+import com.nawin.booknook.presentation.components.library.LaceHeader
+import com.nawin.booknook.presentation.components.library.PaperCard
+import com.nawin.booknook.presentation.components.library.RoundIconButton
+import com.nawin.booknook.presentation.components.library.ShelfLoader
 import com.nawin.booknook.presentation.navigation.Screen
-import java.text.DateFormatSymbols
-import java.util.Calendar
+import com.nawin.booknook.presentation.theme.LibraryDimens
+import com.nawin.booknook.presentation.theme.LibraryShapes
+import com.nawin.booknook.presentation.theme.LibraryTheme
+import org.koin.compose.viewmodel.koinViewModel
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.Locale
 
+/** Reading calendar, opened from the home header. */
 @Composable
 fun CalendarScreen(
     navController: NavController,
-    viewModel: CalendarViewModel = koinViewModel()
+    viewModel: CalendarViewModel = koinViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    CalendarContent(
+        state = state,
+        onBack = { navController.popBackStack() },
+        onPrevious = viewModel::previousMonth,
+        onNext = viewModel::nextMonth,
+        onOpenBook = { navController.navigate(Screen.BookDetail.createRoute(it)) },
+    )
+}
+
+@Composable
+private fun CalendarContent(
+    state: CalendarUiState,
+    onBack: () -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onOpenBook: (String) -> Unit,
+) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     Column(
-        modifier = Modifier
+        Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
+            .background(colors.background)
+            .verticalScroll(rememberScrollState()),
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(
-                text = stringResource(R.string.calendar_title),
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                text = stringResource(R.string.calendar_journey),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            MonthStatChip(modifier = Modifier.weight(1f), emoji = "📖", value = "${uiState.startedThisMonth}", label = stringResource(R.string.calendar_started))
-            MonthStatChip(modifier = Modifier.weight(1f), emoji = "✅", value = "${uiState.finishedThisMonth}", label = stringResource(R.string.calendar_finished))
-            MonthStatChip(modifier = Modifier.weight(1f), emoji = "📚", value = "${uiState.currentlyReading}", label = stringResource(R.string.calendar_reading))
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        MonthNavigator(
-            year = uiState.year,
-            month = uiState.month,
-            onPrevious = { viewModel.previousMonth() },
-            onNext = { viewModel.nextMonth() }
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        CalendarGrid(
-            year = uiState.year,
-            month = uiState.month,
-            booksByDay = uiState.booksByDay,
-            onBookClick = { book -> navController.navigate(Screen.BookDetail.createRoute(book.id)) }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (uiState.booksByDay.isNotEmpty()) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Box {
+            LaceHeader(height = LibraryDimens.headerHeightCompact + statusBarTop)
+            Column(Modifier.padding(start = LibraryDimens.screenPadding, end = LibraryDimens.screenPadding, top = statusBarTop + LibraryDimens.spaceLg)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd)) {
+                    RoundIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back), onClick = onBack)
+                    Text(stringResource(R.string.calendar_tagline), style = type.hand, color = colors.stamp)
+                }
                 Text(
-                    text = stringResource(R.string.calendar_this_month),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    stringResource(R.string.calendar_title),
+                    style = type.heading,
+                    color = colors.ink,
+                    modifier = Modifier.padding(top = LibraryDimens.spaceSm).semantics { heading() },
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                val allBooks = uiState.booksByDay.values.flatten().distinctBy { it.id }
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    allBooks.forEach { book ->
-                        CalendarBookRow(
-                            book = book,
-                            onClick = { navController.navigate(Screen.BookDetail.createRoute(book.id)) }
-                        )
-                    }
-                }
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
-    }
-}
-
-@Composable
-fun MonthNavigator(year: Int, month: Int, onPrevious: () -> Unit, onNext: () -> Unit) {
-    val monthName = DateFormatSymbols().months[month]
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onPrevious) {
-            Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.calendar_prev_month), tint = MaterialTheme.colorScheme.onBackground)
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = monthName.replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground)
-            Text(text = "$year", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        IconButton(onClick = onNext) {
-            Icon(Icons.Default.ChevronRight, contentDescription = stringResource(R.string.calendar_next_month), tint = MaterialTheme.colorScheme.onBackground)
+        Column(
+            Modifier.padding(start = LibraryDimens.screenPadding, end = LibraryDimens.screenPadding, top = LibraryDimens.spaceXl),
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceLg),
+        ) {
+            MonthSwitcher(state, onPrevious, onNext)
+            MonthStats(state)
+            MonthGrid(state, onOpenBook)
+            if (state.isLoading) {
+                ShelfLoader(Modifier.fillMaxWidth())
+            } else {
+                MonthBooks(state.events, onOpenBook)
+            }
+            Spacer(Modifier.height(LibraryDimens.sectionGap))
         }
     }
 }
 
 @Composable
-fun CalendarGrid(year: Int, month: Int, booksByDay: Map<Int, List<Book>>, onBookClick: (Book) -> Unit) {
-    val daysOfWeek = listOf("M", "T", "W", "T", "F", "S", "S")
-    val firstDayOfMonth = Calendar.getInstance().apply { set(year, month, 1) }
-    var firstWeekDay = firstDayOfMonth.get(Calendar.DAY_OF_WEEK) - 2
-    if (firstWeekDay < 0) firstWeekDay = 6
-    val daysInMonth = firstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
-    val rows = (firstWeekDay + daysInMonth + 6) / 7
+private fun MonthSwitcher(state: CalendarUiState, onPrevious: () -> Unit, onNext: () -> Unit) {
+    val locale = LocalConfiguration.current.locales[0]
+    val title = remember(state.month, locale) { monthTitle(state.month, locale) }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        RoundIconButton(Icons.Filled.ChevronLeft, stringResource(R.string.calendar_prev_month), onClick = onPrevious)
+        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(title, style = LibraryTheme.typography.titleSmall, color = LibraryTheme.colors.ink, modifier = Modifier.semantics { heading() })
+            Text(state.month.year.toString(), style = LibraryTheme.typography.handSmall, color = LibraryTheme.colors.inkMuted)
+        }
+        // Faded and inert on the current month, so the row keeps its balance.
+        RoundIconButton(
+            Icons.Filled.ChevronRight,
+            stringResource(R.string.calendar_next_month),
+            onClick = { if (state.canGoForward) onNext() },
+            modifier = Modifier.alpha(if (state.canGoForward) 1f else DISABLED_ALPHA),
+        )
+    }
+}
 
-    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            daysOfWeek.forEach { day ->
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    Text(text = day, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+@Composable
+private fun MonthStats(state: CalendarUiState) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd)) {
+        StatCard(state.startedCount, stringResource(R.string.calendar_started), Modifier.weight(1f))
+        StatCard(state.finishedCount, stringResource(R.string.calendar_finished), Modifier.weight(1f))
+        StatCard(state.readingDays.size, stringResource(R.string.calendar_reading_days), Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun StatCard(value: Int, label: String, modifier: Modifier = Modifier) {
+    PaperCard(modifier, cornerRadius = LibraryDimens.radiusRow) {
+        Column(
+            Modifier.fillMaxWidth().padding(vertical = LibraryDimens.spaceMd, horizontal = LibraryDimens.spaceXs),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(value.toString(), style = LibraryTheme.typography.heading, color = LibraryTheme.colors.primary)
+            Text(
+                label,
+                style = LibraryTheme.typography.label,
+                color = LibraryTheme.colors.inkMuted,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+// region Grid
+
+@Composable
+private fun MonthGrid(state: CalendarUiState, onOpenBook: (String) -> Unit) {
+    val colors = LibraryTheme.colors
+    val locale = LocalConfiguration.current.locales[0]
+    val firstDay = remember(locale) { WeekFields.of(locale).firstDayOfWeek }
+    val weekDays = remember(firstDay) { (0 until DAYS_IN_WEEK).map { firstDay.plus(it.toLong()) } }
+    // Empty cells before the 1st, counted from the locale's first day of the week.
+    val leading = (state.month.atDay(1).dayOfWeek.value - firstDay.value + DAYS_IN_WEEK) % DAYS_IN_WEEK
+    val days = state.month.lengthOfMonth()
+    val rows = (leading + days + DAYS_IN_WEEK - 1) / DAYS_IN_WEEK
+    val eventsByDay = state.eventsByDay
+
+    PaperCard(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(LibraryDimens.spaceMd), verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXs)) {
+            Row(Modifier.fillMaxWidth().clearAndSetSemantics { }) {
+                weekDays.forEach { day ->
+                    Text(
+                        day.getDisplayName(TextStyle.NARROW, locale),
+                        style = LibraryTheme.typography.label,
+                        color = colors.inkMuted,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        for (row in 0 until rows) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                for (col in 0 until 7) {
-                    val day = row * 7 + col - firstWeekDay + 1
-                    Box(
-                        modifier = Modifier.weight(1f).aspectRatio(1f).padding(2.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (day in 1..daysInMonth) {
-                            CalendarDayCell(day = day, books = booksByDay[day], onBookClick = onBookClick)
+            for (row in 0 until rows) {
+                Row(Modifier.fillMaxWidth()) {
+                    for (column in 0 until DAYS_IN_WEEK) {
+                        val day = row * DAYS_IN_WEEK + column - leading + 1
+                        Box(Modifier.weight(1f).aspectRatio(DAY_CELL_RATIO).padding(LibraryDimens.spaceXxs)) {
+                            if (day in 1..days) {
+                                DayCell(
+                                    date = state.month.atDay(day),
+                                    events = eventsByDay[day].orEmpty(),
+                                    read = day in state.readingDays,
+                                    isToday = state.month.atDay(day) == state.today,
+                                    onOpenBook = onOpenBook,
+                                )
+                            }
                         }
                     }
                 }
             }
+            Legend()
         }
     }
 }
 
+/**
+ * A day: the cover of the book started or finished that day, a filled disc when
+ * she read enough for the streak, an outline for today.
+ */
 @Composable
-fun CalendarDayCell(day: Int, books: List<Book>?, onBookClick: (Book) -> Unit) {
-    val isToday = Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == day
+private fun DayCell(date: LocalDate, events: List<CalendarEvent>, read: Boolean, isToday: Boolean, onOpenBook: (String) -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val description = dayDescription(date, events, read, isToday)
+    val book = events.firstOrNull()?.book
+    val shape = LibraryShapes.label
+    val base = Modifier
+        .fillMaxSize()
+        .clip(shape)
+        .then(if (isToday) Modifier.border(LibraryDimens.stroke, colors.primary, shape) else Modifier)
+        .then(
+            if (book != null) Modifier.clickable(role = Role.Button, onClick = { onOpenBook(book.id) }) else Modifier,
+        )
+        .clearAndSetSemantics { contentDescription = description }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (books != null && books.isNotEmpty()) {
+    Box(base, contentAlignment = Alignment.Center) {
+        if (book != null) {
+            BookCover(title = book.title, author = book.author, coverUrl = book.coverUrl, modifier = Modifier.fillMaxSize(), cornerRadius = LibraryDimens.radiusLabel)
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { onBookClick(books.first()) }
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(LibraryDimens.spaceXxs)
+                    .size(LibraryDimens.calendarDayBadge)
+                    .background(colors.paper, CircleShape)
+                    .border(LibraryDimens.strokeHairline, colors.outline, CircleShape),
+                contentAlignment = Alignment.Center,
             ) {
-                // ─── BookCover ───────────────────────────
-                BookCover(
-                    title = books.first().title,
-                    author = books.first().author,
-                    coverUrl = books.first().coverUrl,
-                    modifier = Modifier.fillMaxSize(),
-                    cornerRadius = 8.dp
-                )
-
-                // Número del día
+                Text(date.dayOfMonth.toString(), style = type.caption, color = colors.ink)
+            }
+            if (events.size > 1) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(2.dp)
-                        .size(16.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.4f)),
-                    contentAlignment = Alignment.Center
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(LibraryDimens.spaceXxs)
+                        .size(LibraryDimens.calendarDayBadge)
+                        .background(colors.primary, CircleShape),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = "$day", style = MaterialTheme.typography.labelSmall, color = Color.White, fontSize = 9.sp)
-                }
-
-                if (books.size > 1) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(2.dp)
-                            .size(14.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "+${books.size - 1}", fontSize = 8.sp, color = Color.White)
-                    }
+                    Text(stringResource(R.string.calendar_more, events.size - 1), style = type.caption, color = colors.onPrimary)
                 }
             }
         } else {
-            if (isToday) {
-                Box(
-                    modifier = Modifier.size(28.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "$day", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                }
-            } else {
-                Text(text = "$day", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            Box(
+                Modifier
+                    .size(LibraryDimens.calendarReadDisc)
+                    .then(if (read) Modifier.background(colors.primaryLight, CircleShape) else Modifier),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    date.dayOfMonth.toString(),
+                    style = type.chip,
+                    color = if (read || isToday) colors.ink else colors.inkMuted,
+                )
             }
         }
     }
 }
 
 @Composable
-fun MonthStatChip(modifier: Modifier = Modifier, emoji: String, value: String, label: String) {
-    Surface(modifier = modifier, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(text = emoji, fontSize = 20.sp)
-            Text(text = value, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
-            Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
-        }
+private fun Legend() {
+    val colors = LibraryTheme.colors
+    Row(
+        Modifier.fillMaxWidth().padding(top = LibraryDimens.spaceSm),
+        horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(LibraryDimens.calendarLegendDot).background(colors.primaryLight, CircleShape).border(LibraryDimens.strokeHairline, colors.outline, CircleShape))
+        Text(
+            pluralStringResource(R.plurals.calendar_legend_read, ReadingStreak.MIN_PAGES_PER_DAY, ReadingStreak.MIN_PAGES_PER_DAY),
+            style = LibraryTheme.typography.caption,
+            color = colors.inkMuted,
+        )
     }
 }
 
 @Composable
-fun CalendarBookRow(book: Book, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
-            .padding(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // ─── BookCover ───────────────────────────────────
-        BookCover(
-            title = book.title,
-            author = book.author,
-            coverUrl = book.coverUrl,
-            modifier = Modifier.size(48.dp),
-            cornerRadius = 8.dp
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = book.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
-            Text(text = book.author, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun dayDescription(date: LocalDate, events: List<CalendarEvent>, read: Boolean, isToday: Boolean): String {
+    val locale = LocalConfiguration.current.locales[0]
+    val parts = buildList {
+        add(date.format(DateTimeFormatter.ofPattern(DAY_MONTH_PATTERN, locale)))
+        if (isToday) add(stringResource(R.string.calendar_today))
+        events.forEach { add(stringResource(it.kind.labelRes, it.book.title)) }
+        if (read) add(stringResource(R.string.calendar_read_day))
+    }
+    return parts.joinToString(", ")
+}
+
+// endregion
+
+// region Books of the month
+
+@Composable
+private fun MonthBooks(events: List<CalendarEvent>, onOpenBook: (String) -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    Text(
+        stringResource(R.string.calendar_this_month),
+        style = type.label,
+        color = colors.primary,
+        modifier = Modifier.padding(top = LibraryDimens.spaceSm).semantics { heading() },
+    )
+    if (events.isEmpty()) {
+        Text(stringResource(R.string.calendar_empty_month), style = type.hand, color = colors.inkMuted)
+        return
+    }
+    events.forEach { event -> EventRow(event, onClick = { onOpenBook(event.book.id) }) }
+}
+
+@Composable
+private fun EventRow(event: CalendarEvent, onClick: () -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val locale = LocalConfiguration.current.locales[0]
+    val date = remember(event.date, locale) { event.date.format(DateTimeFormatter.ofPattern(DAY_MONTH_PATTERN, locale)) }
+    PaperCard(Modifier.fillMaxWidth().clip(LibraryShapes.row).clickable(onClick = onClick), cornerRadius = LibraryDimens.radiusRow) {
+        Row(
+            Modifier.padding(LibraryDimens.spaceMd),
+            horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CatalogueCover(event.book)
+            Column(Modifier.weight(1f)) {
+                Text(event.book.title, style = type.titleSmall, color = colors.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(event.book.author, style = type.body, color = colors.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    stringResource(event.kind.stampRes, date),
+                    style = type.handSmall,
+                    color = if (event.kind == CalendarEventKind.STARTED) colors.accentDeep else colors.stamp,
+                )
+            }
         }
-        Text(text = statusEmoji(book.status), fontSize = 20.sp)
     }
 }
 
-private fun statusEmoji(status: ReadingStatus) = when (status) {
-    ReadingStatus.READING      -> "📖"
-    ReadingStatus.FINISHED     -> "✅"
-    ReadingStatus.WANT_TO_READ -> "🔖"
-    ReadingStatus.DNF          -> "🚫"
+private val CalendarEventKind.labelRes: Int
+    get() = when (this) {
+        CalendarEventKind.STARTED -> R.string.calendar_cd_started
+        CalendarEventKind.FINISHED -> R.string.calendar_cd_finished
+        CalendarEventKind.PUT_DOWN -> R.string.calendar_cd_put_down
+    }
+
+private val CalendarEventKind.stampRes: Int
+    get() = when (this) {
+        CalendarEventKind.STARTED -> R.string.calendar_stamp_started
+        CalendarEventKind.FINISHED -> R.string.calendar_stamp_finished
+        CalendarEventKind.PUT_DOWN -> R.string.calendar_stamp_put_down
+    }
+
+// endregion
+
+/** Month name as it stands alone ("noviembre", "November"), capitalised for a title. */
+private fun monthTitle(month: YearMonth, locale: Locale): String =
+    month.month.getDisplayName(TextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.titlecase(locale) }
+
+private const val DAYS_IN_WEEK = 7
+private const val DAY_CELL_RATIO = 0.8f
+private const val DISABLED_ALPHA = 0.4f
+
+/** Day and short month, e.g. "14 nov" / "Nov 14", in the locale's own order. */
+private const val DAY_MONTH_PATTERN = "d MMM"
+
+@Preview(name = "Calendar", locale = "es", widthDp = 360, heightDp = 1100, showBackground = true)
+@Composable
+private fun CalendarPreview() = LibraryTheme {
+    fun sample(id: String, title: String, author: String, status: ReadingStatus) =
+        Book(id, title, author, coverUrl = null, description = null, publishYear = null, pageCount = null, isbn = null, status = status)
+    val fourthWing = sample("fw", "Fourth Wing", "Rebecca Yarros", ReadingStatus.READING)
+    val circe = sample("c", "Circe", "Madeline Miller", ReadingStatus.FINISHED)
+    CalendarContent(
+        state = CalendarUiState(
+            month = YearMonth.of(2026, 11),
+            today = LocalDate.of(2026, 11, 20),
+            events = listOf(
+                CalendarEvent(fourthWing, LocalDate.of(2026, 11, 2), CalendarEventKind.STARTED),
+                CalendarEvent(circe, LocalDate.of(2026, 11, 14), CalendarEventKind.FINISHED),
+            ),
+            readingDays = setOf(3, 4, 5, 9, 14, 18, 19),
+            isLoading = false,
+        ),
+        onBack = {},
+        onPrevious = {},
+        onNext = {},
+        onOpenBook = {},
+    )
 }

@@ -5,6 +5,10 @@ import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
 import com.nawin.booknook.domain.service.LibraryExporter
 import com.nawin.booknook.domain.service.ReminderScheduler
+import com.nawin.booknook.domain.usecase.GetAccountUseCase
+import com.nawin.booknook.domain.usecase.SignOutUseCase
+import com.nawin.booknook.domain.usecase.SignUpUseCase
+import com.nawin.booknook.util.FakeAccountRepository
 import com.nawin.booknook.util.MainDispatcherRule
 import com.nawin.booknook.util.InMemoryPreferencesDataStore
 import kotlinx.coroutines.flow.first
@@ -43,8 +47,32 @@ class SettingsViewModelTest {
     private val scheduler = FakeReminderScheduler()
     private var export: suspend (String) -> Int = { 0 }
     private val preferences = PreferencesDataStore(InMemoryPreferencesDataStore())
+    private val accounts = FakeAccountRepository()
 
-    private fun viewModel() = SettingsViewModel(preferences, scheduler, LibraryExporter { export(it) })
+    private fun viewModel() = SettingsViewModel(
+        preferences,
+        scheduler,
+        LibraryExporter { export(it) },
+        GetAccountUseCase(accounts),
+        SignOutUseCase(accounts),
+    )
+
+    @Test
+    fun `the account shows once signed in and signing out keeps the local profile`() = runTest(mainDispatcherRule.dispatcher) {
+        val viewModel = viewModel()
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        preferences.saveReaderName("Sara")
+        SignUpUseCase(accounts)("Sara", "sara@example.com", "librosylibros")
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.accountAvailable)
+        assertEquals("sara@example.com", viewModel.uiState.value.account?.email)
+
+        viewModel.signOut()
+        advanceUntilIdle()
+        assertNull(viewModel.uiState.value.account)
+        assertEquals("Sara", viewModel.uiState.value.profile.name)
+    }
 
     @Test
     fun `turning the reminder on schedules it at the saved time`() = runTest(mainDispatcherRule.dispatcher) {

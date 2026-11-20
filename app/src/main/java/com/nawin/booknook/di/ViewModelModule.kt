@@ -1,8 +1,10 @@
 package com.nawin.booknook.di
 
+import com.nawin.booknook.presentation.ui.account.AccountViewModel
 import com.nawin.booknook.presentation.ui.bookdetail.BookDetailViewModel
 import com.nawin.booknook.presentation.ui.calendar.CalendarViewModel
 import com.nawin.booknook.presentation.ui.home.HomeViewModel
+import com.nawin.booknook.presentation.ui.homeedit.EditHomeViewModel
 import com.nawin.booknook.presentation.ui.newstamp.NewStampViewModel
 import com.nawin.booknook.presentation.ui.progress.ProgressViewModel
 import com.nawin.booknook.presentation.ui.readingcard.ReadingCardViewModel
@@ -17,9 +19,11 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewModelModule = module {
+    viewModelOf(::AccountViewModel)
     viewModelOf(::BookDetailViewModel)
     viewModelOf(::CalendarViewModel)
     viewModelOf(::HomeViewModel)
+    viewModelOf(::EditHomeViewModel)
     viewModelOf(::ProgressViewModel)
     viewModelOf(::ReadingCardViewModel)
     viewModelOf(::NewStampViewModel)
@@ -33,6 +37,7 @@ val viewModelModule = module {
 }
 
 val appModules = listOf(
+    accountModule,
     databaseModule,
     networkModule,
     preferencesModule,

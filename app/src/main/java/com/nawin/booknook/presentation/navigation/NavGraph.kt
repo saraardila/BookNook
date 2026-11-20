@@ -19,7 +19,10 @@ import com.nawin.booknook.presentation.ui.newstamp.NewStampScreen
 import com.nawin.booknook.presentation.ui.newstamp.NewStampViewModel
 import com.nawin.booknook.presentation.ui.progress.ProgressScreen
 import com.nawin.booknook.presentation.ui.readingcard.ReadingCardScreen
+import com.nawin.booknook.presentation.ui.homeedit.EditHomeScreen
 import com.nawin.booknook.presentation.ui.settings.SettingsScreen
+import com.nawin.booknook.presentation.ui.account.AccountEntry
+import com.nawin.booknook.presentation.ui.account.AccountScreen
 import com.nawin.booknook.presentation.ui.share.ShareScreen
 import com.nawin.booknook.presentation.ui.share.ShareViewModel
 
@@ -46,7 +49,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
         // Screens not redesigned yet keep the top inset they always had.
         composable(Screen.Calendar.route) {
-            LegacyScreen { CalendarScreen(navController = navController) }
+            CalendarScreen(navController = navController)
         }
         composable(
             route = Screen.BookDetail.route,
@@ -70,11 +73,21 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         ) {
             ShareScreen(navController = navController)
         }
+        composable(Screen.EditHome.route) {
+            EditHomeScreen(navController = navController)
+        }
         composable(Screen.Progress.route) {
             ProgressScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
+        }
+        composable(Screen.Account.route) {
+            AccountScreen(
+                entry = AccountEntry.SETTINGS,
+                onBack = { navController.popBackStack() },
+                onDone = { navController.popBackStack() },
+            )
         }
     }
 }
