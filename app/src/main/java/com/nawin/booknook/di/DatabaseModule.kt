@@ -12,9 +12,9 @@ val databaseModule = module {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "booknook_db")
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
-            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
     factory { get<AppDatabase>().bookDao() }
     factory { get<AppDatabase>().bookNoteDao() }
+    factory { get<AppDatabase>().readingLogDao() }
 }

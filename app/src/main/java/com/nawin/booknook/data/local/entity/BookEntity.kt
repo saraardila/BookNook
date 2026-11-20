@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.domain.model.ShelfTheme
 
 @Entity(tableName = "books")
 data class BookEntity(
@@ -21,7 +22,9 @@ data class BookEntity(
     val review: String?,
     val startDate: Long?,
     val finishDate: Long?,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    /** [ShelfTheme] name; added in version 2. Unknown names read back as no shelf. */
+    val shelf: String? = null,
 ) {
     fun toDomain() = Book(
         id = id,
@@ -38,7 +41,8 @@ data class BookEntity(
         review = review,
         startDate = startDate,
         finishDate = finishDate,
-        isFavorite = isFavorite
+        isFavorite = isFavorite,
+        shelf = ShelfTheme.entries.firstOrNull { it.name == shelf },
     )
 }
 
@@ -57,5 +61,6 @@ fun Book.toEntity() = BookEntity(
     review = review,
     startDate = startDate,
     finishDate = finishDate,
-    isFavorite = isFavorite
+    isFavorite = isFavorite,
+    shelf = shelf?.name,
 )

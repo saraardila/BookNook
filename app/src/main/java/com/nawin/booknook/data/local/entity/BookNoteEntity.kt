@@ -2,6 +2,7 @@ package com.nawin.booknook.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nawin.booknook.domain.model.BookNote
 
@@ -12,7 +13,9 @@ import com.nawin.booknook.domain.model.BookNote
         parentColumns = ["id"],
         childColumns = ["bookId"],
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    // Without it every change to `books` scans the whole notes table to apply the cascade.
+    indices = [Index("bookId")],
 )
 data class BookNoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

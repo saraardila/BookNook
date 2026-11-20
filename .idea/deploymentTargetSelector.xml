@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-11-17T11:18:41.803753400Z">
+        <DropdownSelection timestamp="2026-11-20T12:16:54.923931800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Nawin\.android\avd\Pixel_9.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Nawin\.android\avd\New_Booknook.avd" />
             </handle>
           </Target>
         </DropdownSelection>

@@ -16,7 +16,9 @@ data class Book(
     val review: String? = null,
     val startDate: Long? = null,
     val finishDate: Long? = null,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    /** Shelf the reader filed the book under, or null while it has none. */
+    val shelf: ShelfTheme? = null,
 )
 
 enum class ReadingStatus {
