@@ -1,283 +1,339 @@
 package com.nawin.booknook.presentation.ui.journal
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
+import com.nawin.booknook.domain.model.BookNote
+import com.nawin.booknook.domain.model.JournalEntry
+import com.nawin.booknook.domain.model.ReadingMood
+import com.nawin.booknook.domain.model.ReadingStatus
 import com.nawin.booknook.presentation.components.BookCover
+import com.nawin.booknook.presentation.components.library.LaceHeader
+import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.components.library.NoticeCard
+import com.nawin.booknook.presentation.components.library.PaperCard
+import com.nawin.booknook.presentation.components.library.PillButton
+import com.nawin.booknook.presentation.components.library.Polaroid
+import com.nawin.booknook.presentation.components.library.RATING_MAX
+import com.nawin.booknook.presentation.components.library.ShelfLoader
+import com.nawin.booknook.presentation.components.library.Sprig
+import com.nawin.booknook.presentation.components.library.StarRating
+import com.nawin.booknook.presentation.components.library.WashiTape
 import com.nawin.booknook.presentation.navigation.Screen
-import com.nawin.booknook.presentation.theme.IndieFlower
-import com.nawin.booknook.presentation.theme.Nunito
-import java.text.SimpleDateFormat
-import java.util.*
+import com.nawin.booknook.presentation.theme.LibraryDimens
+import com.nawin.booknook.presentation.theme.LibraryShapes
+import com.nawin.booknook.presentation.theme.LibraryTheme
+import com.nawin.booknook.presentation.ui.note.NoteSheet
+import com.nawin.booknook.presentation.ui.note.labelRes
+import org.koin.compose.viewmodel.koinViewModel
+import java.time.Instant
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.format.TextStyle
+import java.util.Locale
 
+/** "My diary": reviews, notes, loose thoughts and put-down books, one month at a time. */
 @Composable
 fun JournalScreen(
     navController: NavController,
-    viewModel: JournalViewModel = koinViewModel()
+    viewModel: JournalViewModel = koinViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    // Fondo con líneas tipo cuaderno
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Líneas de cuaderno decorativas
-        NotebookLines()
-
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 24.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.journal_title),
-                    fontFamily = IndieFlower,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 36.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = stringResource(R.string.journal_subtitle, uiState.books.size),
-                    fontFamily = IndieFlower,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            if (uiState.books.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(32.dp)
-                    ) {
-                        Text(text = "📖", fontSize = 64.sp)
-                        Text(
-                            text = stringResource(R.string.journal_empty_title),
-                            fontFamily = IndieFlower,
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            text = stringResource(R.string.journal_empty_subtitle),
-                            fontFamily = IndieFlower,
-                            fontSize = 15.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 0.dp,
-                        bottom = 100.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.books, key = { it.id }) { book ->
-                        JournalBookCard(
-                            book = book,
-                            onClick = {
-                                navController.navigate(Screen.BookDetail.createRoute(book.id))
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ─── Líneas de cuaderno ──────────────────────────────────
-@Composable
-fun NotebookLines() {
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val lineColor = Color(0xFFD4B8A8).copy(alpha = 0.25f)
-        val lineSpacing = 36.dp.toPx()
-        var y = lineSpacing * 3
-        while (y < size.height) {
-            drawLine(
-                color = lineColor,
-                start = androidx.compose.ui.geometry.Offset(0f, y),
-                end = androidx.compose.ui.geometry.Offset(size.width, y),
-                strokeWidth = 1.dp.toPx()
-            )
-            y += lineSpacing
-        }
-        // Línea vertical roja izquierda — margen del cuaderno
-        drawLine(
-            color = Color(0xFFD4826A).copy(alpha = 0.2f),
-            start = androidx.compose.ui.geometry.Offset(56.dp.toPx(), 0f),
-            end = androidx.compose.ui.geometry.Offset(56.dp.toPx(), size.height),
-            strokeWidth = 1.5.dp.toPx()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    if (state.showThoughtSheet) {
+        NoteSheet(
+            bookTitle = null,
+            page = null,
+            onDismiss = { viewModel.showThoughtSheet(false) },
+            onSave = { _, mood, content -> viewModel.addThought(mood, content) },
         )
     }
+    JournalContent(
+        state = state,
+        onSelectMonth = viewModel::selectMonth,
+        onOpenBook = { navController.navigate(Screen.BookDetail.createRoute(it)) },
+        onAddEntry = { viewModel.showThoughtSheet(true) },
+    )
 }
 
-// ─── Journal Book Card ───────────────────────────────────
+/** Stateless layout of [JournalScreen]. */
 @Composable
-fun JournalBookCard(
-    book: Book,
-    onClick: () -> Unit
+fun JournalContent(
+    state: JournalUiState,
+    onSelectMonth: (YearMonth) -> Unit,
+    onOpenBook: (String) -> Unit,
+    onAddEntry: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
-    val rotationAngle = remember(book.id) {
-        (book.id.hashCode() % 3 - 1) * 0.8f  // -0.8, 0, o +0.8 grados
-    }
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .rotate(rotationAngle)
-    ) {
-        // Sombra papel
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(x = 2.dp, y = 2.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x18000000))
-        )
-
-        // Card principal
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFFFDF8),
-                            Color(0xFFFAF5EE)
-                        )
-                    )
-                )
-                .border(
-                    1.dp,
-                    Color(0xFFD4B8A8).copy(alpha = 0.4f),
-                    RoundedCornerShape(16.dp)
-                )
-                .clickable(onClick = onClick)
-                .padding(16.dp)
+    Box(modifier.fillMaxSize().background(colors.background)) {
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            // Room for the "+ Entry" button so it never covers the last entry.
+            contentPadding = PaddingValues(bottom = LibraryDimens.buttonMinHeight + LibraryDimens.sectionGap),
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceLg),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Portada
-                BookCover(
-                    title = book.title,
-                    author = book.author,
-                    coverUrl = book.coverUrl,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(115.dp),
-                    cornerRadius = 10.dp
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    // Título
-                    Text(
-                        text = book.title,
-                        fontFamily = IndieFlower,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = Color(0xFF1E1208),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        lineHeight = 22.sp
-                    )
-
-                    // Autor
-                    Text(
-                        text = book.author,
-                        fontFamily = Nunito,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 13.sp,
-                        color = Color(0xFF8A6A58)
-                    )
-
-                    // Estrellas
-                    if (book.rating > 0f) {
-                        StarDisplay(rating = book.rating)
-                    }
-
-                    // Fechas
-                    if (book.finishDate != null) {
-                        Text(
-                            text = "finished ${dateFormat.format(Date(book.finishDate))}",
-                            fontFamily = IndieFlower,
-                            fontSize = 12.sp,
-                            color = Color(0xFFB89080)
-                        )
-                    }
-
-                    // Preview de review
-                    if (!book.review.isNullOrBlank()) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "\"${book.review}\"",
-                            fontFamily = IndieFlower,
-                            fontSize = 13.sp,
-                            color = Color(0xFF6B4E3D),
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                            lineHeight = 18.sp
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.journal_no_review),
-                            fontFamily = IndieFlower,
-                            fontSize = 12.sp,
-                            color = Color(0xFFB89080).copy(alpha = 0.6f)
-                        )
+            item(key = KEY_HEADER) {
+                Box {
+                    LaceHeader(height = LibraryDimens.headerHeightCompact + statusBarTop, color = colors.accentLight)
+                    Row(
+                        Modifier.fillMaxWidth().padding(
+                            start = LibraryDimens.screenPadding,
+                            end = LibraryDimens.screenPadding,
+                            top = statusBarTop + LibraryDimens.spaceXl,
+                        ),
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.journal_tagline), style = type.hand, color = colors.accentDeep)
+                            Text(stringResource(R.string.journal_title), style = type.title, color = colors.ink)
+                        }
+                        Sprig(stem = colors.accentDeep, leaf = colors.paper)
                     }
                 }
+            }
+            when {
+                state.isLoading -> item(key = KEY_LOADING) { ShelfLoader(Modifier.fillMaxWidth().padding(top = LibraryDimens.sectionGap)) }
+                state.months.isEmpty() -> item(key = KEY_EMPTY) {
+                    NoticeCard(
+                        title = stringResource(R.string.journal_empty_title),
+                        subtitle = stringResource(R.string.journal_empty_subtitle),
+                        modifier = Modifier.padding(horizontal = LibraryDimens.screenPadding),
+                    )
+                }
+                else -> {
+                    item(key = KEY_MONTHS) { MonthRow(state, onSelectMonth) }
+                    items(state.entries, key = { it.key }) { entry ->
+                        val entryModifier = Modifier.padding(horizontal = LibraryDimens.screenPadding)
+                        when (entry) {
+                            is JournalEntry.Finished -> FinishedEntry(entry, { onOpenBook(entry.book.id) }, entryModifier)
+                            is JournalEntry.Note -> NoteEntry(entry, entry.book?.let { book -> { onOpenBook(book.id) } }, entryModifier)
+                            is JournalEntry.PutDown -> PutDownEntry(entry, { onOpenBook(entry.book.id) }, entryModifier)
+                        }
+                    }
+                }
+            }
+        }
+        PillButton(
+            stringResource(R.string.journal_add_entry),
+            onClick = onAddEntry,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(LibraryDimens.screenPadding),
+        )
+    }
+}
+
+/** One chip per month with entries, newest first; the year shows only for past years. */
+@Composable
+private fun MonthRow(state: JournalUiState, onSelect: (YearMonth) -> Unit) {
+    val locale = currentLocale()
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = LibraryDimens.screenPadding),
+        horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        modifier = Modifier.padding(top = LibraryDimens.spaceSm),
+    ) {
+        items(state.months, key = { it.toString() }) { month ->
+            LibraryChip(
+                monthName(month, state.currentMonth, locale),
+                selected = month == state.selectedMonth,
+                onClick = { onSelect(month) },
+            )
+        }
+    }
+}
+
+/** A finished book: the cover on a polaroid, the rating and the review in handwriting. */
+@Composable
+private fun FinishedEntry(entry: JournalEntry.Finished, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val book = entry.book
+    Box(modifier.padding(top = LibraryDimens.spaceSm)) {
+        PaperCard(Modifier.fillMaxWidth().rotate(CARD_TILT_LEFT)) {
+            Row(
+                Modifier.clip(LibraryShapes.card).clickable(onClick = onClick).padding(LibraryDimens.spaceMd + LibraryDimens.spaceXxs),
+                horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+            ) {
+                Polaroid {
+                    BookCover(
+                        title = book.title,
+                        author = book.author,
+                        coverUrl = book.coverUrl,
+                        modifier = Modifier.size(LibraryDimens.coverRowWidth, LibraryDimens.coverRowHeight),
+                        cornerRadius = LibraryDimens.radiusCover,
+                    )
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXs)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EntryLabel(
+                            entry.date,
+                            stringResource(if (entry.hasReview) R.string.journal_label_review else R.string.journal_label_finished),
+                            Modifier.weight(1f),
+                        )
+                        if (book.rating > 0f) {
+                            val stars = book.rating.toInt()
+                            StarRating(book.rating, pluralStringResource(R.plurals.cd_rating, RATING_MAX, stars, RATING_MAX))
+                        }
+                    }
+                    Text(book.title, style = type.titleSmall, color = colors.ink)
+                    book.review?.takeIf { it.isNotBlank() }?.let { Text(it, style = type.hand, color = colors.ink) }
+                }
+            }
+        }
+        WashiTape(Modifier.offset(x = LibraryDimens.spaceXl, y = -LibraryDimens.spaceSm))
+    }
+}
+
+/** A note on a book, or a loose thought, on a tinted card with its mood. */
+@Composable
+private fun NoteEntry(entry: JournalEntry.Note, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val note = entry.note
+    val book = entry.book
+    PaperCard(modifier.fillMaxWidth().rotate(CARD_TILT_RIGHT), color = colors.primaryLight) {
+        val clickable = if (onClick != null) Modifier.clip(LibraryShapes.card).clickable(onClick = onClick) else Modifier
+        Column(
+            clickable.fillMaxWidth().padding(horizontal = LibraryDimens.spaceLg, vertical = LibraryDimens.spaceMd + LibraryDimens.spaceXxs),
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXs),
+        ) {
+            EntryLabel(note.createdAt, stringResource(if (book == null) R.string.journal_label_thought else R.string.journal_label_note))
+            if (book != null) {
+                val where = listOfNotNull(book.title, note.page?.let { stringResource(R.string.detail_note_page, it) })
+                Text(where.joinToString(META_SEPARATOR), style = type.caption, color = colors.inkMuted)
+            }
+            if (note.content.isNotEmpty()) {
+                Text(note.content, style = if (book == null) type.emphasis else type.hand, color = colors.ink)
+            }
+            note.mood?.let { LibraryChip(stringResource(it.labelRes)) }
+        }
+    }
+}
+
+/** A book she put down: the page she left it on and, if she wrote one, why. */
+@Composable
+private fun PutDownEntry(entry: JournalEntry.PutDown, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    val book = entry.book
+    PaperCard(modifier.fillMaxWidth()) {
+        Row(
+            Modifier.clip(LibraryShapes.card).clickable(onClick = onClick).fillMaxWidth().padding(LibraryDimens.spaceMd),
+            horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            BookCover(
+                title = book.title,
+                author = book.author,
+                coverUrl = book.coverUrl,
+                modifier = Modifier.size(LibraryDimens.coverRowWidth, LibraryDimens.coverRowHeight),
+                cornerRadius = LibraryDimens.radiusCover,
+            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceXxs)) {
+                EntryLabel(entry.date, stringResource(R.string.journal_label_put_down))
+                Text(book.title, style = type.titleSmall, color = colors.ink)
+                Text(
+                    if (book.currentPage > 0) stringResource(R.string.journal_put_down_at, book.currentPage)
+                    else stringResource(R.string.journal_put_down_unread),
+                    style = type.caption,
+                    color = colors.inkMuted,
+                )
+                book.review?.takeIf { it.isNotBlank() }?.let { Text(it, style = type.handSmall, color = colors.accentDeep) }
             }
         }
     }
 }
 
-// ─── Star Display ────────────────────────────────────────
+/** "28 OCT 2026 · REVIEW": the date and what kind of entry it is. */
 @Composable
-fun StarDisplay(rating: Float, maxStars: Int = 5) {
-    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (i in 1..maxStars) {
-            Text(
-                text = if (i <= rating) "⭐" else "☆",
-                fontSize = if (i <= rating) 14.sp else 13.sp,
-                color = if (i <= rating) Color(0xFFD4826A)
-                else Color(0xFFB89080).copy(alpha = 0.4f)
-            )
-        }
-    }
+private fun EntryLabel(epochMillis: Long, kind: String, modifier: Modifier = Modifier) {
+    val locale = currentLocale()
+    val date = Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate()
+        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
+    Text(
+        (date + META_SEPARATOR + kind).uppercase(locale),
+        style = LibraryTheme.typography.label,
+        color = LibraryTheme.colors.primary,
+        modifier = modifier,
+    )
 }
+
+private fun monthName(month: YearMonth, current: YearMonth?, locale: Locale): String {
+    val name = month.month.getDisplayName(TextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.titlecase(locale) }
+    return if (month.year == current?.year) name else "$name ${month.year}"
+}
+
+@Composable
+private fun currentLocale(): Locale = LocalConfiguration.current.locales[0]
+
+private const val KEY_HEADER = "header"
+private const val KEY_LOADING = "loading"
+private const val KEY_EMPTY = "empty"
+private const val KEY_MONTHS = "months"
+private const val META_SEPARATOR = " · "
+private const val CARD_TILT_LEFT = -0.8f
+private const val CARD_TILT_RIGHT = 0.8f
+
+// region Previews
+
+@Preview(name = "Journal · Spanish", locale = "es", widthDp = 390, heightDp = 900)
+@Preview(name = "Journal · English", locale = "en", widthDp = 390, heightDp = 900)
+@Composable
+private fun JournalPreview() = LibraryTheme {
+    val zone = ZoneId.systemDefault()
+    fun day(month: Int, dayOfMonth: Int) = LocalDate.of(2026, month, dayOfMonth).atStartOfDay(zone).toInstant().toEpochMilli()
+    val acotar = Book(
+        "1", "A Court of Mist and Fury", "Sarah J. Maas", null, null, 2016, 626, null, ReadingStatus.FINISHED,
+        rating = 4f, review = "Empecé por curiosidad y acabé a las 3 de la mañana. Necesito el segundo YA.",
+    )
+    val crows = Book("2", "Six of Crows", "Leigh Bardugo", null, null, 2015, 465, null, ReadingStatus.DNF, currentPage = 140, review = "lo retomaré en invierno")
+    JournalContent(
+        JournalUiState(
+            isLoading = false,
+            months = listOf(YearMonth.of(2026, 11), YearMonth.of(2026, 10), YearMonth.of(2025, 9)),
+            selectedMonth = YearMonth.of(2026, 11),
+            currentMonth = YearMonth.of(2026, 11),
+            entries = listOf(
+                JournalEntry.Finished(acotar, day(11, 18)),
+                JournalEntry.Note(BookNote(1, null, null, "Hay libros que se leen y libros que se viven.", null, ReadingMood.SMITTEN, day(11, 17)), null),
+                JournalEntry.PutDown(crows, day(11, 10)),
+            ),
+        ),
+        onSelectMonth = {}, onOpenBook = {}, onAddEntry = {},
+    )
+}
+
+// endregion

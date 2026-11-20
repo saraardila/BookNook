@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import com.nawin.booknook.R
+import com.nawin.booknook.domain.model.ReaderProfile
 import com.nawin.booknook.presentation.components.library.InkStamp
 import com.nawin.booknook.presentation.components.library.LaceHeader
 import com.nawin.booknook.presentation.components.library.Polaroid
@@ -43,6 +44,11 @@ import com.nawin.booknook.presentation.components.library.drawFlatShadow
 import com.nawin.booknook.presentation.theme.LibraryDimens
 import com.nawin.booknook.presentation.theme.LibraryShapes
 import com.nawin.booknook.presentation.theme.LibraryTheme
+import com.nawin.booknook.presentation.theme.code
+import com.nawin.booknook.presentation.theme.nameRes
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /**
  * What the library card shows. All null before the reader has one (the welcome
@@ -58,6 +64,29 @@ data class LibraryCardData(
 ) {
     val issued: Boolean get() = holder != null
 }
+
+/**
+ * The card printed for [profile]: holder, favourite shelf and its code, and the
+ * month and year she joined in the app's locale (today if not recorded yet).
+ */
+@Composable
+fun libraryCardData(profile: ReaderProfile): LibraryCardData {
+    val locale = LocalConfiguration.current.locales[0]
+    val shelf = profile.favouriteShelf
+    val joined = remember(profile.memberSince) {
+        Instant.ofEpochMilli(profile.memberSince ?: System.currentTimeMillis()).atZone(ZoneId.systemDefault())
+    }
+    return LibraryCardData(
+        holder = profile.name,
+        shelfName = shelf?.let { stringResource(it.nameRes) },
+        shelfCode = shelf?.code,
+        since = joined.format(DateTimeFormatter.ofPattern(MONTH_YEAR_PATTERN, locale)),
+        year = joined.year.toString(),
+    )
+}
+
+/** Short month and year, e.g. "nov 2026"; LLL is the stand-alone month form. */
+private const val MONTH_YEAR_PATTERN = "LLL yyyy"
 
 /**
  * The reader's library card: a coloured header with lace, the portrait (the

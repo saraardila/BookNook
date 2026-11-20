@@ -15,7 +15,13 @@ import com.nawin.booknook.presentation.ui.home.HomeScreen
 import com.nawin.booknook.presentation.ui.journal.JournalScreen
 import com.nawin.booknook.presentation.ui.library.LibraryScreen
 import com.nawin.booknook.presentation.ui.search.SearchScreen
+import com.nawin.booknook.presentation.ui.newstamp.NewStampScreen
+import com.nawin.booknook.presentation.ui.newstamp.NewStampViewModel
+import com.nawin.booknook.presentation.ui.progress.ProgressScreen
+import com.nawin.booknook.presentation.ui.readingcard.ReadingCardScreen
 import com.nawin.booknook.presentation.ui.settings.SettingsScreen
+import com.nawin.booknook.presentation.ui.share.ShareScreen
+import com.nawin.booknook.presentation.ui.share.ShareViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -34,13 +40,13 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable(Screen.Search.route) {
             SearchScreen(navController = navController)
         }
+        composable(Screen.Journal.route) {
+            JournalScreen(navController = navController)
+        }
 
         // Screens not redesigned yet keep the top inset they always had.
         composable(Screen.Calendar.route) {
             LegacyScreen { CalendarScreen(navController = navController) }
-        }
-        composable(Screen.Journal.route) {
-            LegacyScreen { JournalScreen(navController = navController) }
         }
         composable(
             route = Screen.BookDetail.route,
@@ -48,6 +54,24 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId").orEmpty()
             BookDetailScreen(bookId = bookId, navController = navController)
+        }
+        composable(Screen.ReadingCard.route) {
+            ReadingCardScreen(navController = navController)
+        }
+        composable(
+            route = Screen.NewStamp.route,
+            arguments = listOf(navArgument(NewStampViewModel.BOOK_ID_ARG) { type = NavType.StringType }),
+        ) {
+            NewStampScreen(navController = navController)
+        }
+        composable(
+            route = Screen.Share.route,
+            arguments = listOf(navArgument(ShareViewModel.BOOK_ID_ARG) { type = NavType.StringType }),
+        ) {
+            ShareScreen(navController = navController)
+        }
+        composable(Screen.Progress.route) {
+            ProgressScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)

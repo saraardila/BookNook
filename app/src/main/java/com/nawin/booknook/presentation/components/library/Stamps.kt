@@ -107,7 +107,7 @@ private fun StampLine(text: String, style: TextStyle, maxSize: TextUnit, width: 
 
 /**
  * [InkStamp] showing a day and short month under [label] (e.g. READ / 28 / OCT),
- * with the month name formatted for the current locale.
+ * with the month name formatted for the current locale. [struck] crosses out the day.
  */
 @Composable
 fun DateStamp(
@@ -117,6 +117,8 @@ fun DateStamp(
     size: Dp = LibraryDimens.stampSize,
     rotation: Float = STAMP_DEFAULT_ROTATION,
     background: Color = Color.Transparent,
+    color: Color = LibraryTheme.colors.stamp,
+    struck: Boolean = false,
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val date = remember(epochMillis) { Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).toLocalDate() }
@@ -128,6 +130,8 @@ fun DateStamp(
         size = size,
         rotation = rotation,
         background = background,
+        color = color,
+        struck = struck,
     )
 }
 

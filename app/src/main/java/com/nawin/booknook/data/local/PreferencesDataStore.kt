@@ -9,8 +9,6 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.nawin.booknook.domain.model.JournalInkColor
-import com.nawin.booknook.domain.model.JournalStyle
 import com.nawin.booknook.domain.model.ReaderProfile
 import com.nawin.booknook.domain.model.ReadingReminder
 import com.nawin.booknook.domain.model.ShelfTheme
@@ -29,8 +27,6 @@ class PreferencesDataStore(
 ) {
     private object Keys {
         val THEME = stringPreferencesKey("theme")
-        val JOURNAL_STYLE = stringPreferencesKey("journal_style")
-        val INK_COLOR = stringPreferencesKey("ink_color")
         val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
         val REMINDER_HOUR = intPreferencesKey("reminder_hour")
         val REMINDER_MINUTE = intPreferencesKey("reminder_minute")
@@ -49,8 +45,6 @@ class PreferencesDataStore(
                 onboardingDone = prefs[Keys.ONBOARDING_DONE] ?: defaults.onboardingDone,
                 // Values from older versions (the Botanical/Summer/… themes) fall back to the default.
                 theme = enumOrDefault(prefs[Keys.THEME], defaults.theme),
-                journalStyle = enumOrDefault(prefs[Keys.JOURNAL_STYLE], defaults.journalStyle),
-                journalInkColor = enumOrDefault(prefs[Keys.INK_COLOR], defaults.journalInkColor),
                 reminder = ReadingReminder(
                     enabled = prefs[Keys.REMINDER_ENABLED] ?: defaults.reminder.enabled,
                     hour = prefs[Keys.REMINDER_HOUR] ?: defaults.reminder.hour,
@@ -67,14 +61,6 @@ class PreferencesDataStore(
 
     suspend fun saveTheme(theme: ShelfTheme) {
         dataStore.edit { it[Keys.THEME] = theme.name }
-    }
-
-    suspend fun saveJournalStyle(style: JournalStyle) {
-        dataStore.edit { it[Keys.JOURNAL_STYLE] = style.name }
-    }
-
-    suspend fun saveInkColor(color: JournalInkColor) {
-        dataStore.edit { it[Keys.INK_COLOR] = color.name }
     }
 
     suspend fun saveReminder(reminder: ReadingReminder) {

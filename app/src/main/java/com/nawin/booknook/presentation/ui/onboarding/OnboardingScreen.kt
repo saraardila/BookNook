@@ -64,7 +64,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -105,9 +104,6 @@ import com.nawin.booknook.presentation.theme.nameRes
 import com.nawin.booknook.presentation.theme.palette
 import com.nawin.booknook.presentation.ui.settings.AppLanguage
 import org.koin.compose.viewmodel.koinViewModel
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 /** The first-launch flow, shown by MainActivity instead of the library until it is done. */
 @Composable
@@ -624,18 +620,7 @@ private fun NamePage(storedName: String, actions: OnboardingActions) {
 @Composable
 private fun CardPage(profile: ReaderProfile, onFinish: () -> Unit) {
     val colors = LibraryTheme.colors
-    val locale = LocalConfiguration.current.locales[0]
-    val shelf = profile.favouriteShelf
-    val joined = remember(profile.memberSince) {
-        Instant.ofEpochMilli(profile.memberSince ?: System.currentTimeMillis()).atZone(ZoneId.systemDefault())
-    }
-    val data = LibraryCardData(
-        holder = profile.name,
-        shelfName = shelf?.let { stringResource(it.nameRes) },
-        shelfCode = shelf?.code,
-        since = joined.format(DateTimeFormatter.ofPattern(MONTH_YEAR_PATTERN, locale)),
-        year = joined.year.toString(),
-    )
+    val data = libraryCardData(profile)
     PageScaffold(
         modifier = Modifier.statusBarsPadding(),
         footer = { PillButton(stringResource(R.string.card_enter), onClick = onFinish, modifier = Modifier.fillMaxWidth()) },
@@ -669,9 +654,6 @@ private const val SPRIG_ROTATION = -10f
 private const val SPINE_SOFT_ALPHA = 0.55f
 private val SPINE_NARROWING = LibraryDimens.spaceXs
 private val SPINE_STEP = LibraryDimens.spaceSm
-
-/** Short month and year, e.g. "nov 2026"; LLL is the stand-alone month form. */
-private const val MONTH_YEAR_PATTERN = "LLL yyyy"
 
 @Preview(name = "Welcome", widthDp = 360, heightDp = 800, showBackground = true)
 @Composable

@@ -46,10 +46,6 @@
     <string name="detail_my_review">MI RESEÑA</string>
     <string name="detail_write_review">Escribe lo que te ha parecido…</string>
     <string name="detail_update_progress">Actualizar progreso</string>
-    <string name="detail_current_page">Página actual</string>
-    <string name="detail_notes">Notas</string>
-    <string name="detail_add_note">Añade una nota…</string>
-    <string name="detail_chapter">Capítulo (opcional)</string>
     <string name="detail_save">Guardar</string>
     <string name="detail_delete">Eliminar</string>
     <string name="detail_mark_finished">Marcar como terminado</string>
@@ -101,7 +97,6 @@
     <string name="detail_start_date">EMPEZADO</string>
     <string name="detail_finish_date">TERMINADO</string>
     <string name="detail_date_not_set">toca para elegir</string>
-    <string name="detail_share_progress">Compartir progreso</string>
 
     <!-- Calendar -->
     <string name="calendar_started">Empezado</string>
@@ -115,10 +110,8 @@
     <string name="home_search_book">Buscar un libro</string>
 
     <!-- Journal -->
-    <string name="journal_subtitle">%d libros terminados ✨</string>
-    <string name="journal_empty_title">aún no hay libros</string>
-    <string name="journal_empty_subtitle">termina un libro para verlo aquí 🌿</string>
-    <string name="journal_no_review">aún sin reseña… toca para escribir una</string>
+    <string name="journal_empty_title">tu diario está en blanco</string>
+    <string name="journal_empty_subtitle">Escribe un pensamiento o termina un libro y aparecerá aquí.</string>
 
     <!-- Redesign: bottom navigation -->
     <string name="nav_home">Inicio</string>
@@ -317,4 +310,128 @@
     <string name="card_seal_placeholder">AQUÍ\nVA TU\nSELLO</string>
     <string name="card_stamp_reader">LECTORA</string>
     <string name="settings_theme_from_test">según tu test: %s</string>
+    <string name="streak_label">TU RACHA</string>
+    <plurals name="streak_days">
+        <item quantity="one">%d día seguido</item>
+        <item quantity="many">%d días seguidos</item>
+        <item quantity="other">%d días seguidos</item>
+    </plurals>
+    <plurals name="streak_today_hint">
+        <item quantity="one">con %d página hoy ya cuenta</item>
+        <item quantity="many">con %d páginas hoy ya cuenta</item>
+        <item quantity="other">con %d páginas hoy ya cuenta</item>
+    </plurals>
+    <string name="cd_streak_day_read">%s, leído</string>
+    <string name="cd_streak_day_unread">%s, sin leer</string>
+    <string name="detail_shelf">ESTANTE</string>
+    <plurals name="detail_shelf_hint">
+        <item quantity="one">%d terminado = licencia</item>
+        <item quantity="many">%d terminados = licencia</item>
+        <item quantity="other">%d terminados = licencia</item>
+    </plurals>
+    <string name="progress_tagline">cómo vas</string>
+    <string name="progress_title">Tu progreso</string>
+    <plurals name="progress_streak_days">
+        <item quantity="one">día seguido leyendo</item>
+        <item quantity="many">días seguidos leyendo</item>
+        <item quantity="other">días seguidos leyendo</item>
+    </plurals>
+    <string name="progress_record">récord: %d</string>
+    <string name="progress_licences">TUS LICENCIAS</string>
+    <plurals name="progress_licences_hint">
+        <item quantity="one">%d libro de un estante = licencia</item>
+        <item quantity="many">%d libros de un estante = licencia</item>
+        <item quantity="other">%d libros de un estante = licencia</item>
+    </plurals>
+    <string name="progress_licence_earned">conseguida</string>
+    <string name="cd_licence_shelf_earned">Licencia %s conseguida</string>
+    <plurals name="cd_licence_progress">
+        <item quantity="one">Licencia %1$s: %2$d de %3$d libro</item>
+        <item quantity="many">Licencia %1$s: %2$d de %3$d libros</item>
+        <item quantity="other">Licencia %1$s: %2$d de %3$d libros</item>
+    </plurals>
+    <string name="cd_open_progress">ver tu progreso</string>
+    <string name="stamp_put_down">DEJADO</string>
+    <string name="reading_card_tagline">mi cartilla</string>
+    <string name="reading_card_title">Cartilla de lectura</string>
+    <string name="reading_card_number">Nº %d</string>
+    <plurals name="reading_card_count">
+        <item quantity="one">Llevas %1$d de %2$d</item>
+        <item quantity="many">Llevas %1$d de %2$d</item>
+        <item quantity="other">Llevas %1$d de %2$d</item>
+    </plurals>
+    <plurals name="reading_card_left">
+        <item quantity="one">¡una más y la completas!</item>
+        <item quantity="many">¡%d más y la completas!</item>
+        <item quantity="other">¡%d más y la completas!</item>
+    </plurals>
+    <string name="reading_card_complete">¡cartilla completa!</string>
+    <string name="cd_card_slot_empty">Hueco %d, vacío</string>
+    <string name="progress_see_card">Ver mi cartilla</string>
+    <string name="new_stamp_hint">¡libro terminado!</string>
+    <string name="new_stamp_title">Sello nuevo en tu cartilla</string>
+    <string name="new_stamp_card_count">Llevas %1$d de %2$d en tu cartilla</string>
+    <string name="new_stamp_licence">Licencia %1$s: %2$d de %3$d</string>
+    <plurals name="new_stamp_licence_left">
+        <item quantity="one">Un libro más y la consigues.</item>
+        <item quantity="many">%d libros más y la consigues.</item>
+        <item quantity="other">%d libros más y la consigues.</item>
+    </plurals>
+    <string name="new_stamp_licence_earned">¡Licencia conseguida!</string>
+    <string name="new_stamp_no_shelf">Elige su estante en la ficha del libro para que sume a una licencia.</string>
+    <string name="new_stamp_rate">¿QUÉ TE HA PARECIDO?</string>
+    <string name="new_stamp_back_to_book">Volver al libro</string>
+    <string name="new_stamp_see_card">Ver mi cartilla</string>
+    <string name="common_close">Cerrar</string>
+    <string name="note_sheet_tagline">anotar</string>
+    <string name="note_sheet_loose_thought">Un pensamiento suelto</string>
+    <string name="note_sheet_page_question">¿POR QUÉ PÁGINA VAS?</string>
+    <string name="note_sheet_page_field">Página actual</string>
+    <string name="note_sheet_page_of">de %1$d · %2$d %%</string>
+    <plurals name="note_sheet_add_pages">
+        <item quantity="one">+%d pág.</item>
+        <item quantity="many">+%d págs.</item>
+        <item quantity="other">+%d págs.</item>
+    </plurals>
+    <string name="note_sheet_mood_question">¿CÓMO TE HA DEJADO?</string>
+    <string name="note_sheet_note_label">NOTA</string>
+    <string name="note_sheet_note_hint">¿Qué se te ha quedado?</string>
+    <string name="note_sheet_finished">¡Lo terminé!</string>
+    <string name="mood_smitten">enamorada</string>
+    <string name="mood_shocked">en shock</string>
+    <string name="mood_in_tears">llorando</string>
+    <string name="mood_hooked">no puedo parar</string>
+    <string name="journal_tagline">lo que sentí leyendo</string>
+    <string name="journal_add_entry">+ Entrada</string>
+    <string name="journal_label_review">Reseña</string>
+    <string name="journal_label_finished">Terminado</string>
+    <string name="journal_label_thought">Pensamiento</string>
+    <string name="journal_label_note">Nota</string>
+    <string name="journal_label_put_down">Dejado</string>
+    <string name="journal_put_down_at">dejado en la pág. %d</string>
+    <string name="journal_put_down_unread">dejado sin empezar</string>
+    <string name="share_title">Compartir</string>
+    <string name="share_type_progress">Progreso</string>
+    <string name="share_type_library_card">Carnet</string>
+    <string name="share_type_reading_card">Cartilla</string>
+    <string name="share_type_review">Reseña</string>
+    <string name="share_action_share">Compartir</string>
+    <string name="share_action_save">Guardar</string>
+    <string name="share_saved">guardada en tu galería</string>
+    <string name="share_save_failed">no se ha podido guardar la imagen</string>
+    <string name="share_tagline_reading">lo que estoy leyendo</string>
+    <string name="share_tagline_finished">lo que he terminado</string>
+    <string name="share_tagline_want_to_read">lo próximo que leeré</string>
+    <string name="share_tagline_put_down">lo que dejé</string>
+    <string name="share_library_card_tagline">socia de la biblioteca</string>
+    <string name="share_library_card_title">mi carnet</string>
+    <string name="share_reading_card_tagline">un sello por libro</string>
+    <string name="share_review_tagline">lo que me pareció</string>
+    <string name="share_review_title">mi reseña</string>
+    <string name="share_quote">“%1$s”</string>
+    <string name="share_stamp_percent">%d %%</string>
+    <string name="share_stamp_page">PÁG %d</string>
+    <string name="share_stamp_page_label">PÁG</string>
+    <string name="share_footer">Book Nook · biblioteca de %1$s</string>
+    <string name="share_footer_anonymous">BOOK NOOK</string>
 </resources>

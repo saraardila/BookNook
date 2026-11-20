@@ -1,7 +1,9 @@
 package com.nawin.booknook.presentation.ui.home
 
 import com.nawin.booknook.domain.usecase.GetMyLibraryUseCase
+import com.nawin.booknook.domain.usecase.GetReadingStreakUseCase
 import com.nawin.booknook.util.FakeBookRepository
+import com.nawin.booknook.util.FakeReadingLogRepository
 import com.nawin.booknook.util.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -13,6 +15,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.Clock
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
@@ -23,7 +26,7 @@ class HomeViewModelTest {
     private val repository = FakeBookRepository()
 
     // Lazy so it is built after the rule has replaced Dispatchers.Main.
-    private val viewModel by lazy { HomeViewModel(GetMyLibraryUseCase(repository)) }
+    private val viewModel by lazy { HomeViewModel(GetMyLibraryUseCase(repository), GetReadingStreakUseCase(FakeReadingLogRepository()), Clock.systemUTC()) }
 
     /** Before the first read, Home must not look like an empty library ("0 books"). */
     @Test

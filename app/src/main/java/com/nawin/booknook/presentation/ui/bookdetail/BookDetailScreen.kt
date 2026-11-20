@@ -25,6 +25,14 @@ import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nawin.booknook.R
+import com.nawin.booknook.presentation.navigation.Screen
+import com.nawin.booknook.presentation.ui.note.NoteSheet
+import com.nawin.booknook.presentation.ui.note.PageDraft
+import com.nawin.booknook.presentation.ui.note.labelRes
+import com.nawin.booknook.domain.model.ShelfLicence
+import com.nawin.booknook.domain.model.ShelfTheme
+import com.nawin.booknook.presentation.components.library.LibraryChip
+import com.nawin.booknook.presentation.theme.nameRes
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.BookNote
 import com.nawin.booknook.domain.model.ReadingStatus
@@ -61,7 +69,6 @@ fun BookDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val book = uiState.book
-    var showShareDialog by remember { mutableStateOf(false) }
     val colors = LibraryTheme.colors
 
     if (book == null) {
@@ -74,29 +81,19 @@ fun BookDetailScreen(
         return
     }
 
-    if (showShareDialog) {
-        ShareCardDialog(book = book, onDismiss = { showShareDialog = false })
-    }
-
-    if (uiState.showProgressDialog) {
-        ProgressUpdateDialog(
-            currentPage = book.currentPage,
-            totalPages = book.pageCount ?: 0,
-            onConfirm = { page ->
-                viewModel.updateProgress(page)
-                viewModel.showProgressDialog(false)
-            },
-            onDismiss = { viewModel.showProgressDialog(false) }
-        )
-    }
-
-    if (uiState.showNoteDialog) {
-        AddNoteDialog(
-            onConfirm = { content, chapter ->
-                viewModel.addNote(content, chapter)
-                viewModel.showNoteDialog(false)
-            },
-            onDismiss = { viewModel.showNoteDialog(false) }
+    if (uiState.showNoteSheet) {
+        val reading = book.status == ReadingStatus.READING
+        NoteSheet(
+            bookTitle = book.title,
+            page = if (reading) PageDraft(book.currentPage, book.pageCount) else null,
+            onDismiss = { viewModel.showNoteSheet(false) },
+            onSave = viewModel::saveNote,
+            onFinish = if (reading) {
+                { mood, content ->
+                    viewModel.finishFromNote(mood, content)
+                    navController.navigate(Screen.NewStamp.createRoute(book.id))
+                }
+            } else null,
         )
     }
 
@@ -108,9 +105,14 @@ fun BookDetailScreen(
                 book = book,
                 onBack = { navController.popBackStack() },
                 onToggleFavourite = viewModel::toggleFavorite,
-                onStatusChange = viewModel::updateStatus,
+                onStatusChange = { status ->
+                    val justFinished = status == ReadingStatus.FINISHED && book.status != ReadingStatus.FINISHED
+                    viewModel.updateStatus(status)
+                    // Finishing earns a stamp: show it straight away.
+                    if (justFinished) navController.navigate(Screen.NewStamp.createRoute(book.id))
+                },
                 onChangePage = viewModel::changePage,
-                onEditPage = { viewModel.showProgressDialog(true) },
+                onEditPage = { viewModel.showNoteSheet(true) },
             )
 
             Spacer(Modifier.height(LibraryDimens.spaceMd))
@@ -121,13 +123,14 @@ fun BookDetailScreen(
                 onStartDateChange = viewModel::updateStartDate,
                 onFinishDateChange = viewModel::updateFinishDate,
                 onSaveReview = viewModel::updateReview,
+                onShelfChange = viewModel::updateShelf,
             )
             Spacer(Modifier.height(LibraryDimens.sectionGap))
         }
 
         BookActions(
-            onAddNote = { viewModel.showNoteDialog(true) },
-            onShare = { showShareDialog = true },
+            onAddNote = { viewModel.showNoteSheet(true) },
+            onShare = { navController.navigate(Screen.Share.createRoute(book.id)) },
         )
     }
 }
@@ -427,8 +430,8 @@ private val ReadingStatus.labelRes: Int
     }
 
 /**
- * The reader's own record of the book, below the summary: rating, reading
- * dates, review and notes, each on its own paper card.
+ * The reader's own record of the book, below the summary: shelf, rating,
+ * reading dates, review and notes, each on its own paper card.
  */
 @Composable
 private fun ReadingRecord(
@@ -438,11 +441,13 @@ private fun ReadingRecord(
     onStartDateChange: (Long) -> Unit,
     onFinishDateChange: (Long) -> Unit,
     onSaveReview: (String) -> Unit,
+    onShelfChange: (ShelfTheme?) -> Unit,
 ) {
     Column(
         Modifier.padding(horizontal = LibraryDimens.screenPadding),
         verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceMd),
     ) {
+        ShelfCard(book.shelf, onShelfChange)
         RatingCard(book.rating, onRatingChange)
         DatesCard(book.startDate, book.finishDate, onStartDateChange, onFinishDateChange)
         ReviewCard(book.review.orEmpty(), onSaveReview)
@@ -470,6 +475,36 @@ private fun RecordCard(
                 trailing()
             }
             content()
+        }
+    }
+}
+
+/** Which genre shelf the book is filed under; tapping the chosen one again clears it. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ShelfCard(shelf: ShelfTheme?, onShelfChange: (ShelfTheme?) -> Unit) {
+    RecordCard(
+        label = stringResource(R.string.detail_shelf),
+        trailing = {
+            Text(
+                pluralStringResource(R.plurals.detail_shelf_hint, ShelfLicence.BOOKS_PER_LICENCE, ShelfLicence.BOOKS_PER_LICENCE),
+                style = LibraryTheme.typography.handSmall,
+                color = LibraryTheme.colors.accentDeep,
+            )
+        },
+    ) {
+        FlowRow(
+            Modifier.padding(top = LibraryDimens.spaceSm),
+            horizontalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+            verticalArrangement = Arrangement.spacedBy(LibraryDimens.spaceSm),
+        ) {
+            ShelfLicence.genreShelves.forEach { option ->
+                LibraryChip(
+                    text = stringResource(option.nameRes),
+                    selected = option == shelf,
+                    onClick = { onShelfChange(if (option == shelf) null else option) },
+                )
+            }
         }
     }
 }
@@ -623,7 +658,8 @@ private fun NotesCard(notes: List<BookNote>) {
                     note.page?.let { stringResource(R.string.detail_note_page, it) },
                 ).joinToString(NOTE_META_SEPARATOR)
                 if (where.isNotEmpty()) Text(where, style = type.label, color = colors.primary)
-                Text(note.content, style = type.body, color = colors.ink)
+                note.mood?.let { LibraryChip(stringResource(it.labelRes)) }
+                if (note.content.isNotEmpty()) Text(note.content, style = type.body, color = colors.ink)
                 Text(formatDate(note.createdAt), style = type.handSmall, color = colors.inkMuted)
             }
         }
@@ -642,83 +678,6 @@ private fun Long.fromPickerMillis(): Long =
 
 private const val REVIEW_MIN_LINES = 3
 private const val NOTE_META_SEPARATOR = " · "
-
-@Composable
-fun ProgressUpdateDialog(currentPage: Int, totalPages: Int, onConfirm: (Int) -> Unit, onDismiss: () -> Unit) {
-    var pageInput by remember { mutableStateOf(currentPage.toString()) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.detail_update_progress), style = MaterialTheme.typography.headlineMedium) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = stringResource(R.string.detail_current_page), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                OutlinedTextField(
-                    value = pageInput,
-                    onValueChange = { pageInput = it.filter { c -> c.isDigit() } },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-                if (totalPages > 0) {
-                    val progress = (pageInput.toIntOrNull() ?: 0).toFloat() / totalPages
-                    LinearProgressIndicator(
-                        progress = { progress.coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(pageInput.toIntOrNull() ?: currentPage) }) {
-                Text(text = stringResource(R.string.detail_save), style = MaterialTheme.typography.labelLarge)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.common_cancel), style = MaterialTheme.typography.labelLarge) }
-        },
-        shape = RoundedCornerShape(20.dp)
-    )
-}
-
-@Composable
-fun AddNoteDialog(onConfirm: (content: String, chapter: String?) -> Unit, onDismiss: () -> Unit) {
-    var content by remember { mutableStateOf("") }
-    var chapter by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.detail_notes), style = MaterialTheme.typography.headlineMedium) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = chapter,
-                    onValueChange = { chapter = it },
-                    placeholder = { Text(text = stringResource(R.string.detail_chapter), style = MaterialTheme.typography.bodyMedium) },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = content,
-                    onValueChange = { content = it },
-                    placeholder = { Text(text = stringResource(R.string.detail_add_note), style = MaterialTheme.typography.bodyMedium) },
-                    shape = RoundedCornerShape(12.dp),
-                    minLines = 3,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(content, chapter) }) {
-                Text(text = stringResource(R.string.detail_save), style = MaterialTheme.typography.labelLarge)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.common_cancel), style = MaterialTheme.typography.labelLarge) }
-        },
-        shape = RoundedCornerShape(20.dp)
-    )
-}
 
 // region Previews
 

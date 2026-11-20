@@ -6,6 +6,9 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.nawin.booknook.data.local.entity.toEntity
+import com.nawin.booknook.domain.model.BookNote
+import com.nawin.booknook.domain.model.ReadingMood
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -60,6 +63,39 @@ class MigrationTest {
             assertEquals(true, book.isFavorite)
             assertNull(book.shelf)
             assertEquals("Endovier", db.bookNoteDao().getNotesByBook("OL17860744W").first().single().content)
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun version2To3KeepsNotesAndAllowsLooseThoughts() = runTest {
+        helper.createDatabase(2).apply {
+            execSQL(
+                """
+                INSERT INTO books (id, title, author, coverUrl, description, publishYear, pageCount, isbn,
+                    status, currentPage, rating, review, startDate, finishDate, isFavorite, shelf)
+                VALUES ('OL17860744W', 'Throne of Glass', 'Sarah J. Maas', NULL, NULL, 2012, 432, NULL,
+                    'READING', 97, NULL, NULL, 1000, NULL, 0, 'ROMANTASY')
+                """
+            )
+            execSQL("INSERT INTO book_notes (bookId, chapter, content, page, createdAt) VALUES ('OL17860744W', NULL, 'Endovier', 12, 0)")
+            close()
+        }
+
+        helper.runMigrationsAndValidate(3).close()
+
+        val db = Room.databaseBuilder(instrumentation.targetContext, AppDatabase::class.java, file.absolutePath)
+            .setDriver(BundledSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .build()
+        try {
+            val note = db.bookNoteDao().getNotesByBook("OL17860744W").first().single().toDomain()
+            assertEquals("Endovier", note.content)
+            assertEquals(12, note.page)
+            assertNull(note.mood)
+            // A thought without a book must not trip the foreign key.
+            db.bookNoteDao().insertNote(BookNote(bookId = null, chapter = null, content = "Hay libros que se viven", page = null, mood = ReadingMood.SMITTEN).toEntity())
         } finally {
             db.close()
         }

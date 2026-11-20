@@ -57,6 +57,9 @@ class BookRepositoryImpl(
     override fun getNotesByBook(bookId: String): Flow<List<BookNote>> =
         bookNoteDao.getNotesByBook(bookId).map { list -> list.map { it.toDomain() } }
 
+    override fun getAllNotes(): Flow<List<BookNote>> =
+        bookNoteDao.getAllNotes().map { list -> list.map { it.toDomain() } }
+
     override suspend fun addNote(note: BookNote) =
         bookNoteDao.insertNote(note.toEntity())
 

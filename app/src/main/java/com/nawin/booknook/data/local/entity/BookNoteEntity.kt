@@ -5,7 +5,12 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nawin.booknook.domain.model.BookNote
+import com.nawin.booknook.domain.model.ReadingMood
 
+/**
+ * A row of `book_notes`. A null [bookId] is a loose thought: SQLite does not check
+ * foreign keys on null values, so it needs no book.
+ */
 @Entity(
     tableName = "book_notes",
     foreignKeys = [ForeignKey(
@@ -19,11 +24,13 @@ import com.nawin.booknook.domain.model.BookNote
 )
 data class BookNoteEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val bookId: String,
+    val bookId: String?,
     val chapter: String?,
     val content: String,
     val page: Int?,
-    val createdAt: Long
+    val createdAt: Long,
+    /** [ReadingMood.name]; unknown names read back as no mood. */
+    val mood: String? = null,
 ) {
     fun toDomain() = BookNote(
         id = id,
@@ -31,6 +38,7 @@ data class BookNoteEntity(
         chapter = chapter,
         content = content,
         page = page,
+        mood = ReadingMood.fromName(mood),
         createdAt = createdAt
     )
 }
@@ -41,5 +49,6 @@ fun BookNote.toEntity() = BookNoteEntity(
     chapter = chapter,
     content = content,
     page = page,
-    createdAt = createdAt
+    createdAt = createdAt,
+    mood = mood?.name,
 )

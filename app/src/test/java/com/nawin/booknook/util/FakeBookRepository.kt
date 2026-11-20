@@ -39,8 +39,18 @@ class FakeBookRepository(
     }
 
     override suspend fun deleteBook(bookId: String) = Unit
-    override fun getNotesByBook(bookId: String): Flow<List<BookNote>> = flowOf(emptyList())
-    override suspend fun addNote(note: BookNote) = Unit
+    override fun getNotesByBook(bookId: String): Flow<List<BookNote>> = notes.map { all -> all.filter { it.bookId == bookId } }
+    /** What getAllNotes() emits. */
+    val notes = MutableStateFlow<List<BookNote>>(emptyList())
+
+    override fun getAllNotes(): Flow<List<BookNote>> = notes
+
+    /** Notes passed to addNote(), oldest first. */
+    val addedNotes = mutableListOf<BookNote>()
+
+    override suspend fun addNote(note: BookNote) {
+        addedNotes += note
+    }
     override suspend fun deleteNote(noteId: Long) = Unit
 }
 

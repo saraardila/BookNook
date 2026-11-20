@@ -178,6 +178,7 @@ object LibraryShapes {
     val quizOption = RoundedCornerShape(LibraryDimens.radiusArchTop, LibraryDimens.radiusArchTop, LibraryDimens.radiusArchBottom, LibraryDimens.radiusArchBottom)
     val quizRow = RoundedCornerShape(LibraryDimens.radiusRowLead, LibraryDimens.radiusArchBottom, LibraryDimens.radiusArchBottom, LibraryDimens.radiusRowLead)
     val arch = RoundedCornerShape(topStartPercent = 50, topEndPercent = 50, bottomStartPercent = 10, bottomEndPercent = 10)
+    val bottomSheet = RoundedCornerShape(topStart = LibraryDimens.radiusBottomSheet, topEnd = LibraryDimens.radiusBottomSheet)
 }
 
 @Immutable
@@ -213,11 +214,16 @@ object LibraryDimens {
     val coverRowHeight = 76.dp
     val coverDetailWidth = 124.dp
     val coverDetailHeight = 186.dp
+    val coverShareWidth = 140.dp
+    val coverShareHeight = 210.dp
     val polaroidBorder = 4.dp
     val polaroidCaption = 12.dp
 
     // Radii
     val radiusCard = 18.dp
+    /** Large sheets such as the reading card. */
+    val radiusSheet = 22.dp
+    val radiusBottomSheet = 30.dp
     val radiusRow = 16.dp
     val radiusLabel = 12.dp
     val radiusLabelInner = 9.dp
@@ -241,6 +247,9 @@ object LibraryDimens {
     val buttonMinHeight = 52.dp
     val chipMinHeight = 36.dp
     val roundButton = 44.dp
+    val pageFieldWidth = 140.dp
+    val sheetHandleWidth = 44.dp
+    val sheetHandleHeight = 5.dp
     val clearButton = 32.dp
     val navBarHeight = 66.dp
     val navIconContainer = 34.dp
@@ -295,7 +304,16 @@ object LibraryDimens {
     val resultArchWidth = 270.dp
     val resultArchHeight = 250.dp
     val resultSpineWidth = 22.dp
+    val streakDay = 30.dp
+    val streakDayLarge = 34.dp
+    val newStampSize = 108.dp
+    val streakDayCheck = 14.dp
     val resultThemeMini = 64.dp
+    /** Layout size of a share card (9:16, like a story); the screen scales it to fit. */
+    val shareCardWidth = 340.dp
+    val shareCardHeight = 604.dp
+    val shareHeaderHeight = 104.dp
+    val shareActionSize = 56.dp
 }
 
 // endregion

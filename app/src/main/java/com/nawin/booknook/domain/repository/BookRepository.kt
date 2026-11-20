@@ -19,6 +19,9 @@ interface BookRepository {
 
     // --- Notes ---
     fun getNotesByBook(bookId: String): Flow<List<BookNote>>
+
+    /** Every note, loose thoughts included, newest first. */
+    fun getAllNotes(): Flow<List<BookNote>>
     suspend fun addNote(note: BookNote)
     suspend fun deleteNote(noteId: Long)
 }

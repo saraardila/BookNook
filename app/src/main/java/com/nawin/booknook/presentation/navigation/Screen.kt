@@ -10,4 +10,12 @@ sealed class Screen(val route: String) {
         fun createRoute(bookId: String) = "book_detail/$bookId"
     }
     object Settings : Screen("settings")
+    object Progress : Screen("progress")
+    object ReadingCard : Screen("reading_card")
+    object NewStamp : Screen("new_stamp/{bookId}") {
+        fun createRoute(bookId: String) = "new_stamp/$bookId"
+    }
+    object Share : Screen("share/{bookId}") {
+        fun createRoute(bookId: String) = "share/$bookId"
+    }
 }

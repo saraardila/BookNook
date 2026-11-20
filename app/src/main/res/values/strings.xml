@@ -44,10 +44,6 @@
     <string name="detail_my_review">MY REVIEW</string>
     <string name="detail_write_review">Write your thoughts about this book…</string>
     <string name="detail_update_progress">Update progress</string>
-    <string name="detail_current_page">Current page</string>
-    <string name="detail_notes">Notes</string>
-    <string name="detail_add_note">Add a note…</string>
-    <string name="detail_chapter">Chapter (optional)</string>
     <string name="detail_save">Save</string>
     <string name="detail_delete">Delete</string>
     <string name="detail_mark_finished">Mark as Finished</string>
@@ -99,7 +95,6 @@
     <string name="detail_start_date">STARTED</string>
     <string name="detail_finish_date">FINISHED</string>
     <string name="detail_date_not_set">tap to choose</string>
-    <string name="detail_share_progress">Share progress</string>
 
 
     <!-- Calendar -->
@@ -114,10 +109,8 @@
     <string name="home_search_book">Search a book</string>
 
     <!-- Journal -->
-    <string name="journal_subtitle">%d books finished ✨</string>
-    <string name="journal_empty_title">no books yet</string>
-    <string name="journal_empty_subtitle">finish a book to see it here 🌿</string>
-    <string name="journal_no_review">no review yet... tap to add one</string>
+    <string name="journal_empty_title">your diary is blank</string>
+    <string name="journal_empty_subtitle">Write a thought or finish a book and it will show up here.</string>
 
     <!-- Redesign: bottom navigation -->
     <string name="nav_home">Home</string>
@@ -317,4 +310,119 @@
     <string name="card_seal_placeholder">YOUR\nSEAL\nGOES HERE</string>
     <string name="card_stamp_reader">READER</string>
     <string name="settings_theme_from_test">from your test: %s</string>
+    <string name="streak_label">YOUR STREAK</string>
+    <plurals name="streak_days">
+        <item quantity="one">%d day in a row</item>
+        <item quantity="other">%d days in a row</item>
+    </plurals>
+    <plurals name="streak_today_hint">
+        <item quantity="one">%d page today and it counts</item>
+        <item quantity="other">%d pages today and it counts</item>
+    </plurals>
+    <string name="cd_streak_day_read">%s, read</string>
+    <string name="cd_streak_day_unread">%s, not read</string>
+    <string name="detail_shelf">SHELF</string>
+    <plurals name="detail_shelf_hint">
+        <item quantity="one">%d finished = licence</item>
+        <item quantity="other">%d finished = licence</item>
+    </plurals>
+    <string name="progress_tagline">how you\'re doing</string>
+    <string name="progress_title">Your progress</string>
+    <plurals name="progress_streak_days">
+        <item quantity="one">day in a row reading</item>
+        <item quantity="other">days in a row reading</item>
+    </plurals>
+    <string name="progress_record">record: %d</string>
+    <string name="progress_licences">YOUR LICENCES</string>
+    <plurals name="progress_licences_hint">
+        <item quantity="one">%d book from a shelf = licence</item>
+        <item quantity="other">%d books from a shelf = licence</item>
+    </plurals>
+    <string name="progress_licence_unknown" translatable="false">\?</string>
+    <string name="progress_licence_earned">earned</string>
+    <string name="cd_licence_shelf_earned">%s licence earned</string>
+    <plurals name="cd_licence_progress">
+        <item quantity="one">%1$s licence: %2$d of %3$d book</item>
+        <item quantity="other">%1$s licence: %2$d of %3$d books</item>
+    </plurals>
+    <string name="cd_open_progress">see your progress</string>
+    <string name="stamp_put_down">PUT DOWN</string>
+    <string name="reading_card_tagline">my reading card</string>
+    <string name="reading_card_title">Reading card</string>
+    <string name="reading_card_number">NO. %d</string>
+    <plurals name="reading_card_count">
+        <item quantity="one">%1$d of %2$d stamp</item>
+        <item quantity="other">%1$d of %2$d stamps</item>
+    </plurals>
+    <plurals name="reading_card_left">
+        <item quantity="one">%d more to fill it!</item>
+        <item quantity="other">%d more to fill it!</item>
+    </plurals>
+    <string name="reading_card_complete">card complete!</string>
+    <string name="cd_card_slot_empty">Space %d, empty</string>
+    <string name="progress_see_card">See my reading card</string>
+    <string name="new_stamp_hint">book finished!</string>
+    <string name="new_stamp_title">A new stamp on your card</string>
+    <string name="new_stamp_card_count">%1$d of %2$d on your reading card</string>
+    <string name="new_stamp_licence">%1$s licence: %2$d of %3$d</string>
+    <plurals name="new_stamp_licence_left">
+        <item quantity="one">One more book and it\'s yours.</item>
+        <item quantity="other">%d more books and it\'s yours.</item>
+    </plurals>
+    <string name="new_stamp_licence_earned">Licence earned!</string>
+    <string name="new_stamp_no_shelf">File it under a shelf on its page to count it towards a licence.</string>
+    <string name="new_stamp_rate">HOW WAS IT?</string>
+    <string name="new_stamp_back_to_book">Back to the book</string>
+    <string name="new_stamp_see_card">See my card</string>
+    <string name="common_close">Close</string>
+    <string name="note_sheet_tagline">jot it down</string>
+    <string name="note_sheet_loose_thought">A loose thought</string>
+    <string name="note_sheet_page_question">WHAT PAGE ARE YOU ON?</string>
+    <string name="note_sheet_page_field">Current page</string>
+    <string name="note_sheet_page_of">of %1$d · %2$d%%</string>
+    <plurals name="note_sheet_add_pages">
+        <item quantity="one">+%d page</item>
+        <item quantity="other">+%d pages</item>
+    </plurals>
+    <string name="note_sheet_mood_question">HOW DID IT LEAVE YOU?</string>
+    <string name="note_sheet_note_label">NOTE</string>
+    <string name="note_sheet_note_hint">What stayed with you…</string>
+    <string name="note_sheet_finished">I finished it!</string>
+    <string name="mood_smitten">smitten</string>
+    <string name="mood_shocked">in shock</string>
+    <string name="mood_in_tears">in tears</string>
+    <string name="mood_hooked">can\'t stop</string>
+    <string name="journal_tagline">what I felt reading</string>
+    <string name="journal_add_entry">+ Entry</string>
+    <string name="journal_label_review">Review</string>
+    <string name="journal_label_finished">Finished</string>
+    <string name="journal_label_thought">Thought</string>
+    <string name="journal_label_note">Note</string>
+    <string name="journal_label_put_down">Put down</string>
+    <string name="journal_put_down_at">put down on page %d</string>
+    <string name="journal_put_down_unread">put down before starting</string>
+    <string name="share_title">Share</string>
+    <string name="share_type_progress">Progress</string>
+    <string name="share_type_library_card">Library card</string>
+    <string name="share_type_reading_card">Stamp card</string>
+    <string name="share_type_review">Review</string>
+    <string name="share_action_share">Share</string>
+    <string name="share_action_save">Save</string>
+    <string name="share_saved">saved to your gallery</string>
+    <string name="share_save_failed">couldn\'t save the picture</string>
+    <string name="share_tagline_reading">what I\'m reading</string>
+    <string name="share_tagline_finished">what I\'ve finished</string>
+    <string name="share_tagline_want_to_read">what I\'ll read next</string>
+    <string name="share_tagline_put_down">what I put down</string>
+    <string name="share_library_card_tagline">card-carrying reader</string>
+    <string name="share_library_card_title">my library card</string>
+    <string name="share_reading_card_tagline">one stamp per book</string>
+    <string name="share_review_tagline">what I thought</string>
+    <string name="share_review_title">my review</string>
+    <string name="share_quote">“%1$s”</string>
+    <string name="share_stamp_percent">%d%%</string>
+    <string name="share_stamp_page">PAGE %d</string>
+    <string name="share_stamp_page_label">PAGE</string>
+    <string name="share_footer">Book Nook · %1$s\'s library</string>
+    <string name="share_footer_anonymous">BOOK NOOK</string>
 </resources>

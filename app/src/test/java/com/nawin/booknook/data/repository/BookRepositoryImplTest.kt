@@ -125,6 +125,7 @@ private class StubBookDao : BookDao {
 
 private class StubBookNoteDao : BookNoteDao {
     override fun getNotesByBook(bookId: String) = throw NotImplementedError()
+    override fun getAllNotes() = throw NotImplementedError()
     override suspend fun insertNote(note: com.nawin.booknook.data.local.entity.BookNoteEntity) = Unit
     override suspend fun deleteNote(noteId: Long) = Unit
 }

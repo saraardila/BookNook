@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import com.nawin.booknook.R
 import com.nawin.booknook.domain.model.Book
 import com.nawin.booknook.domain.model.ReadingStatus
+import com.nawin.booknook.domain.model.ReadingStreak
 import com.nawin.booknook.presentation.components.BookCover
 import com.nawin.booknook.presentation.components.library.DateStamp
 import com.nawin.booknook.presentation.components.library.LaceHeader
@@ -53,6 +54,7 @@ import com.nawin.booknook.presentation.components.library.Shelf
 import com.nawin.booknook.presentation.components.library.ShelfLoader
 import com.nawin.booknook.presentation.components.library.ShelfLabel
 import com.nawin.booknook.presentation.components.library.Sprig
+import com.nawin.booknook.presentation.components.library.StreakWeek
 import com.nawin.booknook.presentation.components.library.WashiTape
 import com.nawin.booknook.presentation.navigation.Screen
 import com.nawin.booknook.presentation.navigation.navigateToTopLevel
@@ -82,6 +84,7 @@ fun HomeScreen(
         onSearch = { navController.navigateToTopLevel(Screen.Search.route) },
         onSeeShelves = { navController.navigateToTopLevel(Screen.Library.route) },
         onOpenCalendar = { navController.navigate(Screen.Calendar.route) },
+        onOpenProgress = { navController.navigate(Screen.Progress.route) },
     )
 }
 
@@ -94,6 +97,7 @@ fun HomeContent(
     onSearch: () -> Unit,
     onSeeShelves: () -> Unit,
     onOpenCalendar: () -> Unit,
+    onOpenProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LibraryTheme.colors
@@ -131,6 +135,7 @@ fun HomeContent(
                 current != null -> LoanCard(book = current, onClick = { onOpenBook(current.id) })
                 else -> EmptyLoanCard(onSearch = onSearch)
             }
+            if (!state.isLoading) StreakCard(state.streak, state.today, onClick = onOpenProgress)
             if (state.recentlyFinished.isNotEmpty()) {
                 RecentlyFinishedShelf(
                     books = state.recentlyFinished,
@@ -313,6 +318,41 @@ private fun RecentlyFinishedShelf(
 /** How many covers fit on the Home shelf at phone width. */
 private const val SHELF_CAPACITY = 3
 
+/** Days read in a row, this week's days and, until today counts, how little it takes. Opens the progress screen. */
+@Composable
+private fun StreakCard(streak: ReadingStreak, today: LocalDate, onClick: () -> Unit) {
+    val colors = LibraryTheme.colors
+    val type = LibraryTheme.typography
+    PaperCard(
+        Modifier
+            .fillMaxWidth()
+            .clip(LibraryShapes.card)
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.cd_open_progress), onClick = onClick),
+    ) {
+        Column(Modifier.padding(horizontal = LibraryDimens.spaceLg - LibraryDimens.spaceXxs, vertical = LibraryDimens.spaceMd)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.streak_label), style = type.label, color = colors.primary)
+                Text(
+                    pluralStringResource(R.plurals.streak_days, streak.current, streak.current),
+                    style = type.handSmall,
+                    color = colors.accentDeep,
+                )
+            }
+            Spacer(Modifier.height(LibraryDimens.spaceSm))
+            StreakWeek(today = today, daysRead = streak.daysRead)
+            if (today.toEpochDay() !in streak.daysRead) {
+                Spacer(Modifier.height(LibraryDimens.spaceSm))
+                Text(
+                    pluralStringResource(R.plurals.streak_today_hint, ReadingStreak.MIN_PAGES_PER_DAY, ReadingStreak.MIN_PAGES_PER_DAY),
+                    style = type.handSmall,
+                    color = colors.inkMuted,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun currentLocale() = LocalConfiguration.current.locales[0]
 
@@ -342,6 +382,8 @@ private val previewState = HomeUiState(
     totalBooks = 27,
     booksFinished = 9,
     booksReading = 2,
+    streak = LocalDate.of(2026, 11, 20).toEpochDay().let { today -> ReadingStreak(current = 3, record = 5, daysRead = setOf(today - 2, today - 1, today)) },
+    today = LocalDate.of(2026, 11, 20),
     isLoading = false,
 )
 
@@ -349,13 +391,13 @@ private val previewState = HomeUiState(
 @Preview(name = "Home · Spanish", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomePreview() = LibraryTheme {
-    HomeContent(previewState, DayPeriod.Afternoon, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
+    HomeContent(previewState, DayPeriod.Afternoon, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {})
 }
 
 @Preview(name = "Home · empty", locale = "es", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomeEmptyPreview() = LibraryTheme {
-    HomeContent(HomeUiState(isLoading = false), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {})
+    HomeContent(HomeUiState(isLoading = false), DayPeriod.Morning, onOpenBook = {}, onSearch = {}, onSeeShelves = {}, onOpenCalendar = {}, onOpenProgress = {})
 }
 
 // endregion

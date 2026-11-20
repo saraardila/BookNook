@@ -9,11 +9,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ReadingLogDao {
 
-    /** Adds [pages] to what was already logged for [bookId] on [day], creating the row if needed. */
+    /**
+     * Adds [pages] to what was already logged for [bookId] on [day], creating the row if
+     * needed. [pages] may be negative (a correction); the total is kept at zero or above.
+     */
     @Query(
         """
-        INSERT INTO reading_log (day, bookId, pagesRead) VALUES (:day, :bookId, :pages)
-        ON CONFLICT (day, bookId) DO UPDATE SET pagesRead = pagesRead + :pages
+        INSERT INTO reading_log (day, bookId, pagesRead) VALUES (:day, :bookId, MAX(0, :pages))
+        ON CONFLICT (day, bookId) DO UPDATE SET pagesRead = MAX(0, pagesRead + :pages)
         """
     )
     suspend fun addPages(day: Long, bookId: String, pages: Int)

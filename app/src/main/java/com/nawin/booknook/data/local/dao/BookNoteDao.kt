@@ -10,6 +10,10 @@ interface BookNoteDao {
     @Query("SELECT * FROM book_notes WHERE bookId = :bookId ORDER BY createdAt DESC")
     fun getNotesByBook(bookId: String): Flow<List<BookNoteEntity>>
 
+    /** Every note and loose thought, newest first, for the diary. */
+    @Query("SELECT * FROM book_notes ORDER BY createdAt DESC")
+    fun getAllNotes(): Flow<List<BookNoteEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: BookNoteEntity)
 
